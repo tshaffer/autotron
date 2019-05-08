@@ -146,11 +146,11 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         </p>
         <div className={codeContainerStyle()}>
           ~/src/component/Template.tsx
-          <br/><br/>
+          <br /><br />
           const TemplateAsset = require('../asset/TemplateAsset');
-          <br/><br/>
+          <br /><br />
           ...
-          <br/><br/>
+          <br /><br />
           &lt;img className={imageContainerStyle()} src={TemplateAsset} /&gt;
         </div>
         <img className={imageContainerStyle()} src={TemplateAsset} />
@@ -163,7 +163,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <b className={indentedParagraphContainerStyle()}>3. csx</b>
         <div className={codeContainerStyle()}>
           ~/src/component/Template.tsx
-          <br/><br/>
+          <br /><br />
         </div>
         <p className={paragraphContainerStyle()}>
           See&nbsp;
@@ -173,7 +173,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/component/Template.test.tsx
-          <br/><br/>
+          <br /><br />
         </div>
       </div>
     );
@@ -186,47 +186,47 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Simple Action Creator</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Simple Action Creator Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Reducer</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Reducer Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Validator</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Validator Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/model/templateProperty.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Component Integration</h3>
         <div className={codeContainerStyle()}>
           ~/src/component/Template.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Selector</h3>
         <div className={codeContainerStyle()}>
           ~/src/selector/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Selector Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/selector/templateProperty.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
       </div>
     );
@@ -239,7 +239,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Batch Action</h3>
         <div className={codeContainerStyle()}>
           ~/src/controller/template.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <input
           className={buttonStyle(this.props.color)}
@@ -250,12 +250,12 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Batch Action Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/controller/template.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Async Action</h3>
         <div className={codeContainerStyle()}>
           ~/src/controller/template.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <input
           className={buttonStyle(this.props.color)}
@@ -267,7 +267,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Async Action Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/controller/template.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
       </div>
     );
@@ -280,17 +280,17 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Definition</h3>
         <div className={codeContainerStyle()}>
           ~/src/type/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Helper Function</h3>
         <div className={codeContainerStyle()}>
           ~/src/type/templateProperty.ts
-          <br/><br/>
+          <br /><br />
         </div>
         <h3>Helper Function Test</h3>
         <div className={codeContainerStyle()}>
           ~/src/type/templateProperty.test.ts
-          <br/><br/>
+          <br /><br />
         </div>
       </div>
     );
@@ -302,7 +302,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
         <h3>Error</h3>
         <div className={codeContainerStyle()}>
           ~/src/utility/BsUiError.ts
-          <br/><br/>
+          <br /><br />
         </div>
       </div>
     );
@@ -332,8 +332,13 @@ export class TemplateComponent extends React.Component<TemplateProps> {
   render() {
     return (
       <div className={containerStyle}>
-        {this.renderHeader()}
-        {this.renderBody()}
+        <p>Line 0 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 1 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 2 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 3 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 4 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 5 - may not be long enough to be seen on a monitor with overscan set.</p>
+        <p>Line 6 - may not be long enough to be seen on a monitor with overscan set.</p>
       </div>
     );
   }
@@ -345,11 +350,11 @@ export class TemplateComponent extends React.Component<TemplateProps> {
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
-      onInitModel: initModel,
-      onResetModel: resetModel,
-      onUpdateTemplateColorAsync: updateTemplateColorAsync,
-      onUpdateTemplateColorBatch: updateTemplateColorBatch,
-    }, dispatch);
+    onInitModel: initModel,
+    onResetModel: resetModel,
+    onUpdateTemplateColorAsync: updateTemplateColorAsync,
+    onUpdateTemplateColorBatch: updateTemplateColorBatch,
+  }, dispatch);
 };
 
 const mapStateToProps = (state: BsUiModelState, ownProps: undefined): Partial<TemplateProps> => {
