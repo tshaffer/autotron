@@ -24,6 +24,8 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts' 'src/**/*.tsx'"
   },
   "dependencies": {
+    "@brightsign/bscore": "0.5.16",
+    "@brightsign/bsdatamodel": "0.11.16",
     "typestyle": "^1.5.1",
     "csx": "^8.5.0",
     "csstips": "^0.2.2"
