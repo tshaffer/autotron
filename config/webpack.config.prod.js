@@ -1,3 +1,5 @@
+/* jshint node: true */
+/* jshint esversion: 6 */
 'use strict';
 
 const autoprefixer = require('autoprefixer');
@@ -9,6 +11,9 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const DelWebpackPlugin = require('del-webpack-plugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 
@@ -27,6 +32,7 @@ const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 const isElectron = env.raw.PLATFORM === 'electron';
+const isPlayer = env.raw.APPLICATION_ENV === 'player';
 
 let nodeStubs = {};
 if (!isElectron) {
@@ -46,7 +52,7 @@ DtsBundlePlugin.prototype.apply = function (compiler) {
 
     dts.bundle({
       name: '[name]',
-      main: paths.appDist + '/index.d.ts',
+      main: (isPlayer ? paths.appDistForPlayer : paths.appDist) + '/index.d.ts',
       out: '../index.d.ts',
       removeSource: true,
       outputAsModuleFolder: true // to use npm in-package typings
@@ -61,7 +67,7 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 }
 
 // Note: defined here because it will be used more than once.
-const cssFilename = 'static/css/[name].[contenthash:8].css';
+const cssFilename = isPlayer ? '[name].[contenthash:8].css' : 'static/css/[name].[contenthash:8].css';
 
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
@@ -72,6 +78,112 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
+/////////////////////////////////////////////////////////
+// consolidate all plugins needed for the build
+/////////////////////////////////////////////////////////
+
+const pluginsList = [];
+pluginsList.push(
+  // Makes some environment variables available to the JS code, for example:
+  // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
+  // It is absolutely essential that NODE_ENV was set to production here.
+  // Otherwise React will be compiled in the very slow development mode.
+  new webpack.DefinePlugin(env.stringified)
+);
+
+// pluginsList.push(
+  // Minify the code.
+  // DEFER THIS TO CONSUMING PACKAGE
+  // TODO find solution that allows two staging minification
+  // new webpack.optimize.UglifyJsPlugin({
+  //   compress: {
+  //     warnings: false,
+  //     // Disabled because of an issue with Uglify breaking seemingly valid code:
+  //     // https://github.com/facebookincubator/create-react-app/issues/2376
+  //     // Pending further investigation:
+  //     // https://github.com/mishoo/UglifyJS2/issues/2011
+  //     comparisons: false,
+  //   },
+  //   output: {
+  //     comments: false,
+  //     // Turned on because emoji and regex is not minified properly using default
+  //     // https://github.com/facebookincubator/create-react-app/issues/2488
+  //     ascii_only: true,
+  //   },
+  //   sourceMap: shouldUseSourceMap,
+  // }),
+// );
+
+pluginsList.push(
+  // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
+  new ExtractTextPlugin({
+    filename: cssFilename,
+  })
+);
+
+pluginsList.push(
+  // Moment.js is an extremely popular library that bundles large locale files
+  // by default due to how Webpack interprets its code. This is a practical
+  // solution that requires the user to opt into importing specific locales.
+  // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
+  // You can remove this if you don't use Moment.js:
+  new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+);
+
+pluginsList.push(new DtsBundlePlugin());
+
+if (isPlayer) {
+  // replace bsdwsmanager.js with bsdwsmanager.player.js
+  // if package is being built for player environment
+  pluginsList.push(
+    new webpack.NormalModuleReplacementPlugin(
+      /bsdwsmanager.js/, 'bsdwsmanager.player.js'
+    )
+  );
+
+  // copy remaining files required in the player bundle to dist-player folder
+  pluginsList.push(
+    new CopyWebpackPlugin([
+     {
+       from: path.resolve(paths.appDev + '/favicon.ico'),
+       to: paths.appDistForPlayer, toType: 'dir'
+     },
+     {
+       from: path.resolve(paths.appDev + '/manifest.json'),
+       to: paths.appDistForPlayer, toType: 'dir'
+     }
+   ])
+  );
+
+  // needed else receive react not running in production error
+  pluginsList.push(new UglifyJsPlugin({
+    uglifyOptions: { ecma: 6 }
+  }));
+
+  // delete empty folders
+  pluginsList.push(new DelWebpackPlugin({
+    info: false
+  }));
+
+  pluginsList.push(
+    // Generates an `index.html` file with the <script> injected.
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: paths.appHtml
+    })
+  );
+} else {
+  // add only for browser or desktop build
+  pluginsList.push(
+    // Generate a manifest file which contains a mapping of all asset filenames
+    // to their corresponding output file so that tools can pick it up without
+    // having to parse `index.html`.
+    new ManifestPlugin({
+      fileName: 'asset-manifest.json',
+    })
+  );
+}
+
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
@@ -80,18 +192,21 @@ module.exports = {
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
   // You can exclude the *.map files from the build during deployment.
-  devtool: shouldUseSourceMap ? 'source-map' : false,
+  devtool: isPlayer ? false : (shouldUseSourceMap ? 'source-map' : false),
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./polyfills'), paths.appProdIndexJs],
+  entry: [
+    require.resolve('./polyfills'),
+    isPlayer ? paths.appProdIndexJsForPlayer : paths.appProdIndexJs
+  ],
   output: {
     // The build folder.
-    path: paths.appDist,
+    path: isPlayer ? paths.appDistForPlayer : paths.appDist,
     libraryTarget: 'umd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: '[name]' + (isElectron ? '' : '.browser')+ '.js',
-    chunkFilename: '[name].chunk' + (isElectron ? '' : '.browser')+ '.js',
+    filename: 'badwsui' + (isPlayer ? '.player' : (isElectron ? '' : '.browser')) + '.js',
+    chunkFilename: 'badwsui.chunk' + (isPlayer ? '.player' : (isElectron ? '' : '.browser')) + '.js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -131,7 +246,7 @@ module.exports = {
       
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      'react-native': 'react-native-web',
+      'react-native': 'react-native-web'
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -208,7 +323,7 @@ module.exports = {
                       options: {
                         importLoaders: 1,
                         minimize: true,
-                        sourceMap: shouldUseSourceMap,
+                        sourceMap: isPlayer ? false : shouldUseSourceMap,
                       },
                     },
                     {
@@ -261,6 +376,7 @@ module.exports = {
   },
   // Delegate bundling of specified package to client of generated dist
   externals: [
+    isPlayer ? {} :
     {
       'react': 'commonjs react',
       'react-dom': 'commonjs react-dom',
@@ -275,56 +391,13 @@ module.exports = {
       'csstips': 'commonjs csstips',
     },
     function(context, request, callback) {
-      if (/^lodash.*/.test(request)) {
+      if (!isPlayer && /^lodash.*/.test(request)) {
         return callback(null, 'commonjs ' + request);
       }
       callback();
     },
   ],
-  plugins: [
-    // Makes some environment variables available to the JS code, for example:
-    // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-    // It is absolutely essential that NODE_ENV was set to production here.
-    // Otherwise React will be compiled in the very slow development mode.
-    new webpack.DefinePlugin(env.stringified),
-    // Minify the code.
-    // DEFER THIS TO CONSUMING PACKAGE
-    // TODO find solution that allows two staging minification
-    // new webpack.optimize.UglifyJsPlugin({
-    //   compress: {
-    //     warnings: false,
-    //     // Disabled because of an issue with Uglify breaking seemingly valid code:
-    //     // https://github.com/facebookincubator/create-react-app/issues/2376
-    //     // Pending further investigation:
-    //     // https://github.com/mishoo/UglifyJS2/issues/2011
-    //     comparisons: false,
-    //   },
-    //   output: {
-    //     comments: false,
-    //     // Turned on because emoji and regex is not minified properly using default
-    //     // https://github.com/facebookincubator/create-react-app/issues/2488
-    //     ascii_only: true,
-    //   },
-    //   sourceMap: shouldUseSourceMap,
-    // }),
-    // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
-    new ExtractTextPlugin({
-      filename: cssFilename,
-    }),
-    // Generate a manifest file which contains a mapping of all asset filenames
-    // to their corresponding output file so that tools can pick it up without
-    // having to parse `index.html`.
-    new ManifestPlugin({
-      fileName: 'asset-manifest.json',
-    }),
-    // Moment.js is an extremely popular library that bundles large locale files
-    // by default due to how Webpack interprets its code. This is a practical
-    // solution that requires the user to opt into importing specific locales.
-    // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
-    // You can remove this if you don't use Moment.js:
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new DtsBundlePlugin(),
-  ],
+  plugins: pluginsList,
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works
   // in the browser build

@@ -27,6 +27,7 @@ const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
 
 const isElectron = process.env.PLATFORM === 'electron';
+const isPlayer = process.env.APPLICATION_ENV === 'player';
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -44,7 +45,7 @@ if (!checkRequiredFiles([paths.appHtml, paths.appProdIndexJs])) {
 
 // First, read the current file sizes in build directory.
 // This lets us display how much they changed later.
-measureFileSizesBeforeBuild(paths.appDist)
+measureFileSizesBeforeBuild((isPlayer ? paths.appDistForPlayer : paths.appDist))
   .then(previousFileSizes => {
     // Merge with the public folder
     // Start the webpack build
@@ -66,14 +67,14 @@ measureFileSizesBeforeBuild(paths.appDist)
             ' to the line before.\n'
         );
       } else {
-        console.log(chalk.green('Compiled ' + (isElectron ? 'electron' : 'browser')  + ' successfully.\n'));
-      }
+        console.log(chalk.green('Compiled ' + (isPlayer ? 'player' : (isElectron ? 'electron' : 'browser'))  + ' successfully.\n'));     
+       }
 
       console.log('File sizes after gzip:\n');
       printFileSizesAfterBuild(
         stats,
         previousFileSizes,
-        paths.appDist,
+        isPlayer ? paths.appDistForPlayer : paths.appDist,
         WARN_AFTER_BUNDLE_GZIP_SIZE,
         WARN_AFTER_CHUNK_GZIP_SIZE
       );
@@ -82,10 +83,10 @@ measureFileSizesBeforeBuild(paths.appDist)
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrl;
       const publicPath = config.output.publicPath;
-      const buildFolder = path.relative(process.cwd(), paths.appDist);
+      const buildFolder = path.relative(process.cwd(), (isPlayer ? paths.appDistForPlayer : paths.appDist));
     },
     err => {
-      console.log(chalk.red('Failed to compile '+ (isElectron ? 'electron' : 'browser') +'\n'));
+      console.log(chalk.red('Failed to compile '+ (isPlayer ? 'player' : (isElectron ? 'electron' : 'browser')) +'\n'));
       printBuildError(err);
       process.exit(1);
     }
@@ -93,8 +94,8 @@ measureFileSizesBeforeBuild(paths.appDist)
 
 // Create the production build and print the deployment instructions.
 function build(previousFileSizes) {
-  console.log('Creating an optimized production ' + (isElectron ? 'electron' : 'browser')  + ' build');
-
+  console.log('Creating an optimized production ' + (isPlayer ? 'player' : (isElectron ? 'electron' : 'browser'))  + ' build');
+  
   let compiler = webpack(config);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {

@@ -7,7 +7,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { bsUiModelReducer } from '../src/model';
 import { BsUiModelState } from '../src/type';
 import { Template } from '../src/index';
-import './bootstrap.css';
+import '../dev/bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';

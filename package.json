@@ -14,13 +14,12 @@
     "./dist/main.js": "./dist/main.browser.js"
   },
   "scripts": {
-    "start-electron": "cross-env PLATFORM=electron node scripts/start.js",
-    "start-browser": "cross-env PLATFORM=browser node scripts/start.js",
+    "start-electron": "cross-env PLATFORM=electron APPLICATION_ENV=cloud node scripts/start.js",
+    "start-browser": "cross-env PLATFORM=browser APPLICATION_ENV=cloud node scripts/start.js",
     "rebuild-electron-main": "webpack --config ./config/webpack.config.main.js",
     "package-link": "npm link typescript && npm link webpack",
     "package-install": "npm install --only=production",
-    "package-submodule": "node scripts/clean.js && cross-env PLATFORM=browser node scripts/build.js && cross-env PLATFORM=electron node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom",
+    "package-submodule": "node scripts/clean.js && cross-env PLATFORM=browser node scripts/build.js & cross-env PLATFORM=electron node scripts/build.js",    "test": "node scripts/test.js --env=jsdom",
     "tslint": "tslint -c tslint.json 'src/**/*.ts' 'src/**/*.tsx'"
   },
   "dependencies": {
@@ -62,11 +61,13 @@
     "autoprefixer": "7.1.2",
     "case-sensitive-paths-webpack-plugin": "2.1.1",
     "chalk": "1.1.3",
+    "copy-webpack-plugin": "^4.5.1",
     "cross-env": "^5.1.3",
     "cross-spawn": "^6.0.4",
     "css-loader": "0.28.4",
     "csstips": "^0.2.2",
     "csx": "^8.5.0",
+    "del-webpack-plugin": "^1.0.6",
     "devtron": "^1.4.0",
     "dotenv": "4.0.0",
     "dts-bundle": "^0.7.3",
@@ -110,6 +111,7 @@
     "tslint-react": "^3.2.0",
     "typescript": "~2.5.3",
     "typestyle": "^1.5.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
     "url-loader": "0.5.9",
     "webpack": "2.7.0",
     "webpack-dev-server": "2.7.1",
