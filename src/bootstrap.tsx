@@ -10,16 +10,15 @@ import './bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
-// import { BaNUiNotificationDialog, BaNUiNotificationBanner, baNUiReducer } from '@brightsign/ba-notification-ui';
 import { Template } from './component';
 
 const getStore = () => {
-  // TEDTODO - any
+  // TEDTODO - fix any
   const reducers = combineReducers<any>({
     bsdm: bsDmReducer,
   });
 
-  // TEDTODO - any
+  // TEDTODO - fix any
   return createStore<any>(reducers, applyMiddleware(thunk));
 };
 
