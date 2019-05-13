@@ -10,6 +10,7 @@ import {
 } from '../type';
 import {
   initModel,
+  initRuntime,
   resetModel,
   updateTemplateColorAsync,
   updateTemplateColorBatch,
@@ -28,6 +29,7 @@ const TemplateAsset = require('../asset/TemplateAsset.svg');
 export interface TemplateProps {
   color: BsUiModelTemplatePropertyColorState;
   onInitModel: () => any;
+  onInitRuntime: () => any;
   onResetModel: () => any;
   onUpdateTemplateColorAsync: () => any;
   onUpdateTemplateColorBatch: () => any;
@@ -132,6 +134,7 @@ const buttonStyle = (templateColor: BsUiModelTemplatePropertyColorState) => styl
 export class TemplateComponent extends React.Component<TemplateProps> {
   componentDidMount() {
     this.props.onInitModel();
+    this.props.onInitRuntime();
     console.log(bsp);
   }
 
@@ -354,6 +357,7 @@ export class TemplateComponent extends React.Component<TemplateProps> {
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
     onInitModel: initModel,
+    onInitRuntime: initRuntime,
     onResetModel: resetModel,
     onUpdateTemplateColorAsync: updateTemplateColorAsync,
     onUpdateTemplateColorBatch: updateTemplateColorBatch,

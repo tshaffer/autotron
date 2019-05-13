@@ -19,6 +19,7 @@ import { Reducer } from 'redux';
 export interface TemplateProps {
     color: BsUiModelTemplatePropertyColorState;
     onInitModel: () => any;
+    onInitRuntime: () => any;
     onResetModel: () => any;
     onUpdateTemplateColorAsync: () => any;
     onUpdateTemplateColorBatch: () => any;
@@ -46,6 +47,8 @@ export const resetModel: () => BsUiModelThunkAction<BsUiModelAction<null>>;
 export const updateTemplateColorAsync: () => BsUiModelThunkAction<Promise<any>>;
 /** @private */
 export const updateTemplateColorBatch: () => BsUiModelThunkAction<BsUiModelBatchAction>;
+
+export const initRuntime: () => (dispatch: any) => Promise<any>;
 
 /** @module Model:base */
 /** @private */

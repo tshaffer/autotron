@@ -20,6 +20,7 @@ describe('Template - shallow component render without store', () => {
       color,
       onInitModel: () => null,
       onResetModel: () => null,
+      onInitRuntime: () => null,
       onUpdateTemplateColorAsync: () => null,
       onUpdateTemplateColorBatch: () => null,
     };
