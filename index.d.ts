@@ -48,7 +48,7 @@ export const updateTemplateColorAsync: () => BsUiModelThunkAction<Promise<any>>;
 /** @private */
 export const updateTemplateColorBatch: () => BsUiModelThunkAction<BsUiModelBatchAction>;
 
-export const initRuntime: () => (dispatch: any) => Promise<any>;
+export const initRuntime: () => (dispatch: any) => Promise<void>;
 
 /** @module Model:base */
 /** @private */

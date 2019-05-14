@@ -10,7 +10,8 @@ export class HSM {
   topState: HState | null;
   activeState: HState | null;
   constructorHandler: (() => void) | null;
-  initialPseudoStateHandler: ((args: any) => HState) | null;
+  // initialPseudoStateHandler: ((args: any) => HState) | null;
+  initialPseudoStateHandler: any;
 
   constructor() {
     this.topState = null;
@@ -199,7 +200,7 @@ export class HSM {
               }
 
               if (iq === 0) {                                           // LCA not found yet
-                status = s.HStateEventHandler(exitEvent, stateData);// exit the source
+                status = s.HStateEventHandler(exitEvent, stateData); // exit the source
 
                 // check the rest of source->super == target->super->super...
                 iq = ip;
@@ -261,12 +262,12 @@ export class HSM {
       while (status === 'TRANSITION') {
         ip = 0;
         path[0] = this.activeState;
-        status = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData);// find superstate
+        status = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData); // find superstate
         this.activeState = stateData.nextState;
         while ((this.activeState as HState).id !== t.id) {
           ip = ip + 1;
           path[ip] = this.activeState;
-          status = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData);// find superstate
+          status = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData); // find superstate
           this.activeState = stateData.nextState;
         }
         this.activeState = path[0];
@@ -290,7 +291,7 @@ export class HSM {
 export class HState {
 
   topState: null;
-  HStateEventHandler: Function;
+  HStateEventHandler: (event: ArEventType, stateData: HSMStateData) => string;
   stateMachine: HSM;
   superState: HState;
   id: string;

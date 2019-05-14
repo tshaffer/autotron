@@ -11,11 +11,18 @@ import isomorphicPath from 'isomorphic-path';
 // import PlatformService from '../platform';
 
 import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload } from '../type/runtime';
+import { HSM } from '../runtime/hsm/HSM';
+import { PlayerHSM } from '../runtime/hsm/playerHSM';
 
-// TEDTODO
+// TEDTODO - this should come from platform
+
 const srcDirectory = '/Users/tedshaffer/Desktop/ag';
 
 // import { BsUiModelState } from '../..';
+
+// TEDTODO
+let hsmList: HSM[] = [];
+let playerHSM: PlayerHSM;
 
 // -----------------------------------------------------------------------
 // Controller Methods
@@ -24,14 +31,24 @@ const srcDirectory = '/Users/tedshaffer/Desktop/ag';
 export const initRuntime = () => {
   return ((dispatch: any) => {
     debugger;
-    return getPresentationFiles();
+    return getPresentationFiles()
+      .then( () => {
+        hsmList = [];
+        launchHSM();
+      });
   });
 };
 
-// getPresentationFiles
-//    getSyncSpec
-//    getPoolFiles
-//    getAutoscheduleFile
+function launchHSM() {
+  playerHSM = new PlayerHSM();
+  playerHSM.initialize();
+}
+
+/*
+  after getting the presentation files, invoke launchHSM.
+  bsp.tsx#launchHSM: creates PlayerHSM then initializes it.
+  see PlayerHSM.tsx
+*/
 
 function getPresentationFiles(): Promise<any> {
   return getSyncSpec()
@@ -39,9 +56,55 @@ function getPresentationFiles(): Promise<any> {
       const poolFilePath = getPoolFilePath();
       const assetFiles: ArFileLUT = getPoolAssetFiles(syncSpec, poolFilePath);
       console.log(assetFiles);
-      return Promise.resolve();
+      return getAutoschedule(syncSpec, getRootDirectory()).then((autoSchedule: any) => {
+        console.log(autoSchedule);
+        return Promise.resolve();
+      });
     });
 }
+
+function getAutoschedule(syncSpec: ArSyncSpec, rootPath: string) {
+  return getSyncSpecReferencedFile('autoschedule.json', syncSpec, rootPath);
+}
+
+function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
+
+  const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
+  if (syncSpecFile == null) {
+    return Promise.reject('file not found');
+  }
+
+  // const fileSize = syncSpecFile.size;
+  const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);
+
+  return fs.readFile(filePath, 'utf8')
+    .then((fileStr: string) => {
+
+      const file: object = JSON.parse(fileStr);
+
+      // I have commented out the following code to allow hacking of files -
+      // that is, overwriting files in the pool without updating the sync spec with updated sha1
+      // if (fileSize !== fileStr.length) {
+      //   debugger;
+      // }
+      return Promise.resolve(file);
+    });
+}
+
+function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | null {
+
+  let file: ArSyncSpecDownload | null = null;
+
+  syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
+    if (syncSpecFile.name === fileName) {
+      file = syncSpecFile;
+      return;
+    }
+  });
+
+  return file;
+}
+
 
 
 function getSyncSpec(): Promise<any> {
