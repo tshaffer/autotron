@@ -5,8 +5,8 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { bsUiModelReducer } from '../src/model';
-import { BsUiModelState } from '../src/type';
-import { Template, initRuntime } from '../src/index';
+// import { BsUiModelState } from '../src/type';
+import { Template, initRuntime, AutotronState } from '../src/index';
 import '../dev/bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
@@ -17,16 +17,16 @@ import { bsDmReducer } from '@brightsign/bsdatamodel';
 console.log('bootstrap.tsx from dev');
 
 // TODO
-const reducers = combineReducers<BsUiModelState>({
+const reducers = combineReducers<AutotronState>({
   bsdm: bsDmReducer,
   bsUiModel: bsUiModelReducer,
 });
 
-const store = createStore<BsUiModelState>(reducers, composeWithDevTools(applyMiddleware(thunk)));
+const store = createStore<AutotronState>(reducers, composeWithDevTools(applyMiddleware(thunk)));
 
 console.log(store.getState());
 
-store.dispatch(initRuntime());
+store.dispatch(initRuntime(store));
 
 ReactDOM.render(
   <Provider store={store}>

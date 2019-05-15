@@ -13,25 +13,27 @@ import isomorphicPath from 'isomorphic-path';
 import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload } from '../type/runtime';
 import { HSM } from '../runtime/hsm/HSM';
 import { PlayerHSM } from '../runtime/hsm/playerHSM';
+import { AutotronState } from '../index';
+import { Store } from 'redux';
 
 // TEDTODO - this should come from platform
 
 const srcDirectory = '/Users/tedshaffer/Desktop/ag';
 
-// import { BsUiModelState } from '../..';
-
 // TEDTODO
 let hsmList: HSM[] = [];
 let playerHSM: PlayerHSM;
+let autotronStore: Store<AutotronState>;
 
 // -----------------------------------------------------------------------
 // Controller Methods
 // -----------------------------------------------------------------------
-export const initRuntime = () => {
+export function initRuntime(store: any) {
   return ((dispatch: any, getState: Function) => {
     debugger;
-    const myState: any = getState();
-    console.log(myState);
+    autotronStore = store;
+    const autotronState: AutotronState = autotronStore.getState();
+    console.log(autotronState);
     return getPresentationFiles()
       .then( () => {
         hsmList = [];
