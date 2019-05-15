@@ -21,43 +21,45 @@ import { Store } from 'redux';
 const srcDirectory = '/Users/tedshaffer/Desktop/ag';
 
 // TEDTODO
-let hsmList: HSM[] = [];
-let playerHSM: PlayerHSM;
-let autotronStore: Store<AutotronState>;
+let _autotronStore: Store<AutotronState>;
+let _syncSpec: ArSyncSpec;
+let _poolAssetFiles: ArFileLUT;
+let _autoSchedule: any;
+
+let _hsmList: HSM[] = [];
+let _playerHSM: PlayerHSM;
 
 // -----------------------------------------------------------------------
 // Controller Methods
 // -----------------------------------------------------------------------
-export function initRuntime(store: any) {
+export function initRuntime(store: Store<AutotronState>) {
   return ((dispatch: any, getState: Function) => {
     debugger;
-    autotronStore = store;
-    const autotronState: AutotronState = autotronStore.getState();
+    _autotronStore = store;
+    const autotronState: AutotronState = _autotronStore.getState();
     console.log(autotronState);
-    return getPresentationFiles()
-      .then( () => {
-        hsmList = [];
-        launchHSM();
-      });
-  });
-};
 
-function launchHSM() {
-  playerHSM = new PlayerHSM();
-  playerHSM.initialize();
+    return getRuntimeFiles();
+  });
 }
 
-function getPresentationFiles(): Promise<any> {
+function getRuntimeFiles(): Promise<void> {
   return getSyncSpec()
-    .then((syncSpec: ArSyncSpec) => {
-      const poolFilePath = getPoolFilePath();
-      const assetFiles: ArFileLUT = getPoolAssetFiles(syncSpec, poolFilePath);
-      console.log(assetFiles);
-      return getAutoschedule(syncSpec, getRootDirectory()).then((autoSchedule: any) => {
-        console.log(autoSchedule);
-        return Promise.resolve();
-      });
-    });
+  .then((syncSpec: ArSyncSpec) => {
+    _syncSpec = syncSpec;
+    _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolFilePath());
+    return getAutoschedule(syncSpec, getRootDirectory());
+  }).then((autoSchedule: any) => {
+    _autoSchedule = autoSchedule;
+    _hsmList = [];
+    launchHSM();
+    return Promise.resolve();
+  });
+}
+
+function launchHSM() {
+  _playerHSM = new PlayerHSM();
+  _playerHSM.initialize();
 }
 
 function getAutoschedule(syncSpec: ArSyncSpec, rootPath: string) {
