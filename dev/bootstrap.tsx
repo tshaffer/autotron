@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { bsUiModelReducer } from '../src/model';
 import { BsUiModelState } from '../src/type';
-import { Template } from '../src/index';
+import { Template, initRuntime } from '../src/index';
 import '../dev/bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
@@ -25,6 +25,8 @@ const reducers = combineReducers<BsUiModelState>({
 const store = createStore<BsUiModelState>(reducers, composeWithDevTools(applyMiddleware(thunk)));
 
 console.log(store.getState());
+
+store.dispatch(initRuntime());
 
 ReactDOM.render(
   <Provider store={store}>

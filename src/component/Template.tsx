@@ -17,8 +17,6 @@ import {
 } from '../controller';
 import { bsUiModelGetTemplatePropertyColorState } from '../selector';
 
-import { bsp } from '../runtime/bsp';
-
 const TemplateAsset = require('../asset/TemplateAsset.svg');
 
 // -----------------------------------------------------------------------
@@ -134,8 +132,6 @@ const buttonStyle = (templateColor: BsUiModelTemplatePropertyColorState) => styl
 export class TemplateComponent extends React.Component<TemplateProps> {
   componentDidMount() {
     this.props.onInitModel();
-    this.props.onInitRuntime();
-    console.log(bsp);
   }
 
   componentWillUnmount() {
