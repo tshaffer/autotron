@@ -27,10 +27,11 @@ let playerHSM: PlayerHSM;
 // -----------------------------------------------------------------------
 // Controller Methods
 // -----------------------------------------------------------------------
-
 export const initRuntime = () => {
-  return ((dispatch: any) => {
+  return ((dispatch: any, getState: Function) => {
     debugger;
+    const myState: any = getState();
+    console.log(myState);
     return getPresentationFiles()
       .then( () => {
         hsmList = [];
@@ -43,12 +44,6 @@ function launchHSM() {
   playerHSM = new PlayerHSM();
   playerHSM.initialize();
 }
-
-/*
-  after getting the presentation files, invoke launchHSM.
-  bsp.tsx#launchHSM: creates PlayerHSM then initializes it.
-  see PlayerHSM.tsx
-*/
 
 function getPresentationFiles(): Promise<any> {
   return getSyncSpec()

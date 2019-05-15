@@ -12,18 +12,21 @@ import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import { Template } from './component';
 
-const getStore = () => {
-  // TEDTODO - fix any
-  const reducers = combineReducers<any>({
-    bsdm: bsDmReducer,
-  });
+debugger;
 
-  // TEDTODO - fix any
-  return createStore<any>(reducers, applyMiddleware(thunk));
-};
+console.log('bootstrap.tsx from src');
+
+const reducers = combineReducers<any>({
+  bsdm: bsDmReducer,
+});
+
+const store = createStore(
+  reducers,
+  applyMiddleware(thunk),
+);
 
 ReactDOM.render(
-  <Provider store={getStore()}>
+  <Provider store={store}>
     <div>
       <Template />
     </div>

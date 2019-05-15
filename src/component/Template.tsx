@@ -5,7 +5,7 @@ import { style } from 'typestyle';
 import * as csstips from 'csstips';
 import { percent, color, rgba } from 'csx';
 import {
-  BsUiModelState,
+  // BsUiModelState,
   BsUiModelTemplatePropertyColorState,
 } from '../type';
 import {
@@ -364,9 +364,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   }, dispatch);
 };
 
-const mapStateToProps = (state: BsUiModelState, ownProps: undefined): Partial<TemplateProps> => {
+// TEDTODO
+const mapStateToProps = (state: any, ownProps: undefined): Partial<TemplateProps> => {
+  // const mapStateToProps = (state: BsUiModelState, ownProps: undefined): Partial<TemplateProps> => {
   return {
-    color: bsUiModelGetTemplatePropertyColorState(state)
+    color: bsUiModelGetTemplatePropertyColorState(state.bsUiModel)
   };
 };
 
