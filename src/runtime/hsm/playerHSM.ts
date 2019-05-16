@@ -9,7 +9,14 @@ export class PlayerHSM extends HSM {
   stPlaying: HState;
   stWaiting: HState;
 
-  constructor() {
+  startPlayback: () => void;
+  restartPlayback: (presentationName: string) => Promise<void>;
+  postMessage: (event: any) => void;
+
+  constructor(
+    startPlayback: () => void,
+    restartPlayback: (presentationName: string) => Promise<void>,
+    postMessage: (event: any) => void) {
 
     super();
 
@@ -26,11 +33,25 @@ export class PlayerHSM extends HSM {
     this.stWaiting = new STWaiting(this, 'Waiting', this.stPlayer);
 
     this.topState = this.stTop;
+
+    this.startPlayback = startPlayback;
+    this.restartPlayback = restartPlayback;
+    this.postMessage = postMessage;
   }
 
   // TEDTODO - args
-  initializePlayerStateMachine(args: any) : (HState | null) {
+  initializePlayerStateMachine(args: any): (HState | null) {
+
     console.log('initializePlayerStateMachine invoked');
+
+    this.restartPlayback('').then(() => {
+      // send event to cause transition to stPlaying
+      const event = {
+        EventType: 'TRANSITION_TO_PLAYING'
+      };
+      this.postMessage(event);
+    });
+
     return null;
   }
 }
@@ -66,6 +87,18 @@ class STPlaying extends HState {
   STPlayingEventHandler(event: ArEventType, stateData: HSMStateData): string {
 
     stateData.nextState = null;
+
+    if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
+
+      console.log(this.id + ': entry signal');
+
+      // const stateMachine = this.stateMachine as PlayerHSM;
+
+      // launch playback
+      (this.stateMachine as PlayerHSM).startPlayback();
+
+      return 'HANDLED';
+    }
 
     stateData.nextState = this.superState;
     return 'SUPER';

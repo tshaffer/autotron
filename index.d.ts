@@ -2,10 +2,13 @@
 // Dependencies for this module:
 //   ../react
 //   ../redux
+//   ../@brightsign/bsdatamodel
 
 import * as React from 'react';
+import { Store } from 'redux';
 import { Action, Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
+import { DmState } from '@brightsign/bsdatamodel';
 
 /** @module Controller:index */
 
@@ -48,8 +51,7 @@ export const updateTemplateColorAsync: () => BsUiModelThunkAction<Promise<any>>;
 /** @private */
 export const updateTemplateColorBatch: () => BsUiModelThunkAction<BsUiModelBatchAction>;
 
-export function pooRuntime(store: any): void;
-export const initRuntime: () => (dispatch: any, getState: Function) => Promise<void>;
+export function initRuntime(store: Store<AutotronState>): (dispatch: any, getState: Function) => Promise<void>;
 
 /** @module Model:base */
 /** @private */
@@ -121,7 +123,7 @@ export const bsUiModelUpdateTemplateColor: (color: BsUiModelTemplatePropertyColo
 /** @private */
 export const templatePropertyDefault: BsUiModelTemplatePropertyState;
 /** @private */
-export const templatePropertyReducer: (state: BsUiModelTemplatePropertyState | undefined, {type, payload}: BsUiModelAction<null> | BsUiModelAction<RehydrateBsUiModelParams> | BsUiModelAction<Partial<BsUiModelTemplatePropertyState>>) => BsUiModelTemplatePropertyState;
+export const templatePropertyReducer: (state: BsUiModelTemplatePropertyState | undefined, {type, payload}: BsUiModelAction<Partial<BsUiModelTemplatePropertyState>> | BsUiModelAction<null> | BsUiModelAction<RehydrateBsUiModelParams>) => BsUiModelTemplatePropertyState;
 /** @private */
 export const isValidColor: (state: any) => boolean;
 /** @private */
@@ -148,6 +150,10 @@ export const bsUiModelGetTemplatePropertyColorState: (state: BsUiModelState) => 
 export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
+export interface AutotronState {
+    bsdm: DmState;
+    template: BsUiModelTemplateState;
+}
 /** @private */
 export interface BsUiModelState {
     template: BsUiModelTemplateState;

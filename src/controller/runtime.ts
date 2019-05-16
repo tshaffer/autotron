@@ -10,11 +10,14 @@ import isomorphicPath from 'isomorphic-path';
 
 // import PlatformService from '../platform';
 
-import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload } from '../type/runtime';
+import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload, ArEventType } from '../type/runtime';
 import { HSM } from '../runtime/hsm/HSM';
 import { PlayerHSM } from '../runtime/hsm/playerHSM';
 import { AutotronState } from '../index';
 import { Store } from 'redux';
+import { DmSignState, dmOpenSign, DmState, dmGetZonesForSign, BsDmId, DmZone, dmGetZoneById } from '@brightsign/bsdatamodel';
+import { ZoneHSM } from '../runtime/hsm/zoneHSM';
+import { MediaZoneHSM } from '../runtime/hsm/mediaZoneHSM';
 
 // TEDTODO - this should come from platform
 
@@ -45,20 +48,20 @@ export function initRuntime(store: Store<AutotronState>) {
 
 function getRuntimeFiles(): Promise<void> {
   return getSyncSpec()
-  .then((syncSpec: ArSyncSpec) => {
-    _syncSpec = syncSpec;
-    _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolFilePath());
-    return getAutoschedule(syncSpec, getRootDirectory());
-  }).then((autoSchedule: any) => {
-    _autoSchedule = autoSchedule;
-    _hsmList = [];
-    launchHSM();
-    return Promise.resolve();
-  });
+    .then((syncSpec: ArSyncSpec) => {
+      _syncSpec = syncSpec;
+      _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolFilePath());
+      return getAutoschedule(syncSpec, getRootDirectory());
+    }).then((autoSchedule: any) => {
+      _autoSchedule = autoSchedule;
+      _hsmList = [];
+      launchHSM();
+      return Promise.resolve();
+    });
 }
 
 function launchHSM() {
-  _playerHSM = new PlayerHSM();
+  _playerHSM = new PlayerHSM(startPlayback, restartPlayback, postMessage);
   _playerHSM.initialize();
 }
 
@@ -104,8 +107,6 @@ function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | n
   return file;
 }
 
-
-
 function getSyncSpec(): Promise<any> {
   return getSyncSpecFilePath()
     .then((syncSpecFilePath: string | null) => {
@@ -138,7 +139,6 @@ function getPoolAssetFiles(syncSpec: ArSyncSpec, pathToPool: string): ArFileLUT 
 
   return poolAssetFiles;
 }
-
 
 function getSyncSpecFilePath(): Promise<string | null> {
   return getLocalSyncSpec()
@@ -196,4 +196,66 @@ function getPoolFilePath(): string {
 function getRootDirectory(): string {
   return srcDirectory;
 }
+
+function restartPlayback(presentationName: string): Promise<void> {
+
+  console.log('restart: ', presentationName);
+
+  const rootPath = getRootDirectory();
+
+  // TEDTODO - only a single scheduled item is currently supported
+  const scheduledPresentation = _autoSchedule.scheduledPresentations[0];
+  const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+
+  // TEDTODO - why does restartPlayback get a presentationName if it's also in the schedule?
+  presentationName = presentationToSchedule.name;
+
+  const autoplayFileName = presentationName + '.bml';
+
+  return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath).then((bpfxState: any) => {
+    console.log(bpfxState);
+    const autoPlay: any = bpfxState.bsdm;
+    const signState = autoPlay as DmSignState;
+    _autotronStore.dispatch(dmOpenSign(signState));
+    return Promise.resolve();
+  });
+}
+
+function postMessage(event: ArEventType) {
+  console.log('pizza');
+  dispatchEvent(event);
+}
+
+function dispatchEvent(event: ArEventType) {
+
+  _playerHSM.Dispatch(event);
+
+  _hsmList.forEach((hsm) => {
+    hsm.Dispatch(event);
+  });
+}
+
+function startPlayback() {
+  
+  const bsdm: DmState = _autotronStore.getState().bsdm;
+
+  const zoneHSMs: ZoneHSM[] = [];
+  const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
+  zoneIds.forEach((zoneId: BsDmId) => {
+    const bsdmZone: DmZone = dmGetZoneById(bsdm, {id: zoneId}) as DmZone;
+  
+    let zoneHSM: ZoneHSM;
+
+    switch (bsdmZone.type) {
+      default: {
+        zoneHSM = new MediaZoneHSM(zoneId);
+        break;
+      }
+    }
+    zoneHSMs.push(zoneHSM);
+    _hsmList.push(zoneHSM);
+
+  });
+}
+
 
