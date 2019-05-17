@@ -248,7 +248,7 @@ function startPlayback() {
 
     switch (bsdmZone.type) {
       default: {
-        zoneHSM = new MediaZoneHSM(zoneId);
+        zoneHSM = new MediaZoneHSM(_autotronStore, zoneId);
         break;
       }
     }

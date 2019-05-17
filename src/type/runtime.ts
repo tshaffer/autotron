@@ -35,3 +35,5 @@ export interface ArSyncSpec {
 
 export type ArFileLUT = { [fileName:string]: string };
 
+export type LUT = { [key: string] : any };
+

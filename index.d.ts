@@ -123,7 +123,7 @@ export const bsUiModelUpdateTemplateColor: (color: BsUiModelTemplatePropertyColo
 /** @private */
 export const templatePropertyDefault: BsUiModelTemplatePropertyState;
 /** @private */
-export const templatePropertyReducer: (state: BsUiModelTemplatePropertyState | undefined, {type, payload}: BsUiModelAction<Partial<BsUiModelTemplatePropertyState>> | BsUiModelAction<null> | BsUiModelAction<RehydrateBsUiModelParams>) => BsUiModelTemplatePropertyState;
+export const templatePropertyReducer: (state: BsUiModelTemplatePropertyState | undefined, {type, payload}: BsUiModelAction<null> | BsUiModelAction<RehydrateBsUiModelParams> | BsUiModelAction<Partial<BsUiModelTemplatePropertyState>>) => BsUiModelTemplatePropertyState;
 /** @private */
 export const isValidColor: (state: any) => boolean;
 /** @private */
