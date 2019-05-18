@@ -1,4 +1,6 @@
 import { HState } from '../runtime/hsm/HSM';
+import { DmState } from '@brightsign/bsdatamodel';
+import { ActiveMediaStatesShape } from './activeMediaState';
 
 export interface ArEventType {
   EventType: string;
@@ -36,4 +38,17 @@ export interface ArSyncSpec {
 export type ArFileLUT = { [fileName:string]: string };
 
 export type LUT = { [key: string] : any };
+
+export type SubscribedEvents = { [ eventKey : string] : HState}
+
+export type StateMachineShape = { playbackState : string };
+
+export interface ArState {
+  bsdm : DmState;
+  stateMachine : StateMachineShape;
+  activeMediaStates : ActiveMediaStatesShape;
+  // dataFeeds : DataFeedShape;
+  // mrssDataFeedItems : MrssDataFeedItemShape;
+}
+
 

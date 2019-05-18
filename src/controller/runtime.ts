@@ -61,7 +61,7 @@ function getRuntimeFiles(): Promise<void> {
 }
 
 function launchHSM() {
-  _playerHSM = new PlayerHSM(startPlayback, restartPlayback, postMessage);
+  _playerHSM = new PlayerHSM(startPlayback, restartPlayback, postMessage, dispatchEvent);
   _playerHSM.initialize();
 }
 
@@ -221,6 +221,10 @@ function restartPlayback(presentationName: string): Promise<void> {
   });
 }
 
+// function dispatchPostMessage(event : ArEventType): void {
+//   postMessage(event);
+// }
+
 function postMessage(event: ArEventType) {
   console.log('pizza');
   dispatchEvent(event);
@@ -248,7 +252,7 @@ function startPlayback() {
 
     switch (bsdmZone.type) {
       default: {
-        zoneHSM = new MediaZoneHSM(_autotronStore, zoneId);
+        zoneHSM = new MediaZoneHSM(_autotronStore, zoneId, dispatchEvent);
         break;
       }
     }

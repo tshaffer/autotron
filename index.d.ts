@@ -6,7 +6,8 @@
 
 import * as React from 'react';
 import { Store } from 'redux';
-import { Action, Dispatch, ActionCreator } from 'redux';
+import { Action } from 'redux';
+import { Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
 
@@ -53,7 +54,21 @@ export const updateTemplateColorBatch: () => BsUiModelThunkAction<BsUiModelBatch
 
 export function initRuntime(store: Store<AutotronState>): (dispatch: any, getState: Function) => Promise<void>;
 
+export const SET_ACTIVE_MEDIA_STATE = "SET_ACTIVE_MEDIA_STATE";
+export function setActiveMediaState(zoneId: string, mediaStateId: string): {
+    type: string;
+    payload: {
+        zoneId: string;
+        mediaStateId: string;
+    };
+};
+export default function (state: ActiveMediaStatesShape | undefined, action: ActionWithPayload): ActiveMediaStatesShape;
+
 /** @module Model:base */
+/** @private */
+export interface ActionWithPayload extends Action {
+    payload: any;
+}
 /** @private */
 export const BSUIMODEL_BATCH = "BSUIMODEL_BATCH";
 /** @private */
@@ -199,4 +214,11 @@ export class BsUiError extends Error {
     constructor(type: BsUiErrorType, reason?: string);
 }
 export function isBsUiError(error: Error): error is BsUiError;
+
+export type ARMediaStateLUT = {
+    [zoneId: string]: string;
+};
+export type ActiveMediaStatesShape = {
+    activeMediaStateIdByZone: ARMediaStateLUT;
+};
 

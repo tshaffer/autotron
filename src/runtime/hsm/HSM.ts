@@ -7,13 +7,15 @@ import { isNil } from 'lodash';
 
 export class HSM {
 
+  dispatchEvent: any;
   topState: HState | null;
   activeState: HState | null;
   constructorHandler: (() => void) | null;
   // initialPseudoStateHandler: ((args: any) => HState) | null;
   initialPseudoStateHandler: any;
 
-  constructor() {
+  constructor(dispatchEvent: any) {
+    this.dispatchEvent = dispatchEvent;
     this.topState = null;
     this.activeState = null;
     this.constructorHandler = null;

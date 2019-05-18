@@ -16,9 +16,10 @@ export class PlayerHSM extends HSM {
   constructor(
     startPlayback: () => void,
     restartPlayback: (presentationName: string) => Promise<void>,
-    postMessage: (event: any) => void) {
+    postMessage: (event: any) => void,
+    dispatchEvent: any) {
 
-    super();
+    super(dispatchEvent);
 
     this.type = 'player';
 

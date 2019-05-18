@@ -1,10 +1,18 @@
 /** @module Model:base */
 
+import { Action } from 'redux';
+
 import {
-  Action,
   Dispatch,
   ActionCreator,
 } from 'redux';
+
+/** @internal */
+/** @private */
+export interface ActionWithPayload extends Action {
+  payload : any;
+}
+
 import { BsUiModelState } from '../type';
 
 // -----------------------------------------------------------------------
