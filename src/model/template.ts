@@ -8,6 +8,7 @@ import {
   templatePropertyReducer,
   isValidTemplatePropertyState,
 } from './templateProperty';
+import { activeMediaStateReducer } from './activeMediaState';
 
 // -----------------------------------------------------------------------
 // Actions
@@ -29,6 +30,7 @@ import {
 /** @private */
 export const templateReducer = combineReducers<BsUiModelTemplateState>({
   property: templatePropertyReducer,
+  activeMediaState: activeMediaStateReducer,
 }) as (state: BsUiModelTemplateState, action: BsUiModelBatchAction) => BsUiModelTemplateState;
 
 // -----------------------------------------------------------------------

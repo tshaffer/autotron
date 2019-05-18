@@ -62,7 +62,7 @@ export function setActiveMediaState(zoneId: string, mediaStateId: string): {
         mediaStateId: string;
     };
 };
-export default function (state: ActiveMediaStatesShape | undefined, action: ActionWithPayload): ActiveMediaStatesShape;
+export const activeMediaStateReducer: (state: ActiveMediaStatesShape | undefined, action: ActionWithPayload) => ActiveMediaStatesShape;
 
 /** @module Model:base */
 /** @private */

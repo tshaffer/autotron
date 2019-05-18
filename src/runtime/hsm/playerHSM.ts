@@ -53,7 +53,7 @@ export class PlayerHSM extends HSM {
       this.postMessage(event);
     });
 
-    return null;
+    return this.stWaiting;
   }
 }
 
@@ -118,6 +118,15 @@ class STWaiting extends HState {
   STWaitingEventHandler(event: ArEventType, stateData: HSMStateData): string {
 
     stateData.nextState = null;
+
+    if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
+      console.log(this.id + ': entry signal');
+      return 'HANDLED';
+    } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
+      console.log(this.id + ': TRANSITION_TO_PLAYING event received');
+      stateData.nextState = (this.stateMachine as PlayerHSM).stPlaying;
+      return 'TRANSITION';
+    }
 
     stateData.nextState = this.superState;
     return 'SUPER';

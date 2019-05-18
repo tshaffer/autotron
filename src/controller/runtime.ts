@@ -258,8 +258,13 @@ function startPlayback() {
     }
     zoneHSMs.push(zoneHSM);
     _hsmList.push(zoneHSM);
-
   });
+
+  zoneHSMs.forEach((zoneHSM: ZoneHSM) => {
+    zoneHSM.constructorFunction();
+    zoneHSM.initialize();
+  });
+
 }
 
 
