@@ -3,5 +3,6 @@
 export * from './activeMediaState';
 export * from './baseAction';
 export * from './baseReducer';
+export * from './stateMachine';
 export * from './template';
 export * from './templateProperty';

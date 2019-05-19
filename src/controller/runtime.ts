@@ -46,11 +46,11 @@ export function initRuntime(store: Store<AutotronState>) {
   });
 }
 
-function getRuntimeFiles(): Promise<void> {
+export function getRuntimeFiles(): Promise<void> {
   return getSyncSpec()
     .then((syncSpec: ArSyncSpec) => {
       _syncSpec = syncSpec;
-      _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolFilePath());
+      _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolDirectory());
       return getAutoschedule(syncSpec, getRootDirectory());
     }).then((autoSchedule: any) => {
       _autoSchedule = autoSchedule;
@@ -188,9 +188,14 @@ function getNetworkedSyncSpecFilePath(): string {
   return isomorphicPath.join(getRootDirectory(), 'current-sync.json');
 }
 
-function getPoolFilePath(): string {
-  // return isomorphicPath.join(PlatformService.default.getRootDirectory(), 'pool');
-  return isomorphicPath.join(getRootDirectory(), 'pool');
+export function getPoolFilePath(fileName : string): string {
+  const filePath : string =  _poolAssetFiles[fileName];
+  console.log('fileName: ' + fileName + ', filePath: ' +  filePath);
+  return filePath;
+}
+
+function getPoolDirectory(): string {
+  return isomorphicPath.join(getRootDirectory(), 'pool'); 
 }
 
 function getRootDirectory(): string {

@@ -116,6 +116,15 @@ export const bsUiModelReducer: BsUiReducer;
 export const isValidBsUiModelState: (state: any) => boolean;
 export const isValidBsUiModelStateShallow: (state: any) => boolean;
 
+export const SET_PLAYBACK_STATE = "SET_PLAYBACK_STATE";
+export function setPlaybackState(playbackState: string): {
+    type: string;
+    payload: string;
+};
+export const stateMachineReducer: (state: StateMachineShape | undefined, action: ActionWithPayload) => {
+    playbackState: any;
+};
+
 /** @private */
 export const templateReducer: (state: BsUiModelTemplateState, action: BsUiModelBatchAction) => BsUiModelTemplateState;
 /** @private */
@@ -221,4 +230,70 @@ export type ARMediaStateLUT = {
 export type ActiveMediaStatesShape = {
     activeMediaStateIdByZone: ARMediaStateLUT;
 };
+
+export interface ArEventType {
+    EventType: string;
+    data?: any;
+    EventData?: any;
+}
+export interface HSMStateData {
+    nextState: HState | null;
+}
+export interface ArSyncSpecHash {
+    method: string;
+    hex: string;
+}
+export interface ArSyncSpecDownload {
+    name: string;
+    hash: ArSyncSpecHash;
+    size: number;
+    link: string;
+}
+export interface ArSyncSpecFiles {
+    download: ArSyncSpecDownload[];
+    ignore: any;
+    delete: any;
+}
+export interface ArSyncSpec {
+    meta: any;
+    files: any;
+}
+export type ArFileLUT = {
+    [fileName: string]: string;
+};
+export type LUT = {
+    [key: string]: any;
+};
+export type SubscribedEvents = {
+    [eventKey: string]: HState;
+};
+export type StateMachineShape = {
+    playbackState: string;
+};
+export interface ArState {
+    bsdm: DmState;
+    stateMachine: StateMachineShape;
+    activeMediaStates: ActiveMediaStatesShape;
+}
+
+export class HSM {
+    dispatchEvent: any;
+    topState: HState | null;
+    activeState: HState | null;
+    constructorHandler: (() => void) | null;
+    initialPseudoStateHandler: any;
+    constructor(dispatchEvent: any);
+    constructorFunction(): void;
+    initialize(): void;
+    Dispatch(event: ArEventType): void;
+}
+export class HState {
+    topState: null;
+    HStateEventHandler: (event: ArEventType, stateData: HSMStateData) => string;
+    stateMachine: HSM;
+    superState: HState;
+    id: string;
+    constructor(stateMachine: HSM, id: string);
+}
+export function STTopEventHandler(_: ArEventType, stateData: HSMStateData): string;
 
