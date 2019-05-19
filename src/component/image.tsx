@@ -1,13 +1,24 @@
 import * as React from 'react';
+// import { Dispatch } from 'redux';
+// import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
+// -----------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------
+
+/** @internal */
 export interface ImageProps {
-  height: number;
-  width: number;
   src: string;
+  width: number;
+  height: number;
 }
 
-export default class Image extends React.Component<ImageProps, object> {
+// -----------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------
 
+export class ImageComponent extends React.Component<ImageProps> {
   render() {
     return (
       <img
@@ -18,3 +29,25 @@ export default class Image extends React.Component<ImageProps, object> {
     );
   }
 }
+
+// -----------------------------------------------------------------------
+// Container
+// -----------------------------------------------------------------------
+
+// const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+//   return bindActionCreators({
+//   }, dispatch);
+// };
+
+// const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
+// const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
+const mapStateToProps = (state: any, ownProps: undefined): any => {
+  return {
+    src: state.src,
+    width: state.width,
+    height: state.height,
+  };
+};
+
+// export const Image = connect(mapStateToProps, mapDispatchToProps)(ImageComponent);
+export const Image = connect(mapStateToProps)(ImageComponent);

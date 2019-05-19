@@ -14,6 +14,8 @@ import path = require('path');
 
 // import { getPoolFilePath } from '../utilities/utilities';
 
+import { Image } from './index';
+
 import {
   dmGetAssetItemById,
 } from '@brightsign/bsdatamodel';
@@ -38,34 +40,55 @@ import {
   dmGetEventIdsForMediaState,
   dmGetEventById,
   DmcEvent,
+  DmZone,
 } from '@brightsign/bsdatamodel';
 import { ArEventType } from '../type/runtime';
-import { getPoolFilePath } from '../index';
+import { getPoolFilePath, postRuntimeMessage } from '../index';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { bindActionCreators } from 'redux';
 
-// import { MediaZoneStateProps, MediaZoneDispatchProps } from '../containers/mediaZoneContainer';
+// -----------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------
 
-export default class MediaZone extends React.Component<MediaZoneStateProps & MediaZoneDispatchProps, object> {
+/** @internal */
+export interface MediaZoneProps {
+  key : string;
+  playbackState : string;
+  bsdm : DmState;
+  zone : DmZone;
+  width : number;
+  height : number;
+  activeMediaStateId : string;
+  postBSPMessage: any;
+}
 
-  postBpEvent() {
-    const event : ArEventType = {
-      EventType : 'bpEvent',
-    };
-    this.props.postBSPMessage(event);
-  }
+// -----------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------
+export default class MediaZoneComponent extends React.Component<MediaZoneProps> {
 
-  postTimeoutEvent()  {
-    const event : ArEventType = {
-      EventType : 'timeoutEvent',
-    };
-    this.props.postBSPMessage(event);
-  }
+  // postBpEvent() {
+  //   const event : ArEventType = {
+  //     EventType : 'bpEvent',
+  //   };
+  //   this.props.postBSPMessage(event);
+  // }
 
-  postMediaEndEvent()  {
-    const event : ArEventType = {
-      EventType : EventType.MediaEnd,
-    };
-    this.props.postBSPMessage(event);
-  }
+  // postTimeoutEvent()  {
+  //   const event : ArEventType = {
+  //     EventType : 'timeoutEvent',
+  //   };
+  //   this.props.postBSPMessage(event);
+  // }
+
+  // postMediaEndEvent()  {
+  //   const event : ArEventType = {
+  //     EventType : EventType.MediaEnd,
+  //   };
+  //   this.props.postBSPMessage(event);
+  // }
 
   renderMediaItem(mediaState : DmMediaState, contentItem: DmDerivedContentItem) {
 
@@ -84,11 +107,11 @@ export default class MediaZone extends React.Component<MediaZoneStateProps & Med
     const src : string = path.join('file://', poolFilePath);
 
     const mediaType : ContentItemType = mediaContentItem.type;
-
+    
     switch (mediaType) {
       case 'Image': {
         return (
-          <ImageContainer
+          <Image
             width={this.props.width}
             height={this.props.height}
             src={src}
@@ -129,7 +152,6 @@ export default class MediaZone extends React.Component<MediaZoneStateProps & Med
     const contentItem : DmDerivedContentItem = mediaState.contentItem;
 
     switch (contentItem.type) {
-      case'Video':
       case 'Image': {
         return this.renderMediaItem(mediaState, contentItem as DmMediaContentItem);
       }
@@ -141,3 +163,31 @@ export default class MediaZone extends React.Component<MediaZoneStateProps & Med
     return null;
   }
 }
+
+// -----------------------------------------------------------------------
+// Container
+// -----------------------------------------------------------------------
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return bindActionCreators({
+    postBSPMessage: postRuntimeMessage,
+  }, dispatch);
+};
+
+// const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
+// const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
+  const mapStateToProps = (state: any, ownProps: undefined): any => {
+    return {
+      key : state.key,
+      playbackState : state.playbackState,
+      bsdm : state.bsdm,
+      zone : state.zone,
+      width : state.width,
+      height : state.height,
+      activeMediaStateId : state.activeMediaStateId,
+    };
+  };
+  
+  // export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
+  export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
+  

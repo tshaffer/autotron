@@ -230,7 +230,12 @@ function restartPlayback(presentationName: string): Promise<void> {
 //   postMessage(event);
 // }
 
-function postMessage(event: ArEventType) {
+export function postRuntimeMessage(event: ArEventType) {
+  console.log('flibbet');
+  dispatchEvent(event);
+}
+
+export function postMessage(event: ArEventType) {
   console.log('pizza');
   dispatchEvent(event);
 }

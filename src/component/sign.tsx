@@ -7,12 +7,24 @@ import {
   dmGetZonesForSign,
 } from '@brightsign/bsdatamodel';
 
+import { MediaZone } from './mediaZone';
+import { connect } from 'react-redux';
+
+// -----------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------
+
+/** @internal */
 export interface SignProps {
   bsdm: DmState;
   playbackState: string;
 }
 
-export default class Sign extends React.Component<SignProps, object> {
+// -----------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------
+
+export class SignComponent extends React.Component<SignProps> {
 
   getMediaZoneJSX(zone: DmcZone): object {
 
@@ -27,7 +39,7 @@ export default class Sign extends React.Component<SignProps, object> {
           height: zone.absolutePosition.height,
         }}
       >
-        <MediaZoneContainer
+        <MediaZone
           key={zone.id}
           playbackState={this.props.playbackState}
           bsdm={this.props.bsdm}
@@ -71,3 +83,26 @@ export default class Sign extends React.Component<SignProps, object> {
     );
   }
 }
+
+// -----------------------------------------------------------------------
+// Container
+// -----------------------------------------------------------------------
+
+// const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+//   return bindActionCreators({
+//   }, dispatch);
+// };
+
+// const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
+// const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
+  const mapStateToProps = (state: any, ownProps: undefined): any => {
+    return {
+      src: state.src,
+      width: state.width,
+      height: state.height,
+    };
+  };
+  
+  // export const Image = connect(mapStateToProps, mapDispatchToProps)(ImageComponent);
+  export const Sign = connect(mapStateToProps)(SignComponent);
+  
