@@ -7,14 +7,13 @@ import { isNil } from 'lodash';
 
 export class HSM {
 
-  dispatchEvent: any;
+  dispatchEvent: ((event: ArEventType) => void);
   topState: HState | null;
   activeState: HState | null;
   constructorHandler: (() => void) | null;
-  // initialPseudoStateHandler: ((args: any) => HState) | null;
-  initialPseudoStateHandler: any;
+  initialPseudoStateHandler: ((args: any) => HState) | null;
 
-  constructor(dispatchEvent: any) {
+  constructor(dispatchEvent: ((event: ArEventType) => void)) {
     this.dispatchEvent = dispatchEvent;
     this.topState = null;
     this.activeState = null;
@@ -28,6 +27,7 @@ export class HSM {
     }
   }
 
+  // TEDTODO - remove casts
   initialize() {
 
     const stateData: HSMStateData = { nextState: null };
@@ -43,6 +43,7 @@ export class HSM {
 
     // execute initial transition
     // this.activeState = this.initialPseudoStateHandler(...arguments);
+    // TEDTODO - what is arguments here? do any initialPseudoStateHandler functions take an argument?
     const [a] = Array.prototype.slice.call(arguments);
     if (!isNil(this.initialPseudoStateHandler)) {
       this.activeState = this.initialPseudoStateHandler(a);
@@ -70,7 +71,7 @@ export class HSM {
       entryStates[0] = activeState;
 
       // send an empty event to get the super state
-      let status = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData);
+      let status: string = (this.activeState as HState).HStateEventHandler(emptyEvent, stateData);
 
       activeState = stateData.nextState as HState;
       this.activeState = stateData.nextState;
@@ -108,6 +109,7 @@ export class HSM {
     }
   }
 
+  // TEDTODO - remove casts
   Dispatch(event: ArEventType) {
 
     // if there is no activeState, the playlist is empty
