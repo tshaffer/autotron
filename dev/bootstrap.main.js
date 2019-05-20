@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("path"), require("fs"), require("electron"), require("assert"), require("util"), require("url"), require("events"), require("child_process"), require("https"));
+		module.exports = factory(require("path"), require("fs"), require("electron"), require("assert"), require("util"), require("url"), require("child_process"), require("events"), require("https"));
 	else if(typeof define === 'function' && define.amd)
-		define(["path", "fs", "electron", "assert", "util", "url", "events", "child_process", "https"], factory);
+		define(["path", "fs", "electron", "assert", "util", "url", "child_process", "events", "https"], factory);
 	else if(typeof exports === 'object')
-		exports["bootstrap"] = factory(require("path"), require("fs"), require("electron"), require("assert"), require("util"), require("url"), require("events"), require("child_process"), require("https"));
+		exports["bootstrap"] = factory(require("path"), require("fs"), require("electron"), require("assert"), require("util"), require("url"), require("child_process"), require("events"), require("https"));
 	else
-		root["bootstrap"] = factory(root["path"], root["fs"], root["electron"], root["assert"], root["util"], root["url"], root["events"], root["child_process"], root["https"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_14__, __WEBPACK_EXTERNAL_MODULE_24__, __WEBPACK_EXTERNAL_MODULE_28__, __WEBPACK_EXTERNAL_MODULE_31__) {
+		root["bootstrap"] = factory(root["path"], root["fs"], root["electron"], root["assert"], root["util"], root["url"], root["child_process"], root["events"], root["https"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_15__, __WEBPACK_EXTERNAL_MODULE_31__, __WEBPACK_EXTERNAL_MODULE_32__, __WEBPACK_EXTERNAL_MODULE_33__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -43,6 +43,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -70,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 30);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -93,12 +96,6 @@ module.exports = require("electron");
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports) {
-
-module.exports = require("assert");
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = minimatch
@@ -110,7 +107,7 @@ try {
 } catch (er) {}
 
 var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {}
-var expand = __webpack_require__(20)
+var expand = __webpack_require__(18)
 
 var plTypes = {
   '!': { open: '(?:(?!(?:', close: '))[^/]*?)'},
@@ -1027,13 +1024,7 @@ function regExpEscape (s) {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-module.exports = require("util");
-
-/***/ }),
-/* 6 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1060,7 +1051,405 @@ module.exports.win32 = win32;
 
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = require("assert");
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("util");
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.changePermissions = exports.downloadFile = exports.getPath = undefined;
+
+var _electron = __webpack_require__(2);
+
+var _electron2 = _interopRequireDefault(_electron);
+
+var _fs = __webpack_require__(1);
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _path = __webpack_require__(0);
+
+var _path2 = _interopRequireDefault(_path);
+
+var _https = __webpack_require__(33);
+
+var _https2 = _interopRequireDefault(_https);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var getPath = exports.getPath = function getPath() {
+  var savePath = (_electron.remote || _electron2.default).app.getPath('userData');
+  return _path2.default.resolve(savePath + '/extensions');
+};
+
+// Use https.get fallback for Electron < 1.4.5
+
+var _ref = _electron.remote || _electron2.default,
+    net = _ref.net;
+
+var request = net ? net.request : _https2.default.get;
+
+var downloadFile = exports.downloadFile = function downloadFile(from, to) {
+  return new Promise(function (resolve, reject) {
+    var req = request(from);
+    req.on('response', function (res) {
+      // Shouldn't handle redirect with `electron.net`, this is for https.get fallback
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return downloadFile(res.headers.location, to).then(resolve).catch(reject);
+      }
+      res.pipe(_fs2.default.createWriteStream(to)).on('close', resolve);
+    });
+    req.on('error', reject);
+    req.end();
+  });
+};
+
+var changePermissions = exports.changePermissions = function changePermissions(dir, mode) {
+  var files = _fs2.default.readdirSync(dir);
+  files.forEach(function (file) {
+    var filePath = _path2.default.join(dir, file);
+    _fs2.default.chmodSync(filePath, parseInt(mode, 8));
+    if (_fs2.default.statSync(filePath).isDirectory()) {
+      changePermissions(filePath, mode);
+    }
+  });
+};
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = realpath
+realpath.realpath = realpath
+realpath.sync = realpathSync
+realpath.realpathSync = realpathSync
+realpath.monkeypatch = monkeypatch
+realpath.unmonkeypatch = unmonkeypatch
+
+var fs = __webpack_require__(1)
+var origRealpath = fs.realpath
+var origRealpathSync = fs.realpathSync
+
+var version = process.version
+var ok = /^v[0-5]\./.test(version)
+var old = __webpack_require__(23)
+
+function newError (er) {
+  return er && er.syscall === 'realpath' && (
+    er.code === 'ELOOP' ||
+    er.code === 'ENOMEM' ||
+    er.code === 'ENAMETOOLONG'
+  )
+}
+
+function realpath (p, cache, cb) {
+  if (ok) {
+    return origRealpath(p, cache, cb)
+  }
+
+  if (typeof cache === 'function') {
+    cb = cache
+    cache = null
+  }
+  origRealpath(p, cache, function (er, result) {
+    if (newError(er)) {
+      old.realpath(p, cache, cb)
+    } else {
+      cb(er, result)
+    }
+  })
+}
+
+function realpathSync (p, cache) {
+  if (ok) {
+    return origRealpathSync(p, cache)
+  }
+
+  try {
+    return origRealpathSync(p, cache)
+  } catch (er) {
+    if (newError(er)) {
+      return old.realpathSync(p, cache)
+    } else {
+      throw er
+    }
+  }
+}
+
+function monkeypatch () {
+  fs.realpath = realpath
+  fs.realpathSync = realpathSync
+}
+
+function unmonkeypatch () {
+  fs.realpath = origRealpath
+  fs.realpathSync = origRealpathSync
+}
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports.alphasort = alphasort
+exports.alphasorti = alphasorti
+exports.setopts = setopts
+exports.ownProp = ownProp
+exports.makeAbs = makeAbs
+exports.finish = finish
+exports.mark = mark
+exports.isIgnored = isIgnored
+exports.childrenIgnored = childrenIgnored
+
+function ownProp (obj, field) {
+  return Object.prototype.hasOwnProperty.call(obj, field)
+}
+
+var path = __webpack_require__(0)
+var minimatch = __webpack_require__(3)
+var isAbsolute = __webpack_require__(4)
+var Minimatch = minimatch.Minimatch
+
+function alphasorti (a, b) {
+  return a.toLowerCase().localeCompare(b.toLowerCase())
+}
+
+function alphasort (a, b) {
+  return a.localeCompare(b)
+}
+
+function setupIgnores (self, options) {
+  self.ignore = options.ignore || []
+
+  if (!Array.isArray(self.ignore))
+    self.ignore = [self.ignore]
+
+  if (self.ignore.length) {
+    self.ignore = self.ignore.map(ignoreMap)
+  }
+}
+
+// ignore patterns are always in dot:true mode.
+function ignoreMap (pattern) {
+  var gmatcher = null
+  if (pattern.slice(-3) === '/**') {
+    var gpattern = pattern.replace(/(\/\*\*)+$/, '')
+    gmatcher = new Minimatch(gpattern, { dot: true })
+  }
+
+  return {
+    matcher: new Minimatch(pattern, { dot: true }),
+    gmatcher: gmatcher
+  }
+}
+
+function setopts (self, pattern, options) {
+  if (!options)
+    options = {}
+
+  // base-matching: just use globstar for that.
+  if (options.matchBase && -1 === pattern.indexOf("/")) {
+    if (options.noglobstar) {
+      throw new Error("base matching requires globstar")
+    }
+    pattern = "**/" + pattern
+  }
+
+  self.silent = !!options.silent
+  self.pattern = pattern
+  self.strict = options.strict !== false
+  self.realpath = !!options.realpath
+  self.realpathCache = options.realpathCache || Object.create(null)
+  self.follow = !!options.follow
+  self.dot = !!options.dot
+  self.mark = !!options.mark
+  self.nodir = !!options.nodir
+  if (self.nodir)
+    self.mark = true
+  self.sync = !!options.sync
+  self.nounique = !!options.nounique
+  self.nonull = !!options.nonull
+  self.nosort = !!options.nosort
+  self.nocase = !!options.nocase
+  self.stat = !!options.stat
+  self.noprocess = !!options.noprocess
+  self.absolute = !!options.absolute
+
+  self.maxLength = options.maxLength || Infinity
+  self.cache = options.cache || Object.create(null)
+  self.statCache = options.statCache || Object.create(null)
+  self.symlinks = options.symlinks || Object.create(null)
+
+  setupIgnores(self, options)
+
+  self.changedCwd = false
+  var cwd = process.cwd()
+  if (!ownProp(options, "cwd"))
+    self.cwd = cwd
+  else {
+    self.cwd = path.resolve(options.cwd)
+    self.changedCwd = self.cwd !== cwd
+  }
+
+  self.root = options.root || path.resolve(self.cwd, "/")
+  self.root = path.resolve(self.root)
+  if (process.platform === "win32")
+    self.root = self.root.replace(/\\/g, "/")
+
+  // TODO: is an absolute `cwd` supposed to be resolved against `root`?
+  // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
+  self.cwdAbs = isAbsolute(self.cwd) ? self.cwd : makeAbs(self, self.cwd)
+  if (process.platform === "win32")
+    self.cwdAbs = self.cwdAbs.replace(/\\/g, "/")
+  self.nomount = !!options.nomount
+
+  // disable comments and negation in Minimatch.
+  // Note that they are not supported in Glob itself anyway.
+  options.nonegate = true
+  options.nocomment = true
+
+  self.minimatch = new Minimatch(pattern, options)
+  self.options = self.minimatch.options
+}
+
+function finish (self) {
+  var nou = self.nounique
+  var all = nou ? [] : Object.create(null)
+
+  for (var i = 0, l = self.matches.length; i < l; i ++) {
+    var matches = self.matches[i]
+    if (!matches || Object.keys(matches).length === 0) {
+      if (self.nonull) {
+        // do like the shell, and spit out the literal glob
+        var literal = self.minimatch.globSet[i]
+        if (nou)
+          all.push(literal)
+        else
+          all[literal] = true
+      }
+    } else {
+      // had matches
+      var m = Object.keys(matches)
+      if (nou)
+        all.push.apply(all, m)
+      else
+        m.forEach(function (m) {
+          all[m] = true
+        })
+    }
+  }
+
+  if (!nou)
+    all = Object.keys(all)
+
+  if (!self.nosort)
+    all = all.sort(self.nocase ? alphasorti : alphasort)
+
+  // at *some* point we statted all of these
+  if (self.mark) {
+    for (var i = 0; i < all.length; i++) {
+      all[i] = self._mark(all[i])
+    }
+    if (self.nodir) {
+      all = all.filter(function (e) {
+        var notDir = !(/\/$/.test(e))
+        var c = self.cache[e] || self.cache[makeAbs(self, e)]
+        if (notDir && c)
+          notDir = c !== 'DIR' && !Array.isArray(c)
+        return notDir
+      })
+    }
+  }
+
+  if (self.ignore.length)
+    all = all.filter(function(m) {
+      return !isIgnored(self, m)
+    })
+
+  self.found = all
+}
+
+function mark (self, p) {
+  var abs = makeAbs(self, p)
+  var c = self.cache[abs]
+  var m = p
+  if (c) {
+    var isDir = c === 'DIR' || Array.isArray(c)
+    var slash = p.slice(-1) === '/'
+
+    if (isDir && !slash)
+      m += '/'
+    else if (!isDir && slash)
+      m = m.slice(0, -1)
+
+    if (m !== p) {
+      var mabs = makeAbs(self, m)
+      self.statCache[mabs] = self.statCache[abs]
+      self.cache[mabs] = self.cache[abs]
+    }
+  }
+
+  return m
+}
+
+// lotta situps...
+function makeAbs (self, f) {
+  var abs = f
+  if (f.charAt(0) === '/') {
+    abs = path.join(self.root, f)
+  } else if (isAbsolute(f) || f === '') {
+    abs = f
+  } else if (self.changedCwd) {
+    abs = path.resolve(self.cwd, f)
+  } else {
+    abs = path.resolve(f)
+  }
+
+  if (process.platform === 'win32')
+    abs = abs.replace(/\\/g, '/')
+
+  return abs
+}
+
+
+// Return true, if pattern ends with globstar '**', for the accompanying parent directory.
+// Ex:- If node_modules/** is the pattern, add 'node_modules' to ignore list along with it's contents
+function isIgnored (self, path) {
+  if (!self.ignore.length)
+    return false
+
+  return self.ignore.some(function(item) {
+    return item.matcher.match(path) || !!(item.gmatcher && item.gmatcher.match(path))
+  })
+}
+
+function childrenIgnored (self, path) {
+  if (!self.ignore.length)
+    return false
+
+  return self.ignore.some(function(item) {
+    return !!(item.gmatcher && item.gmatcher.match(path))
+  })
+}
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Approach:
@@ -1107,21 +1496,21 @@ module.exports = glob
 
 var fs = __webpack_require__(1)
 var rp = __webpack_require__(8)
-var minimatch = __webpack_require__(4)
+var minimatch = __webpack_require__(3)
 var Minimatch = minimatch.Minimatch
-var inherits = __webpack_require__(23)
-var EE = __webpack_require__(24).EventEmitter
+var inherits = __webpack_require__(26)
+var EE = __webpack_require__(32).EventEmitter
 var path = __webpack_require__(0)
-var assert = __webpack_require__(3)
-var isAbsolute = __webpack_require__(6)
-var globSync = __webpack_require__(25)
+var assert = __webpack_require__(5)
+var isAbsolute = __webpack_require__(4)
+var globSync = __webpack_require__(24)
 var common = __webpack_require__(9)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
 var setopts = common.setopts
 var ownProp = common.ownProp
-var inflight = __webpack_require__(26)
-var util = __webpack_require__(5)
+var inflight = __webpack_require__(25)
+var util = __webpack_require__(6)
 var childrenIgnored = common.childrenIgnored
 var isIgnored = common.isIgnored
 
@@ -1856,367 +2245,10 @@ Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
 
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = realpath
-realpath.realpath = realpath
-realpath.sync = realpathSync
-realpath.realpathSync = realpathSync
-realpath.monkeypatch = monkeypatch
-realpath.unmonkeypatch = unmonkeypatch
-
-var fs = __webpack_require__(1)
-var origRealpath = fs.realpath
-var origRealpathSync = fs.realpathSync
-
-var version = process.version
-var ok = /^v[0-5]\./.test(version)
-var old = __webpack_require__(19)
-
-function newError (er) {
-  return er && er.syscall === 'realpath' && (
-    er.code === 'ELOOP' ||
-    er.code === 'ENOMEM' ||
-    er.code === 'ENAMETOOLONG'
-  )
-}
-
-function realpath (p, cache, cb) {
-  if (ok) {
-    return origRealpath(p, cache, cb)
-  }
-
-  if (typeof cache === 'function') {
-    cb = cache
-    cache = null
-  }
-  origRealpath(p, cache, function (er, result) {
-    if (newError(er)) {
-      old.realpath(p, cache, cb)
-    } else {
-      cb(er, result)
-    }
-  })
-}
-
-function realpathSync (p, cache) {
-  if (ok) {
-    return origRealpathSync(p, cache)
-  }
-
-  try {
-    return origRealpathSync(p, cache)
-  } catch (er) {
-    if (newError(er)) {
-      return old.realpathSync(p, cache)
-    } else {
-      throw er
-    }
-  }
-}
-
-function monkeypatch () {
-  fs.realpath = realpath
-  fs.realpathSync = realpathSync
-}
-
-function unmonkeypatch () {
-  fs.realpath = origRealpath
-  fs.realpathSync = origRealpathSync
-}
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports.alphasort = alphasort
-exports.alphasorti = alphasorti
-exports.setopts = setopts
-exports.ownProp = ownProp
-exports.makeAbs = makeAbs
-exports.finish = finish
-exports.mark = mark
-exports.isIgnored = isIgnored
-exports.childrenIgnored = childrenIgnored
-
-function ownProp (obj, field) {
-  return Object.prototype.hasOwnProperty.call(obj, field)
-}
-
-var path = __webpack_require__(0)
-var minimatch = __webpack_require__(4)
-var isAbsolute = __webpack_require__(6)
-var Minimatch = minimatch.Minimatch
-
-function alphasorti (a, b) {
-  return a.toLowerCase().localeCompare(b.toLowerCase())
-}
-
-function alphasort (a, b) {
-  return a.localeCompare(b)
-}
-
-function setupIgnores (self, options) {
-  self.ignore = options.ignore || []
-
-  if (!Array.isArray(self.ignore))
-    self.ignore = [self.ignore]
-
-  if (self.ignore.length) {
-    self.ignore = self.ignore.map(ignoreMap)
-  }
-}
-
-// ignore patterns are always in dot:true mode.
-function ignoreMap (pattern) {
-  var gmatcher = null
-  if (pattern.slice(-3) === '/**') {
-    var gpattern = pattern.replace(/(\/\*\*)+$/, '')
-    gmatcher = new Minimatch(gpattern, { dot: true })
-  }
-
-  return {
-    matcher: new Minimatch(pattern, { dot: true }),
-    gmatcher: gmatcher
-  }
-}
-
-function setopts (self, pattern, options) {
-  if (!options)
-    options = {}
-
-  // base-matching: just use globstar for that.
-  if (options.matchBase && -1 === pattern.indexOf("/")) {
-    if (options.noglobstar) {
-      throw new Error("base matching requires globstar")
-    }
-    pattern = "**/" + pattern
-  }
-
-  self.silent = !!options.silent
-  self.pattern = pattern
-  self.strict = options.strict !== false
-  self.realpath = !!options.realpath
-  self.realpathCache = options.realpathCache || Object.create(null)
-  self.follow = !!options.follow
-  self.dot = !!options.dot
-  self.mark = !!options.mark
-  self.nodir = !!options.nodir
-  if (self.nodir)
-    self.mark = true
-  self.sync = !!options.sync
-  self.nounique = !!options.nounique
-  self.nonull = !!options.nonull
-  self.nosort = !!options.nosort
-  self.nocase = !!options.nocase
-  self.stat = !!options.stat
-  self.noprocess = !!options.noprocess
-  self.absolute = !!options.absolute
-
-  self.maxLength = options.maxLength || Infinity
-  self.cache = options.cache || Object.create(null)
-  self.statCache = options.statCache || Object.create(null)
-  self.symlinks = options.symlinks || Object.create(null)
-
-  setupIgnores(self, options)
-
-  self.changedCwd = false
-  var cwd = process.cwd()
-  if (!ownProp(options, "cwd"))
-    self.cwd = cwd
-  else {
-    self.cwd = path.resolve(options.cwd)
-    self.changedCwd = self.cwd !== cwd
-  }
-
-  self.root = options.root || path.resolve(self.cwd, "/")
-  self.root = path.resolve(self.root)
-  if (process.platform === "win32")
-    self.root = self.root.replace(/\\/g, "/")
-
-  // TODO: is an absolute `cwd` supposed to be resolved against `root`?
-  // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
-  self.cwdAbs = isAbsolute(self.cwd) ? self.cwd : makeAbs(self, self.cwd)
-  if (process.platform === "win32")
-    self.cwdAbs = self.cwdAbs.replace(/\\/g, "/")
-  self.nomount = !!options.nomount
-
-  // disable comments and negation in Minimatch.
-  // Note that they are not supported in Glob itself anyway.
-  options.nonegate = true
-  options.nocomment = true
-
-  self.minimatch = new Minimatch(pattern, options)
-  self.options = self.minimatch.options
-}
-
-function finish (self) {
-  var nou = self.nounique
-  var all = nou ? [] : Object.create(null)
-
-  for (var i = 0, l = self.matches.length; i < l; i ++) {
-    var matches = self.matches[i]
-    if (!matches || Object.keys(matches).length === 0) {
-      if (self.nonull) {
-        // do like the shell, and spit out the literal glob
-        var literal = self.minimatch.globSet[i]
-        if (nou)
-          all.push(literal)
-        else
-          all[literal] = true
-      }
-    } else {
-      // had matches
-      var m = Object.keys(matches)
-      if (nou)
-        all.push.apply(all, m)
-      else
-        m.forEach(function (m) {
-          all[m] = true
-        })
-    }
-  }
-
-  if (!nou)
-    all = Object.keys(all)
-
-  if (!self.nosort)
-    all = all.sort(self.nocase ? alphasorti : alphasort)
-
-  // at *some* point we statted all of these
-  if (self.mark) {
-    for (var i = 0; i < all.length; i++) {
-      all[i] = self._mark(all[i])
-    }
-    if (self.nodir) {
-      all = all.filter(function (e) {
-        var notDir = !(/\/$/.test(e))
-        var c = self.cache[e] || self.cache[makeAbs(self, e)]
-        if (notDir && c)
-          notDir = c !== 'DIR' && !Array.isArray(c)
-        return notDir
-      })
-    }
-  }
-
-  if (self.ignore.length)
-    all = all.filter(function(m) {
-      return !isIgnored(self, m)
-    })
-
-  self.found = all
-}
-
-function mark (self, p) {
-  var abs = makeAbs(self, p)
-  var c = self.cache[abs]
-  var m = p
-  if (c) {
-    var isDir = c === 'DIR' || Array.isArray(c)
-    var slash = p.slice(-1) === '/'
-
-    if (isDir && !slash)
-      m += '/'
-    else if (!isDir && slash)
-      m = m.slice(0, -1)
-
-    if (m !== p) {
-      var mabs = makeAbs(self, m)
-      self.statCache[mabs] = self.statCache[abs]
-      self.cache[mabs] = self.cache[abs]
-    }
-  }
-
-  return m
-}
-
-// lotta situps...
-function makeAbs (self, f) {
-  var abs = f
-  if (f.charAt(0) === '/') {
-    abs = path.join(self.root, f)
-  } else if (isAbsolute(f) || f === '') {
-    abs = f
-  } else if (self.changedCwd) {
-    abs = path.resolve(self.cwd, f)
-  } else {
-    abs = path.resolve(f)
-  }
-
-  if (process.platform === 'win32')
-    abs = abs.replace(/\\/g, '/')
-
-  return abs
-}
-
-
-// Return true, if pattern ends with globstar '**', for the accompanying parent directory.
-// Ex:- If node_modules/** is the pattern, add 'node_modules' to ignore list along with it's contents
-function isIgnored (self, path) {
-  if (!self.ignore.length)
-    return false
-
-  return self.ignore.some(function(item) {
-    return item.matcher.match(path) || !!(item.gmatcher && item.gmatcher.match(path))
-  })
-}
-
-function childrenIgnored (self, path) {
-  if (!self.ignore.length)
-    return false
-
-  return self.ignore.some(function(item) {
-    return !!(item.gmatcher && item.gmatcher.match(path))
-  })
-}
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-// Returns a wrapper function that returns a wrapped callback
-// The wrapper function should do some stuff, and return a
-// presumably different callback function.
-// This makes sure that own properties are retained, so that
-// decorations and such are not lost along the way.
-module.exports = wrappy
-function wrappy (fn, cb) {
-  if (fn && cb) return wrappy(fn)(cb)
-
-  if (typeof fn !== 'function')
-    throw new TypeError('need wrapper function')
-
-  Object.keys(fn).forEach(function (k) {
-    wrapper[k] = fn[k]
-  })
-
-  return wrapper
-
-  function wrapper() {
-    var args = new Array(arguments.length)
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i]
-    }
-    var ret = fn.apply(this, args)
-    var cb = args[args.length-1]
-    if (typeof ret === 'function' && ret !== cb) {
-      Object.keys(cb).forEach(function (k) {
-        ret[k] = cb[k]
-      })
-    }
-    return ret
-  }
-}
-
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var wrappy = __webpack_require__(10)
+var wrappy = __webpack_require__(12)
 module.exports = wrappy(once)
 module.exports.strict = wrappy(onceStrict)
 
@@ -2262,189 +2294,82 @@ function onceStrict (fn) {
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
+// Returns a wrapper function that returns a wrapped callback
+// The wrapper function should do some stuff, and return a
+// presumably different callback function.
+// This makes sure that own properties are retained, so that
+// decorations and such are not lost along the way.
+module.exports = wrappy
+function wrappy (fn, cb) {
+  if (fn && cb) return wrappy(fn)(cb)
 
+  if (typeof fn !== 'function')
+    throw new TypeError('need wrapper function')
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.changePermissions = exports.downloadFile = exports.getPath = undefined;
+  Object.keys(fn).forEach(function (k) {
+    wrapper[k] = fn[k]
+  })
 
-var _electron = __webpack_require__(2);
+  return wrapper
 
-var _electron2 = _interopRequireDefault(_electron);
-
-var _fs = __webpack_require__(1);
-
-var _fs2 = _interopRequireDefault(_fs);
-
-var _path = __webpack_require__(0);
-
-var _path2 = _interopRequireDefault(_path);
-
-var _https = __webpack_require__(31);
-
-var _https2 = _interopRequireDefault(_https);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var getPath = exports.getPath = function getPath() {
-  var savePath = (_electron.remote || _electron2.default).app.getPath('userData');
-  return _path2.default.resolve(savePath + '/extensions');
-};
-
-// Use https.get fallback for Electron < 1.4.5
-
-var _ref = _electron.remote || _electron2.default,
-    net = _ref.net;
-
-var request = net ? net.request : _https2.default.get;
-
-var downloadFile = exports.downloadFile = function downloadFile(from, to) {
-  return new Promise(function (resolve, reject) {
-    var req = request(from);
-    req.on('response', function (res) {
-      // Shouldn't handle redirect with `electron.net`, this is for https.get fallback
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return downloadFile(res.headers.location, to).then(resolve).catch(reject);
-      }
-      res.pipe(_fs2.default.createWriteStream(to)).on('close', resolve);
-    });
-    req.on('error', reject);
-    req.end();
-  });
-};
-
-var changePermissions = exports.changePermissions = function changePermissions(dir, mode) {
-  var files = _fs2.default.readdirSync(dir);
-  files.forEach(function (file) {
-    var filePath = _path2.default.join(dir, file);
-    _fs2.default.chmodSync(filePath, parseInt(mode, 8));
-    if (_fs2.default.statSync(filePath).isDirectory()) {
-      changePermissions(filePath, mode);
+  function wrapper() {
+    var args = new Array(arguments.length)
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i]
     }
-  });
-};
+    var ret = fn.apply(this, args)
+    var cb = args[args.length-1]
+    if (typeof ret === 'function' && ret !== cb) {
+      Object.keys(cb).forEach(function (k) {
+        ret[k] = cb[k]
+      })
+    }
+    return ret
+  }
+}
+
 
 /***/ }),
 /* 13 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_electron__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_url__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_url___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_url__);
-/* tslint:disable:no-console */
+const electron = __webpack_require__(2)
 
-
-var mainWindow;
-function createWindow() {
-    // Create the browser window.
-    mainWindow = new __WEBPACK_IMPORTED_MODULE_0_electron__["BrowserWindow"]({
-        height: 600,
-        width: 800,
-        webPreferences: {
-            nodeIntegration: true,
-        }
-    });
-    // Attempt to load application from path provided by parent process
-    var applicationPath = process.argv.pop();
-    if (typeof applicationPath !== 'string' || applicationPath.indexOf('applicationPath') <= -1) {
-        applicationPath = __WEBPACK_IMPORTED_MODULE_1_url__["format"]({
-            pathname: 'localhost:3000',
-            protocol: 'http:',
-            slashes: true,
-        });
-    }
-    else {
-        applicationPath = applicationPath.split('=')[1];
-    }
-    // and load the app.
-    mainWindow.loadURL(applicationPath);
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
-    // Emitted when the window is closed.
-    mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        mainWindow = null;
-    });
-    mainWindow.webContents.on('context-menu', function (_, props) {
-        var x = props.x, y = props.y;
-        var contextMenu = [{
-                label: 'Inspect',
-                click: function () {
-                    if (mainWindow) {
-                        mainWindow.webContents.inspectElement(x, y);
-                    }
-                }
-            }, {
-                label: 'Reload',
-                click: function () {
-                    if (mainWindow) {
-                        mainWindow.webContents.reload();
-                    }
-                }
-            }];
-        if (mainWindow) {
-            __WEBPACK_IMPORTED_MODULE_0_electron__["Menu"].buildFromTemplate(contextMenu).popup(mainWindow);
-        }
-    });
+exports.install = () => {
+  if (process.type === 'renderer') {
+    console.log(`Installing Devtron from ${__dirname}`)
+    if (electron.remote.BrowserWindow.getDevToolsExtensions &&
+        electron.remote.BrowserWindow.getDevToolsExtensions().devtron) return true
+    return electron.remote.BrowserWindow.addDevToolsExtension(__dirname)
+  } else if (process.type === 'browser') {
+    console.log(`Installing Devtron from ${__dirname}`)
+    if (electron.BrowserWindow.getDevToolsExtensions &&
+        electron.BrowserWindow.getDevToolsExtensions().devtron) return true
+    return electron.BrowserWindow.addDevToolsExtension(__dirname)
+  } else {
+    throw new Error('Devtron can only be installed from an Electron process.')
+  }
 }
-function startDevToolsInstall() {
-    if (process.env.NODE_ENV === 'development') {
-        var devToolsInstaller = __webpack_require__(15);
-        var installer = devToolsInstaller.default;
-        installer(devToolsInstaller.REACT_DEVELOPER_TOOLS)
-            .then(function (name) { return console.info("extension installed: " + name); })
-            .catch(function (err) { return console.error("error installing extension: " + err); });
-        installer(devToolsInstaller.REACT_PERF)
-            .then(function (name) { return console.info("extension installed: " + name); })
-            .catch(function (err) { return console.error("error installing extension: " + err); });
-        installer(devToolsInstaller.REDUX_DEVTOOLS)
-            .then(function (name) { return console.info("extension installed: " + name); })
-            .catch(function (err) { return console.error("error installing extension: " + err); });
-        var devtronInstaller = __webpack_require__(32);
-        devtronInstaller.install();
-    }
+
+exports.uninstall = () => {
+  if (process.type === 'renderer') {
+    console.log(`Uninstalling Devtron from ${__dirname}`)
+    return electron.remote.BrowserWindow.removeDevToolsExtension('devtron')
+  } else if (process.type === 'browser') {
+    console.log(`Uninstalling Devtron from ${__dirname}`)
+    return electron.BrowserWindow.removeDevToolsExtension('devtron')
+  } else {
+    throw new Error('Devtron can only be uninstalled from an Electron process.')
+  }
 }
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('ready', function () {
-    startDevToolsInstall();
-    createWindow();
-});
-// Quit when all windows are closed.
-__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('window-all-closed', function () {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        __WEBPACK_IMPORTED_MODULE_0_electron__["app"].quit();
-    }
-});
-__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('activate', function () {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) {
-        createWindow();
-    }
-});
+
+exports.path = __dirname
 
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports) {
-
-module.exports = require("url");
-
-/***/ }),
-/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2469,15 +2394,15 @@ var _path = __webpack_require__(0);
 
 var _path2 = _interopRequireDefault(_path);
 
-var _semver = __webpack_require__(16);
+var _semver = __webpack_require__(29);
 
 var _semver2 = _interopRequireDefault(_semver);
 
-var _downloadChromeExtension = __webpack_require__(17);
+var _downloadChromeExtension = __webpack_require__(22);
 
 var _downloadChromeExtension2 = _interopRequireDefault(_downloadChromeExtension);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2536,1381 +2461,433 @@ var install = function install(extensionReference) {
 exports.default = install;
 var EMBER_INSPECTOR = exports.EMBER_INSPECTOR = {
   id: 'bmdblncegkenkacieihfhpjfppoconhi',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var REACT_DEVELOPER_TOOLS = exports.REACT_DEVELOPER_TOOLS = {
   id: 'fmkadmapgofadopljbjfkapdkoienihi',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var BACKBONE_DEBUGGER = exports.BACKBONE_DEBUGGER = {
   id: 'bhljhndlimiafopmmhjlgfpnnchjjbhd',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var JQUERY_DEBUGGER = exports.JQUERY_DEBUGGER = {
   id: 'dbhhnnnpaeobfddmlalhnehgclcmjimi',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var ANGULARJS_BATARANG = exports.ANGULARJS_BATARANG = {
   id: 'ighdmehidhipcmcojjgiloacoafjmpfk',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var VUEJS_DEVTOOLS = exports.VUEJS_DEVTOOLS = {
   id: 'nhdogjmejiglipccpnnnanhbledajbpd',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var REDUX_DEVTOOLS = exports.REDUX_DEVTOOLS = {
   id: 'lmhkpmbekcpmknklioeibfkpmmfibljd',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var REACT_PERF = exports.REACT_PERF = {
   id: 'hacmcodfllhbnekmghgdlplbdnahmhmm',
-  electron: '^1.2.6'
+  electron: '>=1.2.6'
 };
 var CYCLEJS_DEVTOOL = exports.CYCLEJS_DEVTOOL = {
   id: 'dfgplfmhhmdekalbpejekgfegkonjpfp',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var APOLLO_DEVELOPER_TOOLS = exports.APOLLO_DEVELOPER_TOOLS = {
   id: 'jdkknkkbebbapilgoeccciglkfbmbnfm',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 var MOBX_DEVTOOLS = exports.MOBX_DEVTOOLS = {
   id: 'pfgnfdagidkfgccljigdamigbcnndkod',
-  electron: '^1.2.1'
+  electron: '>=1.2.1'
 };
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
-exports = module.exports = SemVer;
-
-// The debug function is excluded entirely from the minified version.
-/* nomin */ var debug;
-/* nomin */ if (typeof process === 'object' &&
-    /* nomin */ process.env &&
-    /* nomin */ process.env.NODE_DEBUG &&
-    /* nomin */ /\bsemver\b/i.test(process.env.NODE_DEBUG))
-  /* nomin */ debug = function() {
-    /* nomin */ var args = Array.prototype.slice.call(arguments, 0);
-    /* nomin */ args.unshift('SEMVER');
-    /* nomin */ console.log.apply(console, args);
-    /* nomin */ };
-/* nomin */ else
-  /* nomin */ debug = function() {};
-
-// Note: this is the semver.org version of the spec that it implements
-// Not necessarily the package version of this code.
-exports.SEMVER_SPEC_VERSION = '2.0.0';
-
-var MAX_LENGTH = 256;
-var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
-
-// Max safe segment length for coercion.
-var MAX_SAFE_COMPONENT_LENGTH = 16;
-
-// The actual regexps go on exports.re
-var re = exports.re = [];
-var src = exports.src = [];
-var R = 0;
-
-// The following Regular Expressions can be used for tokenizing,
-// validating, and parsing SemVer version strings.
-
-// ## Numeric Identifier
-// A single `0`, or a non-zero digit followed by zero or more digits.
-
-var NUMERICIDENTIFIER = R++;
-src[NUMERICIDENTIFIER] = '0|[1-9]\\d*';
-var NUMERICIDENTIFIERLOOSE = R++;
-src[NUMERICIDENTIFIERLOOSE] = '[0-9]+';
-
-
-// ## Non-numeric Identifier
-// Zero or more digits, followed by a letter or hyphen, and then zero or
-// more letters, digits, or hyphens.
-
-var NONNUMERICIDENTIFIER = R++;
-src[NONNUMERICIDENTIFIER] = '\\d*[a-zA-Z-][a-zA-Z0-9-]*';
-
-
-// ## Main Version
-// Three dot-separated numeric identifiers.
-
-var MAINVERSION = R++;
-src[MAINVERSION] = '(' + src[NUMERICIDENTIFIER] + ')\\.' +
-                   '(' + src[NUMERICIDENTIFIER] + ')\\.' +
-                   '(' + src[NUMERICIDENTIFIER] + ')';
-
-var MAINVERSIONLOOSE = R++;
-src[MAINVERSIONLOOSE] = '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
-                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
-                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')';
-
-// ## Pre-release Version Identifier
-// A numeric identifier, or a non-numeric identifier.
-
-var PRERELEASEIDENTIFIER = R++;
-src[PRERELEASEIDENTIFIER] = '(?:' + src[NUMERICIDENTIFIER] +
-                            '|' + src[NONNUMERICIDENTIFIER] + ')';
-
-var PRERELEASEIDENTIFIERLOOSE = R++;
-src[PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[NUMERICIDENTIFIERLOOSE] +
-                                 '|' + src[NONNUMERICIDENTIFIER] + ')';
-
-
-// ## Pre-release Version
-// Hyphen, followed by one or more dot-separated pre-release version
-// identifiers.
-
-var PRERELEASE = R++;
-src[PRERELEASE] = '(?:-(' + src[PRERELEASEIDENTIFIER] +
-                  '(?:\\.' + src[PRERELEASEIDENTIFIER] + ')*))';
-
-var PRERELEASELOOSE = R++;
-src[PRERELEASELOOSE] = '(?:-?(' + src[PRERELEASEIDENTIFIERLOOSE] +
-                       '(?:\\.' + src[PRERELEASEIDENTIFIERLOOSE] + ')*))';
-
-// ## Build Metadata Identifier
-// Any combination of digits, letters, or hyphens.
-
-var BUILDIDENTIFIER = R++;
-src[BUILDIDENTIFIER] = '[0-9A-Za-z-]+';
-
-// ## Build Metadata
-// Plus sign, followed by one or more period-separated build metadata
-// identifiers.
-
-var BUILD = R++;
-src[BUILD] = '(?:\\+(' + src[BUILDIDENTIFIER] +
-             '(?:\\.' + src[BUILDIDENTIFIER] + ')*))';
-
-
-// ## Full Version String
-// A main version, followed optionally by a pre-release version and
-// build metadata.
-
-// Note that the only major, minor, patch, and pre-release sections of
-// the version string are capturing groups.  The build metadata is not a
-// capturing group, because it should not ever be used in version
-// comparison.
-
-var FULL = R++;
-var FULLPLAIN = 'v?' + src[MAINVERSION] +
-                src[PRERELEASE] + '?' +
-                src[BUILD] + '?';
-
-src[FULL] = '^' + FULLPLAIN + '$';
-
-// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
-// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
-// common in the npm registry.
-var LOOSEPLAIN = '[v=\\s]*' + src[MAINVERSIONLOOSE] +
-                 src[PRERELEASELOOSE] + '?' +
-                 src[BUILD] + '?';
-
-var LOOSE = R++;
-src[LOOSE] = '^' + LOOSEPLAIN + '$';
-
-var GTLT = R++;
-src[GTLT] = '((?:<|>)?=?)';
-
-// Something like "2.*" or "1.2.x".
-// Note that "x.x" is a valid xRange identifer, meaning "any version"
-// Only the first item is strictly required.
-var XRANGEIDENTIFIERLOOSE = R++;
-src[XRANGEIDENTIFIERLOOSE] = src[NUMERICIDENTIFIERLOOSE] + '|x|X|\\*';
-var XRANGEIDENTIFIER = R++;
-src[XRANGEIDENTIFIER] = src[NUMERICIDENTIFIER] + '|x|X|\\*';
-
-var XRANGEPLAIN = R++;
-src[XRANGEPLAIN] = '[v=\\s]*(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:' + src[PRERELEASE] + ')?' +
-                   src[BUILD] + '?' +
-                   ')?)?';
-
-var XRANGEPLAINLOOSE = R++;
-src[XRANGEPLAINLOOSE] = '[v=\\s]*(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
-                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
-                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
-                        '(?:' + src[PRERELEASELOOSE] + ')?' +
-                        src[BUILD] + '?' +
-                        ')?)?';
-
-var XRANGE = R++;
-src[XRANGE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAIN] + '$';
-var XRANGELOOSE = R++;
-src[XRANGELOOSE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAINLOOSE] + '$';
-
-// Coercion.
-// Extract anything that could conceivably be a part of a valid semver
-var COERCE = R++;
-src[COERCE] = '(?:^|[^\\d])' +
-              '(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '})' +
-              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
-              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
-              '(?:$|[^\\d])';
-
-// Tilde ranges.
-// Meaning is "reasonably at or greater than"
-var LONETILDE = R++;
-src[LONETILDE] = '(?:~>?)';
-
-var TILDETRIM = R++;
-src[TILDETRIM] = '(\\s*)' + src[LONETILDE] + '\\s+';
-re[TILDETRIM] = new RegExp(src[TILDETRIM], 'g');
-var tildeTrimReplace = '$1~';
-
-var TILDE = R++;
-src[TILDE] = '^' + src[LONETILDE] + src[XRANGEPLAIN] + '$';
-var TILDELOOSE = R++;
-src[TILDELOOSE] = '^' + src[LONETILDE] + src[XRANGEPLAINLOOSE] + '$';
-
-// Caret ranges.
-// Meaning is "at least and backwards compatible with"
-var LONECARET = R++;
-src[LONECARET] = '(?:\\^)';
-
-var CARETTRIM = R++;
-src[CARETTRIM] = '(\\s*)' + src[LONECARET] + '\\s+';
-re[CARETTRIM] = new RegExp(src[CARETTRIM], 'g');
-var caretTrimReplace = '$1^';
-
-var CARET = R++;
-src[CARET] = '^' + src[LONECARET] + src[XRANGEPLAIN] + '$';
-var CARETLOOSE = R++;
-src[CARETLOOSE] = '^' + src[LONECARET] + src[XRANGEPLAINLOOSE] + '$';
-
-// A simple gt/lt/eq thing, or just "" to indicate "any version"
-var COMPARATORLOOSE = R++;
-src[COMPARATORLOOSE] = '^' + src[GTLT] + '\\s*(' + LOOSEPLAIN + ')$|^$';
-var COMPARATOR = R++;
-src[COMPARATOR] = '^' + src[GTLT] + '\\s*(' + FULLPLAIN + ')$|^$';
-
-
-// An expression to strip any whitespace between the gtlt and the thing
-// it modifies, so that `> 1.2.3` ==> `>1.2.3`
-var COMPARATORTRIM = R++;
-src[COMPARATORTRIM] = '(\\s*)' + src[GTLT] +
-                      '\\s*(' + LOOSEPLAIN + '|' + src[XRANGEPLAIN] + ')';
-
-// this one has to use the /g flag
-re[COMPARATORTRIM] = new RegExp(src[COMPARATORTRIM], 'g');
-var comparatorTrimReplace = '$1$2$3';
-
-
-// Something like `1.2.3 - 1.2.4`
-// Note that these all use the loose form, because they'll be
-// checked against either the strict or loose comparator form
-// later.
-var HYPHENRANGE = R++;
-src[HYPHENRANGE] = '^\\s*(' + src[XRANGEPLAIN] + ')' +
-                   '\\s+-\\s+' +
-                   '(' + src[XRANGEPLAIN] + ')' +
-                   '\\s*$';
-
-var HYPHENRANGELOOSE = R++;
-src[HYPHENRANGELOOSE] = '^\\s*(' + src[XRANGEPLAINLOOSE] + ')' +
-                        '\\s+-\\s+' +
-                        '(' + src[XRANGEPLAINLOOSE] + ')' +
-                        '\\s*$';
-
-// Star ranges basically just allow anything at all.
-var STAR = R++;
-src[STAR] = '(<|>)?=?\\s*\\*';
-
-// Compile to actual regexp objects.
-// All are flag-free, unless they were created above with a flag.
-for (var i = 0; i < R; i++) {
-  debug(i, src[i]);
-  if (!re[i])
-    re[i] = new RegExp(src[i]);
-}
-
-exports.parse = parse;
-function parse(version, loose) {
-  if (version instanceof SemVer)
-    return version;
-
-  if (typeof version !== 'string')
-    return null;
-
-  if (version.length > MAX_LENGTH)
-    return null;
-
-  var r = loose ? re[LOOSE] : re[FULL];
-  if (!r.test(version))
-    return null;
-
-  try {
-    return new SemVer(version, loose);
-  } catch (er) {
-    return null;
-  }
-}
-
-exports.valid = valid;
-function valid(version, loose) {
-  var v = parse(version, loose);
-  return v ? v.version : null;
-}
-
-
-exports.clean = clean;
-function clean(version, loose) {
-  var s = parse(version.trim().replace(/^[=v]+/, ''), loose);
-  return s ? s.version : null;
-}
-
-exports.SemVer = SemVer;
-
-function SemVer(version, loose) {
-  if (version instanceof SemVer) {
-    if (version.loose === loose)
-      return version;
-    else
-      version = version.version;
-  } else if (typeof version !== 'string') {
-    throw new TypeError('Invalid Version: ' + version);
-  }
-
-  if (version.length > MAX_LENGTH)
-    throw new TypeError('version is longer than ' + MAX_LENGTH + ' characters')
-
-  if (!(this instanceof SemVer))
-    return new SemVer(version, loose);
-
-  debug('SemVer', version, loose);
-  this.loose = loose;
-  var m = version.trim().match(loose ? re[LOOSE] : re[FULL]);
-
-  if (!m)
-    throw new TypeError('Invalid Version: ' + version);
-
-  this.raw = version;
-
-  // these are actually numbers
-  this.major = +m[1];
-  this.minor = +m[2];
-  this.patch = +m[3];
-
-  if (this.major > MAX_SAFE_INTEGER || this.major < 0)
-    throw new TypeError('Invalid major version')
-
-  if (this.minor > MAX_SAFE_INTEGER || this.minor < 0)
-    throw new TypeError('Invalid minor version')
-
-  if (this.patch > MAX_SAFE_INTEGER || this.patch < 0)
-    throw new TypeError('Invalid patch version')
-
-  // numberify any prerelease numeric ids
-  if (!m[4])
-    this.prerelease = [];
-  else
-    this.prerelease = m[4].split('.').map(function(id) {
-      if (/^[0-9]+$/.test(id)) {
-        var num = +id;
-        if (num >= 0 && num < MAX_SAFE_INTEGER)
-          return num;
-      }
-      return id;
-    });
-
-  this.build = m[5] ? m[5].split('.') : [];
-  this.format();
-}
-
-SemVer.prototype.format = function() {
-  this.version = this.major + '.' + this.minor + '.' + this.patch;
-  if (this.prerelease.length)
-    this.version += '-' + this.prerelease.join('.');
-  return this.version;
-};
-
-SemVer.prototype.toString = function() {
-  return this.version;
-};
-
-SemVer.prototype.compare = function(other) {
-  debug('SemVer.compare', this.version, this.loose, other);
-  if (!(other instanceof SemVer))
-    other = new SemVer(other, this.loose);
-
-  return this.compareMain(other) || this.comparePre(other);
-};
-
-SemVer.prototype.compareMain = function(other) {
-  if (!(other instanceof SemVer))
-    other = new SemVer(other, this.loose);
-
-  return compareIdentifiers(this.major, other.major) ||
-         compareIdentifiers(this.minor, other.minor) ||
-         compareIdentifiers(this.patch, other.patch);
-};
-
-SemVer.prototype.comparePre = function(other) {
-  if (!(other instanceof SemVer))
-    other = new SemVer(other, this.loose);
-
-  // NOT having a prerelease is > having one
-  if (this.prerelease.length && !other.prerelease.length)
-    return -1;
-  else if (!this.prerelease.length && other.prerelease.length)
-    return 1;
-  else if (!this.prerelease.length && !other.prerelease.length)
-    return 0;
-
-  var i = 0;
-  do {
-    var a = this.prerelease[i];
-    var b = other.prerelease[i];
-    debug('prerelease compare', i, a, b);
-    if (a === undefined && b === undefined)
-      return 0;
-    else if (b === undefined)
-      return 1;
-    else if (a === undefined)
-      return -1;
-    else if (a === b)
-      continue;
-    else
-      return compareIdentifiers(a, b);
-  } while (++i);
-};
-
-// preminor will bump the version up to the next minor release, and immediately
-// down to pre-release. premajor and prepatch work the same way.
-SemVer.prototype.inc = function(release, identifier) {
-  switch (release) {
-    case 'premajor':
-      this.prerelease.length = 0;
-      this.patch = 0;
-      this.minor = 0;
-      this.major++;
-      this.inc('pre', identifier);
-      break;
-    case 'preminor':
-      this.prerelease.length = 0;
-      this.patch = 0;
-      this.minor++;
-      this.inc('pre', identifier);
-      break;
-    case 'prepatch':
-      // If this is already a prerelease, it will bump to the next version
-      // drop any prereleases that might already exist, since they are not
-      // relevant at this point.
-      this.prerelease.length = 0;
-      this.inc('patch', identifier);
-      this.inc('pre', identifier);
-      break;
-    // If the input is a non-prerelease version, this acts the same as
-    // prepatch.
-    case 'prerelease':
-      if (this.prerelease.length === 0)
-        this.inc('patch', identifier);
-      this.inc('pre', identifier);
-      break;
-
-    case 'major':
-      // If this is a pre-major version, bump up to the same major version.
-      // Otherwise increment major.
-      // 1.0.0-5 bumps to 1.0.0
-      // 1.1.0 bumps to 2.0.0
-      if (this.minor !== 0 || this.patch !== 0 || this.prerelease.length === 0)
-        this.major++;
-      this.minor = 0;
-      this.patch = 0;
-      this.prerelease = [];
-      break;
-    case 'minor':
-      // If this is a pre-minor version, bump up to the same minor version.
-      // Otherwise increment minor.
-      // 1.2.0-5 bumps to 1.2.0
-      // 1.2.1 bumps to 1.3.0
-      if (this.patch !== 0 || this.prerelease.length === 0)
-        this.minor++;
-      this.patch = 0;
-      this.prerelease = [];
-      break;
-    case 'patch':
-      // If this is not a pre-release version, it will increment the patch.
-      // If it is a pre-release it will bump up to the same patch version.
-      // 1.2.0-5 patches to 1.2.0
-      // 1.2.0 patches to 1.2.1
-      if (this.prerelease.length === 0)
-        this.patch++;
-      this.prerelease = [];
-      break;
-    // This probably shouldn't be used publicly.
-    // 1.0.0 "pre" would become 1.0.0-0 which is the wrong direction.
-    case 'pre':
-      if (this.prerelease.length === 0)
-        this.prerelease = [0];
-      else {
-        var i = this.prerelease.length;
-        while (--i >= 0) {
-          if (typeof this.prerelease[i] === 'number') {
-            this.prerelease[i]++;
-            i = -2;
-          }
-        }
-        if (i === -1) // didn't increment anything
-          this.prerelease.push(0);
-      }
-      if (identifier) {
-        // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
-        // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
-        if (this.prerelease[0] === identifier) {
-          if (isNaN(this.prerelease[1]))
-            this.prerelease = [identifier, 0];
-        } else
-          this.prerelease = [identifier, 0];
-      }
-      break;
-
-    default:
-      throw new Error('invalid increment argument: ' + release);
-  }
-  this.format();
-  this.raw = this.version;
-  return this;
-};
-
-exports.inc = inc;
-function inc(version, release, loose, identifier) {
-  if (typeof(loose) === 'string') {
-    identifier = loose;
-    loose = undefined;
-  }
-
-  try {
-    return new SemVer(version, loose).inc(release, identifier).version;
-  } catch (er) {
-    return null;
-  }
-}
-
-exports.diff = diff;
-function diff(version1, version2) {
-  if (eq(version1, version2)) {
-    return null;
-  } else {
-    var v1 = parse(version1);
-    var v2 = parse(version2);
-    if (v1.prerelease.length || v2.prerelease.length) {
-      for (var key in v1) {
-        if (key === 'major' || key === 'minor' || key === 'patch') {
-          if (v1[key] !== v2[key]) {
-            return 'pre'+key;
-          }
-        }
-      }
-      return 'prerelease';
-    }
-    for (var key in v1) {
-      if (key === 'major' || key === 'minor' || key === 'patch') {
-        if (v1[key] !== v2[key]) {
-          return key;
-        }
-      }
-    }
-  }
-}
-
-exports.compareIdentifiers = compareIdentifiers;
-
-var numeric = /^[0-9]+$/;
-function compareIdentifiers(a, b) {
-  var anum = numeric.test(a);
-  var bnum = numeric.test(b);
-
-  if (anum && bnum) {
-    a = +a;
-    b = +b;
-  }
-
-  return (anum && !bnum) ? -1 :
-         (bnum && !anum) ? 1 :
-         a < b ? -1 :
-         a > b ? 1 :
-         0;
-}
-
-exports.rcompareIdentifiers = rcompareIdentifiers;
-function rcompareIdentifiers(a, b) {
-  return compareIdentifiers(b, a);
-}
-
-exports.major = major;
-function major(a, loose) {
-  return new SemVer(a, loose).major;
-}
-
-exports.minor = minor;
-function minor(a, loose) {
-  return new SemVer(a, loose).minor;
-}
-
-exports.patch = patch;
-function patch(a, loose) {
-  return new SemVer(a, loose).patch;
-}
-
-exports.compare = compare;
-function compare(a, b, loose) {
-  return new SemVer(a, loose).compare(new SemVer(b, loose));
-}
-
-exports.compareLoose = compareLoose;
-function compareLoose(a, b) {
-  return compare(a, b, true);
-}
-
-exports.rcompare = rcompare;
-function rcompare(a, b, loose) {
-  return compare(b, a, loose);
-}
-
-exports.sort = sort;
-function sort(list, loose) {
-  return list.sort(function(a, b) {
-    return exports.compare(a, b, loose);
-  });
-}
-
-exports.rsort = rsort;
-function rsort(list, loose) {
-  return list.sort(function(a, b) {
-    return exports.rcompare(a, b, loose);
-  });
-}
-
-exports.gt = gt;
-function gt(a, b, loose) {
-  return compare(a, b, loose) > 0;
-}
-
-exports.lt = lt;
-function lt(a, b, loose) {
-  return compare(a, b, loose) < 0;
-}
-
-exports.eq = eq;
-function eq(a, b, loose) {
-  return compare(a, b, loose) === 0;
-}
-
-exports.neq = neq;
-function neq(a, b, loose) {
-  return compare(a, b, loose) !== 0;
-}
-
-exports.gte = gte;
-function gte(a, b, loose) {
-  return compare(a, b, loose) >= 0;
-}
-
-exports.lte = lte;
-function lte(a, b, loose) {
-  return compare(a, b, loose) <= 0;
-}
-
-exports.cmp = cmp;
-function cmp(a, op, b, loose) {
-  var ret;
-  switch (op) {
-    case '===':
-      if (typeof a === 'object') a = a.version;
-      if (typeof b === 'object') b = b.version;
-      ret = a === b;
-      break;
-    case '!==':
-      if (typeof a === 'object') a = a.version;
-      if (typeof b === 'object') b = b.version;
-      ret = a !== b;
-      break;
-    case '': case '=': case '==': ret = eq(a, b, loose); break;
-    case '!=': ret = neq(a, b, loose); break;
-    case '>': ret = gt(a, b, loose); break;
-    case '>=': ret = gte(a, b, loose); break;
-    case '<': ret = lt(a, b, loose); break;
-    case '<=': ret = lte(a, b, loose); break;
-    default: throw new TypeError('Invalid operator: ' + op);
-  }
-  return ret;
-}
-
-exports.Comparator = Comparator;
-function Comparator(comp, loose) {
-  if (comp instanceof Comparator) {
-    if (comp.loose === loose)
-      return comp;
-    else
-      comp = comp.value;
-  }
-
-  if (!(this instanceof Comparator))
-    return new Comparator(comp, loose);
-
-  debug('comparator', comp, loose);
-  this.loose = loose;
-  this.parse(comp);
-
-  if (this.semver === ANY)
-    this.value = '';
-  else
-    this.value = this.operator + this.semver.version;
-
-  debug('comp', this);
-}
-
-var ANY = {};
-Comparator.prototype.parse = function(comp) {
-  var r = this.loose ? re[COMPARATORLOOSE] : re[COMPARATOR];
-  var m = comp.match(r);
-
-  if (!m)
-    throw new TypeError('Invalid comparator: ' + comp);
-
-  this.operator = m[1];
-  if (this.operator === '=')
-    this.operator = '';
-
-  // if it literally is just '>' or '' then allow anything.
-  if (!m[2])
-    this.semver = ANY;
-  else
-    this.semver = new SemVer(m[2], this.loose);
-};
-
-Comparator.prototype.toString = function() {
-  return this.value;
-};
-
-Comparator.prototype.test = function(version) {
-  debug('Comparator.test', version, this.loose);
-
-  if (this.semver === ANY)
-    return true;
-
-  if (typeof version === 'string')
-    version = new SemVer(version, this.loose);
-
-  return cmp(version, this.operator, this.semver, this.loose);
-};
-
-Comparator.prototype.intersects = function(comp, loose) {
-  if (!(comp instanceof Comparator)) {
-    throw new TypeError('a Comparator is required');
-  }
-
-  var rangeTmp;
-
-  if (this.operator === '') {
-    rangeTmp = new Range(comp.value, loose);
-    return satisfies(this.value, rangeTmp, loose);
-  } else if (comp.operator === '') {
-    rangeTmp = new Range(this.value, loose);
-    return satisfies(comp.semver, rangeTmp, loose);
-  }
-
-  var sameDirectionIncreasing =
-    (this.operator === '>=' || this.operator === '>') &&
-    (comp.operator === '>=' || comp.operator === '>');
-  var sameDirectionDecreasing =
-    (this.operator === '<=' || this.operator === '<') &&
-    (comp.operator === '<=' || comp.operator === '<');
-  var sameSemVer = this.semver.version === comp.semver.version;
-  var differentDirectionsInclusive =
-    (this.operator === '>=' || this.operator === '<=') &&
-    (comp.operator === '>=' || comp.operator === '<=');
-  var oppositeDirectionsLessThan =
-    cmp(this.semver, '<', comp.semver, loose) &&
-    ((this.operator === '>=' || this.operator === '>') &&
-    (comp.operator === '<=' || comp.operator === '<'));
-  var oppositeDirectionsGreaterThan =
-    cmp(this.semver, '>', comp.semver, loose) &&
-    ((this.operator === '<=' || this.operator === '<') &&
-    (comp.operator === '>=' || comp.operator === '>'));
-
-  return sameDirectionIncreasing || sameDirectionDecreasing ||
-    (sameSemVer && differentDirectionsInclusive) ||
-    oppositeDirectionsLessThan || oppositeDirectionsGreaterThan;
-};
-
-
-exports.Range = Range;
-function Range(range, loose) {
-  if (range instanceof Range) {
-    if (range.loose === loose) {
-      return range;
-    } else {
-      return new Range(range.raw, loose);
-    }
-  }
-
-  if (range instanceof Comparator) {
-    return new Range(range.value, loose);
-  }
-
-  if (!(this instanceof Range))
-    return new Range(range, loose);
-
-  this.loose = loose;
-
-  // First, split based on boolean or ||
-  this.raw = range;
-  this.set = range.split(/\s*\|\|\s*/).map(function(range) {
-    return this.parseRange(range.trim());
-  }, this).filter(function(c) {
-    // throw out any that are not relevant for whatever reason
-    return c.length;
-  });
-
-  if (!this.set.length) {
-    throw new TypeError('Invalid SemVer Range: ' + range);
-  }
-
-  this.format();
-}
-
-Range.prototype.format = function() {
-  this.range = this.set.map(function(comps) {
-    return comps.join(' ').trim();
-  }).join('||').trim();
-  return this.range;
-};
-
-Range.prototype.toString = function() {
-  return this.range;
-};
-
-Range.prototype.parseRange = function(range) {
-  var loose = this.loose;
-  range = range.trim();
-  debug('range', range, loose);
-  // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
-  var hr = loose ? re[HYPHENRANGELOOSE] : re[HYPHENRANGE];
-  range = range.replace(hr, hyphenReplace);
-  debug('hyphen replace', range);
-  // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-  range = range.replace(re[COMPARATORTRIM], comparatorTrimReplace);
-  debug('comparator trim', range, re[COMPARATORTRIM]);
-
-  // `~ 1.2.3` => `~1.2.3`
-  range = range.replace(re[TILDETRIM], tildeTrimReplace);
-
-  // `^ 1.2.3` => `^1.2.3`
-  range = range.replace(re[CARETTRIM], caretTrimReplace);
-
-  // normalize spaces
-  range = range.split(/\s+/).join(' ');
-
-  // At this point, the range is completely trimmed and
-  // ready to be split into comparators.
-
-  var compRe = loose ? re[COMPARATORLOOSE] : re[COMPARATOR];
-  var set = range.split(' ').map(function(comp) {
-    return parseComparator(comp, loose);
-  }).join(' ').split(/\s+/);
-  if (this.loose) {
-    // in loose mode, throw out any that are not valid comparators
-    set = set.filter(function(comp) {
-      return !!comp.match(compRe);
-    });
-  }
-  set = set.map(function(comp) {
-    return new Comparator(comp, loose);
-  });
-
-  return set;
-};
-
-Range.prototype.intersects = function(range, loose) {
-  if (!(range instanceof Range)) {
-    throw new TypeError('a Range is required');
-  }
-
-  return this.set.some(function(thisComparators) {
-    return thisComparators.every(function(thisComparator) {
-      return range.set.some(function(rangeComparators) {
-        return rangeComparators.every(function(rangeComparator) {
-          return thisComparator.intersects(rangeComparator, loose);
-        });
-      });
-    });
-  });
-};
-
-// Mostly just for testing and legacy API reasons
-exports.toComparators = toComparators;
-function toComparators(range, loose) {
-  return new Range(range, loose).set.map(function(comp) {
-    return comp.map(function(c) {
-      return c.value;
-    }).join(' ').trim().split(' ');
-  });
-}
-
-// comprised of xranges, tildes, stars, and gtlt's at this point.
-// already replaced the hyphen ranges
-// turn into a set of JUST comparators.
-function parseComparator(comp, loose) {
-  debug('comp', comp);
-  comp = replaceCarets(comp, loose);
-  debug('caret', comp);
-  comp = replaceTildes(comp, loose);
-  debug('tildes', comp);
-  comp = replaceXRanges(comp, loose);
-  debug('xrange', comp);
-  comp = replaceStars(comp, loose);
-  debug('stars', comp);
-  return comp;
-}
-
-function isX(id) {
-  return !id || id.toLowerCase() === 'x' || id === '*';
-}
-
-// ~, ~> --> * (any, kinda silly)
-// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0
-// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0
-// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0
-// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0
-// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0
-function replaceTildes(comp, loose) {
-  return comp.trim().split(/\s+/).map(function(comp) {
-    return replaceTilde(comp, loose);
-  }).join(' ');
-}
-
-function replaceTilde(comp, loose) {
-  var r = loose ? re[TILDELOOSE] : re[TILDE];
-  return comp.replace(r, function(_, M, m, p, pr) {
-    debug('tilde', comp, _, M, m, p, pr);
-    var ret;
-
-    if (isX(M))
-      ret = '';
-    else if (isX(m))
-      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0';
-    else if (isX(p))
-      // ~1.2 == >=1.2.0 <1.3.0
-      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0';
-    else if (pr) {
-      debug('replaceTilde pr', pr);
-      if (pr.charAt(0) !== '-')
-        pr = '-' + pr;
-      ret = '>=' + M + '.' + m + '.' + p + pr +
-            ' <' + M + '.' + (+m + 1) + '.0';
-    } else
-      // ~1.2.3 == >=1.2.3 <1.3.0
-      ret = '>=' + M + '.' + m + '.' + p +
-            ' <' + M + '.' + (+m + 1) + '.0';
-
-    debug('tilde return', ret);
-    return ret;
-  });
-}
-
-// ^ --> * (any, kinda silly)
-// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0
-// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0
-// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0
-// ^1.2.3 --> >=1.2.3 <2.0.0
-// ^1.2.0 --> >=1.2.0 <2.0.0
-function replaceCarets(comp, loose) {
-  return comp.trim().split(/\s+/).map(function(comp) {
-    return replaceCaret(comp, loose);
-  }).join(' ');
-}
-
-function replaceCaret(comp, loose) {
-  debug('caret', comp, loose);
-  var r = loose ? re[CARETLOOSE] : re[CARET];
-  return comp.replace(r, function(_, M, m, p, pr) {
-    debug('caret', comp, _, M, m, p, pr);
-    var ret;
-
-    if (isX(M))
-      ret = '';
-    else if (isX(m))
-      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0';
-    else if (isX(p)) {
-      if (M === '0')
-        ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0';
-      else
-        ret = '>=' + M + '.' + m + '.0 <' + (+M + 1) + '.0.0';
-    } else if (pr) {
-      debug('replaceCaret pr', pr);
-      if (pr.charAt(0) !== '-')
-        pr = '-' + pr;
-      if (M === '0') {
-        if (m === '0')
-          ret = '>=' + M + '.' + m + '.' + p + pr +
-                ' <' + M + '.' + m + '.' + (+p + 1);
-        else
-          ret = '>=' + M + '.' + m + '.' + p + pr +
-                ' <' + M + '.' + (+m + 1) + '.0';
-      } else
-        ret = '>=' + M + '.' + m + '.' + p + pr +
-              ' <' + (+M + 1) + '.0.0';
-    } else {
-      debug('no pr');
-      if (M === '0') {
-        if (m === '0')
-          ret = '>=' + M + '.' + m + '.' + p +
-                ' <' + M + '.' + m + '.' + (+p + 1);
-        else
-          ret = '>=' + M + '.' + m + '.' + p +
-                ' <' + M + '.' + (+m + 1) + '.0';
-      } else
-        ret = '>=' + M + '.' + m + '.' + p +
-              ' <' + (+M + 1) + '.0.0';
-    }
-
-    debug('caret return', ret);
-    return ret;
-  });
-}
-
-function replaceXRanges(comp, loose) {
-  debug('replaceXRanges', comp, loose);
-  return comp.split(/\s+/).map(function(comp) {
-    return replaceXRange(comp, loose);
-  }).join(' ');
-}
-
-function replaceXRange(comp, loose) {
-  comp = comp.trim();
-  var r = loose ? re[XRANGELOOSE] : re[XRANGE];
-  return comp.replace(r, function(ret, gtlt, M, m, p, pr) {
-    debug('xRange', comp, ret, gtlt, M, m, p, pr);
-    var xM = isX(M);
-    var xm = xM || isX(m);
-    var xp = xm || isX(p);
-    var anyX = xp;
-
-    if (gtlt === '=' && anyX)
-      gtlt = '';
-
-    if (xM) {
-      if (gtlt === '>' || gtlt === '<') {
-        // nothing is allowed
-        ret = '<0.0.0';
-      } else {
-        // nothing is forbidden
-        ret = '*';
-      }
-    } else if (gtlt && anyX) {
-      // replace X with 0
-      if (xm)
-        m = 0;
-      if (xp)
-        p = 0;
-
-      if (gtlt === '>') {
-        // >1 => >=2.0.0
-        // >1.2 => >=1.3.0
-        // >1.2.3 => >= 1.2.4
-        gtlt = '>=';
-        if (xm) {
-          M = +M + 1;
-          m = 0;
-          p = 0;
-        } else if (xp) {
-          m = +m + 1;
-          p = 0;
-        }
-      } else if (gtlt === '<=') {
-        // <=0.7.x is actually <0.8.0, since any 0.7.x should
-        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
-        gtlt = '<';
-        if (xm)
-          M = +M + 1;
-        else
-          m = +m + 1;
-      }
-
-      ret = gtlt + M + '.' + m + '.' + p;
-    } else if (xm) {
-      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0';
-    } else if (xp) {
-      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0';
-    }
-
-    debug('xRange return', ret);
-
-    return ret;
-  });
-}
-
-// Because * is AND-ed with everything else in the comparator,
-// and '' means "any version", just remove the *s entirely.
-function replaceStars(comp, loose) {
-  debug('replaceStars', comp, loose);
-  // Looseness is ignored here.  star is always as loose as it gets!
-  return comp.trim().replace(re[STAR], '');
-}
-
-// This function is passed to string.replace(re[HYPHENRANGE])
-// M, m, patch, prerelease, build
-// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
-// 1.2.3 - 3.4 => >=1.2.0 <3.5.0 Any 3.4.x will do
-// 1.2 - 3.4 => >=1.2.0 <3.5.0
-function hyphenReplace($0,
-                       from, fM, fm, fp, fpr, fb,
-                       to, tM, tm, tp, tpr, tb) {
-
-  if (isX(fM))
-    from = '';
-  else if (isX(fm))
-    from = '>=' + fM + '.0.0';
-  else if (isX(fp))
-    from = '>=' + fM + '.' + fm + '.0';
-  else
-    from = '>=' + from;
-
-  if (isX(tM))
-    to = '';
-  else if (isX(tm))
-    to = '<' + (+tM + 1) + '.0.0';
-  else if (isX(tp))
-    to = '<' + tM + '.' + (+tm + 1) + '.0';
-  else if (tpr)
-    to = '<=' + tM + '.' + tm + '.' + tp + '-' + tpr;
-  else
-    to = '<=' + to;
-
-  return (from + ' ' + to).trim();
-}
-
-
-// if ANY of the sets match ALL of its comparators, then pass
-Range.prototype.test = function(version) {
-  if (!version)
-    return false;
-
-  if (typeof version === 'string')
-    version = new SemVer(version, this.loose);
-
-  for (var i = 0; i < this.set.length; i++) {
-    if (testSet(this.set[i], version))
-      return true;
-  }
-  return false;
-};
-
-function testSet(set, version) {
-  for (var i = 0; i < set.length; i++) {
-    if (!set[i].test(version))
-      return false;
-  }
-
-  if (version.prerelease.length) {
-    // Find the set of versions that are allowed to have prereleases
-    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
-    // That should allow `1.2.3-pr.2` to pass.
-    // However, `1.2.4-alpha.notready` should NOT be allowed,
-    // even though it's within the range set by the comparators.
-    for (var i = 0; i < set.length; i++) {
-      debug(set[i].semver);
-      if (set[i].semver === ANY)
-        continue;
-
-      if (set[i].semver.prerelease.length > 0) {
-        var allowed = set[i].semver;
-        if (allowed.major === version.major &&
-            allowed.minor === version.minor &&
-            allowed.patch === version.patch)
-          return true;
-      }
-    }
-
-    // Version has a -pre, but it's not one of the ones we like.
-    return false;
-  }
-
-  return true;
-}
-
-exports.satisfies = satisfies;
-function satisfies(version, range, loose) {
-  try {
-    range = new Range(range, loose);
-  } catch (er) {
-    return false;
-  }
-  return range.test(version);
-}
-
-exports.maxSatisfying = maxSatisfying;
-function maxSatisfying(versions, range, loose) {
-  var max = null;
-  var maxSV = null;
-  try {
-    var rangeObj = new Range(range, loose);
-  } catch (er) {
-    return null;
-  }
-  versions.forEach(function (v) {
-    if (rangeObj.test(v)) { // satisfies(v, range, loose)
-      if (!max || maxSV.compare(v) === -1) { // compare(max, v, true)
-        max = v;
-        maxSV = new SemVer(max, loose);
-      }
-    }
-  })
-  return max;
-}
-
-exports.minSatisfying = minSatisfying;
-function minSatisfying(versions, range, loose) {
-  var min = null;
-  var minSV = null;
-  try {
-    var rangeObj = new Range(range, loose);
-  } catch (er) {
-    return null;
-  }
-  versions.forEach(function (v) {
-    if (rangeObj.test(v)) { // satisfies(v, range, loose)
-      if (!min || minSV.compare(v) === 1) { // compare(min, v, true)
-        min = v;
-        minSV = new SemVer(min, loose);
-      }
-    }
-  })
-  return min;
-}
-
-exports.validRange = validRange;
-function validRange(range, loose) {
-  try {
-    // Return '*' instead of '' so that truthiness works.
-    // This will throw if it's invalid anyway
-    return new Range(range, loose).range || '*';
-  } catch (er) {
-    return null;
-  }
-}
-
-// Determine if version is less than all the versions possible in the range
-exports.ltr = ltr;
-function ltr(version, range, loose) {
-  return outside(version, range, '<', loose);
-}
-
-// Determine if version is greater than all the versions possible in the range.
-exports.gtr = gtr;
-function gtr(version, range, loose) {
-  return outside(version, range, '>', loose);
-}
-
-exports.outside = outside;
-function outside(version, range, hilo, loose) {
-  version = new SemVer(version, loose);
-  range = new Range(range, loose);
-
-  var gtfn, ltefn, ltfn, comp, ecomp;
-  switch (hilo) {
-    case '>':
-      gtfn = gt;
-      ltefn = lte;
-      ltfn = lt;
-      comp = '>';
-      ecomp = '>=';
-      break;
-    case '<':
-      gtfn = lt;
-      ltefn = gte;
-      ltfn = gt;
-      comp = '<';
-      ecomp = '<=';
-      break;
-    default:
-      throw new TypeError('Must provide a hilo val of "<" or ">"');
-  }
-
-  // If it satisifes the range it is not outside
-  if (satisfies(version, range, loose)) {
-    return false;
-  }
-
-  // From now on, variable terms are as if we're in "gtr" mode.
-  // but note that everything is flipped for the "ltr" function.
-
-  for (var i = 0; i < range.set.length; ++i) {
-    var comparators = range.set[i];
-
-    var high = null;
-    var low = null;
-
-    comparators.forEach(function(comparator) {
-      if (comparator.semver === ANY) {
-        comparator = new Comparator('>=0.0.0')
-      }
-      high = high || comparator;
-      low = low || comparator;
-      if (gtfn(comparator.semver, high.semver, loose)) {
-        high = comparator;
-      } else if (ltfn(comparator.semver, low.semver, loose)) {
-        low = comparator;
-      }
-    });
-
-    // If the edge version comparator has a operator then our version
-    // isn't outside it
-    if (high.operator === comp || high.operator === ecomp) {
-      return false;
-    }
-
-    // If the lowest version comparator has an operator and our version
-    // is less than it then it isn't higher than the range
-    if ((!low.operator || low.operator === comp) &&
-        ltefn(version, low.semver)) {
-      return false;
-    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-exports.prerelease = prerelease;
-function prerelease(version, loose) {
-  var parsed = parse(version, loose);
-  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null;
-}
-
-exports.intersects = intersects;
-function intersects(r1, r2, loose) {
-  r1 = new Range(r1, loose)
-  r2 = new Range(r2, loose)
-  return r1.intersects(r2)
-}
-
-exports.coerce = coerce;
-function coerce(version) {
-  if (version instanceof SemVer)
-    return version;
-
-  if (typeof version !== 'string')
-    return null;
-
-  var match = version.match(re[COERCE]);
-
-  if (match == null)
-    return null;
-
-  return parse((match[1] || '0') + '.' + (match[2] || '0') + '.' + (match[3] || '0')); 
+module.exports = require("url");
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var resolve = __webpack_require__(0).resolve
+var bin = __webpack_require__(17).bin
+
+module.exports = map_obj(bin, function(v){
+  return resolve(__dirname, v)
+})
+
+function map_obj(obj, fn){
+  return Object.keys(obj).reduce(function(m, k){
+    m[k] = fn(obj[k])
+    return m
+  }, {})
 }
 
 
 /***/ }),
 /* 17 */
+/***/ (function(module, exports) {
+
+module.exports = {"_args":[[{"raw":"7zip@0.0.6","scope":null,"escapedName":"7zip","name":"7zip","rawSpec":"0.0.6","spec":"0.0.6","type":"version"},"/Users/tedshaffer/Documents/Projects/autotron/node_modules/electron-devtools-installer"]],"_from":"7zip@0.0.6","_id":"7zip@0.0.6","_inCache":true,"_location":"/7zip","_nodeVersion":"5.11.0","_npmOperationalInternal":{"host":"packages-12-west.internal.npmjs.com","tmp":"tmp/7zip-0.0.6.tgz_1463274735811_0.1922009070403874"},"_npmUser":{"name":"fritx","email":"uxfritz@163.com"},"_npmVersion":"3.8.6","_phantomChildren":{},"_requested":{"raw":"7zip@0.0.6","scope":null,"escapedName":"7zip","name":"7zip","rawSpec":"0.0.6","spec":"0.0.6","type":"version"},"_requiredBy":["/electron-devtools-installer"],"_resolved":"http://uslg-nodecache1.brightsign.info/7zip/-/7zip-0.0.6.tgz","_shasum":"9cafb171af82329490353b4816f03347aa150a30","_shrinkwrap":null,"_spec":"7zip@0.0.6","_where":"/Users/tedshaffer/Documents/Projects/autotron/node_modules/electron-devtools-installer","bin":{"7z":"7zip-lite/7z.exe"},"bugs":{"url":"https://github.com/fritx/win-7zip/issues"},"dependencies":{},"description":"7zip Windows Package via Node.js","devDependencies":{},"directories":{},"dist":{"shasum":"9cafb171af82329490353b4816f03347aa150a30","tarball":"https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz"},"gitHead":"ece5481873f357545c99a9e2f9e1cdb3fe76de2d","homepage":"https://github.com/fritx/win-7zip#readme","keywords":["7z","7zip","7-zip","windows","install"],"license":"GNU LGPL","main":"index.js","maintainers":[{"name":"fritx","email":"uxfritz@163.com"}],"name":"7zip","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/fritx/win-7zip.git"},"scripts":{"test":"mocha"},"version":"0.0.6"}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var concatMap = __webpack_require__(20);
+var balanced = __webpack_require__(19);
+
+module.exports = expandTop;
+
+var escSlash = '\0SLASH'+Math.random()+'\0';
+var escOpen = '\0OPEN'+Math.random()+'\0';
+var escClose = '\0CLOSE'+Math.random()+'\0';
+var escComma = '\0COMMA'+Math.random()+'\0';
+var escPeriod = '\0PERIOD'+Math.random()+'\0';
+
+function numeric(str) {
+  return parseInt(str, 10) == str
+    ? parseInt(str, 10)
+    : str.charCodeAt(0);
+}
+
+function escapeBraces(str) {
+  return str.split('\\\\').join(escSlash)
+            .split('\\{').join(escOpen)
+            .split('\\}').join(escClose)
+            .split('\\,').join(escComma)
+            .split('\\.').join(escPeriod);
+}
+
+function unescapeBraces(str) {
+  return str.split(escSlash).join('\\')
+            .split(escOpen).join('{')
+            .split(escClose).join('}')
+            .split(escComma).join(',')
+            .split(escPeriod).join('.');
+}
+
+
+// Basically just str.split(","), but handling cases
+// where we have nested braced sections, which should be
+// treated as individual members, like {a,{b,c},d}
+function parseCommaParts(str) {
+  if (!str)
+    return [''];
+
+  var parts = [];
+  var m = balanced('{', '}', str);
+
+  if (!m)
+    return str.split(',');
+
+  var pre = m.pre;
+  var body = m.body;
+  var post = m.post;
+  var p = pre.split(',');
+
+  p[p.length-1] += '{' + body + '}';
+  var postParts = parseCommaParts(post);
+  if (post.length) {
+    p[p.length-1] += postParts.shift();
+    p.push.apply(p, postParts);
+  }
+
+  parts.push.apply(parts, p);
+
+  return parts;
+}
+
+function expandTop(str) {
+  if (!str)
+    return [];
+
+  // I don't know why Bash 4.3 does this, but it does.
+  // Anything starting with {} will have the first two bytes preserved
+  // but *only* at the top level, so {},a}b will not expand to anything,
+  // but a{},b}c will be expanded to [a}c,abc].
+  // One could argue that this is a bug in Bash, but since the goal of
+  // this module is to match Bash's rules, we escape a leading {}
+  if (str.substr(0, 2) === '{}') {
+    str = '\\{\\}' + str.substr(2);
+  }
+
+  return expand(escapeBraces(str), true).map(unescapeBraces);
+}
+
+function identity(e) {
+  return e;
+}
+
+function embrace(str) {
+  return '{' + str + '}';
+}
+function isPadded(el) {
+  return /^-?0\d/.test(el);
+}
+
+function lte(i, y) {
+  return i <= y;
+}
+function gte(i, y) {
+  return i >= y;
+}
+
+function expand(str, isTop) {
+  var expansions = [];
+
+  var m = balanced('{', '}', str);
+  if (!m || /\$$/.test(m.pre)) return [str];
+
+  var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+  var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+  var isSequence = isNumericSequence || isAlphaSequence;
+  var isOptions = m.body.indexOf(',') >= 0;
+  if (!isSequence && !isOptions) {
+    // {a},b}
+    if (m.post.match(/,.*\}/)) {
+      str = m.pre + '{' + m.body + escClose + m.post;
+      return expand(str);
+    }
+    return [str];
+  }
+
+  var n;
+  if (isSequence) {
+    n = m.body.split(/\.\./);
+  } else {
+    n = parseCommaParts(m.body);
+    if (n.length === 1) {
+      // x{{a,b}}y ==> x{a}y x{b}y
+      n = expand(n[0], false).map(embrace);
+      if (n.length === 1) {
+        var post = m.post.length
+          ? expand(m.post, false)
+          : [''];
+        return post.map(function(p) {
+          return m.pre + n[0] + p;
+        });
+      }
+    }
+  }
+
+  // at this point, n is the parts, and we know it's not a comma set
+  // with a single entry.
+
+  // no need to expand pre, since it is guaranteed to be free of brace-sets
+  var pre = m.pre;
+  var post = m.post.length
+    ? expand(m.post, false)
+    : [''];
+
+  var N;
+
+  if (isSequence) {
+    var x = numeric(n[0]);
+    var y = numeric(n[1]);
+    var width = Math.max(n[0].length, n[1].length)
+    var incr = n.length == 3
+      ? Math.abs(numeric(n[2]))
+      : 1;
+    var test = lte;
+    var reverse = y < x;
+    if (reverse) {
+      incr *= -1;
+      test = gte;
+    }
+    var pad = n.some(isPadded);
+
+    N = [];
+
+    for (var i = x; test(i, y); i += incr) {
+      var c;
+      if (isAlphaSequence) {
+        c = String.fromCharCode(i);
+        if (c === '\\')
+          c = '';
+      } else {
+        c = String(i);
+        if (pad) {
+          var need = width - c.length;
+          if (need > 0) {
+            var z = new Array(need + 1).join('0');
+            if (i < 0)
+              c = '-' + z + c.slice(1);
+            else
+              c = z + c;
+          }
+        }
+      }
+      N.push(c);
+    }
+  } else {
+    N = concatMap(n, function(el) { return expand(el, false) });
+  }
+
+  for (var j = 0; j < N.length; j++) {
+    for (var k = 0; k < post.length; k++) {
+      var expansion = pre + N[j] + post[k];
+      if (!isTop || isSequence || expansion)
+        expansions.push(expansion);
+    }
+  }
+
+  return expansions;
+}
+
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = balanced;
+function balanced(a, b, str) {
+  if (a instanceof RegExp) a = maybeMatch(a, str);
+  if (b instanceof RegExp) b = maybeMatch(b, str);
+
+  var r = range(a, b, str);
+
+  return r && {
+    start: r[0],
+    end: r[1],
+    pre: str.slice(0, r[0]),
+    body: str.slice(r[0] + a.length, r[1]),
+    post: str.slice(r[1] + b.length)
+  };
+}
+
+function maybeMatch(reg, str) {
+  var m = str.match(reg);
+  return m ? m[0] : null;
+}
+
+balanced.range = range;
+function range(a, b, str) {
+  var begs, beg, left, right, result;
+  var ai = str.indexOf(a);
+  var bi = str.indexOf(b, ai + 1);
+  var i = ai;
+
+  if (ai >= 0 && bi > 0) {
+    begs = [];
+    left = str.length;
+
+    while (i >= 0 && !result) {
+      if (i == ai) {
+        begs.push(i);
+        ai = str.indexOf(a, i + 1);
+      } else if (begs.length == 1) {
+        result = [ begs.pop(), bi ];
+      } else {
+        beg = begs.pop();
+        if (beg < left) {
+          left = beg;
+          right = bi;
+        }
+
+        bi = str.indexOf(b, i + 1);
+      }
+
+      i = ai < bi && ai >= 0 ? ai : bi;
+    }
+
+    if (begs.length) {
+      result = [ left, right ];
+    }
+  }
+
+  return result;
+}
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+module.exports = function (xs, fn) {
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        var x = fn(xs[i], i);
+        if (isArray(x)) res.push.apply(res, x);
+        else res.push(x);
+    }
+    return res;
+};
+
+var isArray = Array.isArray || function (xs) {
+    return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var spawn = __webpack_require__(31).spawn
+var slice = Array.prototype.slice
+
+var unzip = process.platform === 'win32' ? forWin32 : forUnix
+unzip.unzip = unzip
+module.exports = unzip
+
+// todo: progress feedback
+
+// https://github.com/fritx/win-7zip
+function forWin32 (inPath, outPath, callback) {
+  var _7z = __webpack_require__(16)['7z']
+
+  // very 奇葩
+  // eg. 7z x archive.zip -oc:\Doc
+  run(_7z, ['x', inPath, '-y', '-o' + outPath], callback)
+}
+
+function forUnix (inPath, outPath, callback) {
+  run('unzip', ['-o', inPath, '-d', outPath], callback)
+}
+
+// https://nodejs.org/api/child_process.html#child_process_event_error
+// Note that the 'exit' event may or may not fire after an error has occurred.
+// If you are listening to both the 'exit' and 'error' events,
+// it is important to guard against accidentally invoking handler functions multiple times.
+function run (bin, args, callback) {
+  callback = onceify(callback)
+
+  var prc = spawn(bin, args, {
+    stdio: 'ignore'
+  })
+  prc.on('error', function (err) {
+    callback(err)
+  })
+  prc.on('exit', function (code) {
+    callback(code ? new Error('Exited with code ' + code) : null)
+  })
+}
+
+// http://stackoverflow.com/questions/30234908/javascript-v8-optimisation-and-leaking-arguments
+// javascript V8 optimisation and “leaking arguments”
+// making callback to be invoked only once
+function onceify (fn) {
+  var called = false
+  return function () {
+    if (called) return
+    called = true
+    fn.apply(this, slice.call(arguments)) // slice arguments
+  }
+}
+
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3928,15 +2905,15 @@ var _path = __webpack_require__(0);
 
 var _path2 = _interopRequireDefault(_path);
 
-var _rimraf = __webpack_require__(18);
+var _rimraf = __webpack_require__(28);
 
 var _rimraf2 = _interopRequireDefault(_rimraf);
 
-var _crossUnzip = __webpack_require__(27);
+var _crossUnzip = __webpack_require__(21);
 
 var _crossUnzip2 = _interopRequireDefault(_crossUnzip);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3981,377 +2958,7 @@ var downloadChromeExtension = function downloadChromeExtension(chromeStoreID, fo
 exports.default = downloadChromeExtension;
 
 /***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = rimraf
-rimraf.sync = rimrafSync
-
-var assert = __webpack_require__(3)
-var path = __webpack_require__(0)
-var fs = __webpack_require__(1)
-var glob = __webpack_require__(7)
-var _0666 = parseInt('666', 8)
-
-var defaultGlobOpts = {
-  nosort: true,
-  silent: true
-}
-
-// for EMFILE handling
-var timeout = 0
-
-var isWindows = (process.platform === "win32")
-
-function defaults (options) {
-  var methods = [
-    'unlink',
-    'chmod',
-    'stat',
-    'lstat',
-    'rmdir',
-    'readdir'
-  ]
-  methods.forEach(function(m) {
-    options[m] = options[m] || fs[m]
-    m = m + 'Sync'
-    options[m] = options[m] || fs[m]
-  })
-
-  options.maxBusyTries = options.maxBusyTries || 3
-  options.emfileWait = options.emfileWait || 1000
-  if (options.glob === false) {
-    options.disableGlob = true
-  }
-  options.disableGlob = options.disableGlob || false
-  options.glob = options.glob || defaultGlobOpts
-}
-
-function rimraf (p, options, cb) {
-  if (typeof options === 'function') {
-    cb = options
-    options = {}
-  }
-
-  assert(p, 'rimraf: missing path')
-  assert.equal(typeof p, 'string', 'rimraf: path should be a string')
-  assert.equal(typeof cb, 'function', 'rimraf: callback function required')
-  assert(options, 'rimraf: invalid options argument provided')
-  assert.equal(typeof options, 'object', 'rimraf: options should be object')
-
-  defaults(options)
-
-  var busyTries = 0
-  var errState = null
-  var n = 0
-
-  if (options.disableGlob || !glob.hasMagic(p))
-    return afterGlob(null, [p])
-
-  options.lstat(p, function (er, stat) {
-    if (!er)
-      return afterGlob(null, [p])
-
-    glob(p, options.glob, afterGlob)
-  })
-
-  function next (er) {
-    errState = errState || er
-    if (--n === 0)
-      cb(errState)
-  }
-
-  function afterGlob (er, results) {
-    if (er)
-      return cb(er)
-
-    n = results.length
-    if (n === 0)
-      return cb()
-
-    results.forEach(function (p) {
-      rimraf_(p, options, function CB (er) {
-        if (er) {
-          if ((er.code === "EBUSY" || er.code === "ENOTEMPTY" || er.code === "EPERM") &&
-              busyTries < options.maxBusyTries) {
-            busyTries ++
-            var time = busyTries * 100
-            // try again, with the same exact callback as this one.
-            return setTimeout(function () {
-              rimraf_(p, options, CB)
-            }, time)
-          }
-
-          // this one won't happen if graceful-fs is used.
-          if (er.code === "EMFILE" && timeout < options.emfileWait) {
-            return setTimeout(function () {
-              rimraf_(p, options, CB)
-            }, timeout ++)
-          }
-
-          // already gone
-          if (er.code === "ENOENT") er = null
-        }
-
-        timeout = 0
-        next(er)
-      })
-    })
-  }
-}
-
-// Two possible strategies.
-// 1. Assume it's a file.  unlink it, then do the dir stuff on EPERM or EISDIR
-// 2. Assume it's a directory.  readdir, then do the file stuff on ENOTDIR
-//
-// Both result in an extra syscall when you guess wrong.  However, there
-// are likely far more normal files in the world than directories.  This
-// is based on the assumption that a the average number of files per
-// directory is >= 1.
-//
-// If anyone ever complains about this, then I guess the strategy could
-// be made configurable somehow.  But until then, YAGNI.
-function rimraf_ (p, options, cb) {
-  assert(p)
-  assert(options)
-  assert(typeof cb === 'function')
-
-  // sunos lets the root user unlink directories, which is... weird.
-  // so we have to lstat here and make sure it's not a dir.
-  options.lstat(p, function (er, st) {
-    if (er && er.code === "ENOENT")
-      return cb(null)
-
-    // Windows can EPERM on stat.  Life is suffering.
-    if (er && er.code === "EPERM" && isWindows)
-      fixWinEPERM(p, options, er, cb)
-
-    if (st && st.isDirectory())
-      return rmdir(p, options, er, cb)
-
-    options.unlink(p, function (er) {
-      if (er) {
-        if (er.code === "ENOENT")
-          return cb(null)
-        if (er.code === "EPERM")
-          return (isWindows)
-            ? fixWinEPERM(p, options, er, cb)
-            : rmdir(p, options, er, cb)
-        if (er.code === "EISDIR")
-          return rmdir(p, options, er, cb)
-      }
-      return cb(er)
-    })
-  })
-}
-
-function fixWinEPERM (p, options, er, cb) {
-  assert(p)
-  assert(options)
-  assert(typeof cb === 'function')
-  if (er)
-    assert(er instanceof Error)
-
-  options.chmod(p, _0666, function (er2) {
-    if (er2)
-      cb(er2.code === "ENOENT" ? null : er)
-    else
-      options.stat(p, function(er3, stats) {
-        if (er3)
-          cb(er3.code === "ENOENT" ? null : er)
-        else if (stats.isDirectory())
-          rmdir(p, options, er, cb)
-        else
-          options.unlink(p, cb)
-      })
-  })
-}
-
-function fixWinEPERMSync (p, options, er) {
-  assert(p)
-  assert(options)
-  if (er)
-    assert(er instanceof Error)
-
-  try {
-    options.chmodSync(p, _0666)
-  } catch (er2) {
-    if (er2.code === "ENOENT")
-      return
-    else
-      throw er
-  }
-
-  try {
-    var stats = options.statSync(p)
-  } catch (er3) {
-    if (er3.code === "ENOENT")
-      return
-    else
-      throw er
-  }
-
-  if (stats.isDirectory())
-    rmdirSync(p, options, er)
-  else
-    options.unlinkSync(p)
-}
-
-function rmdir (p, options, originalEr, cb) {
-  assert(p)
-  assert(options)
-  if (originalEr)
-    assert(originalEr instanceof Error)
-  assert(typeof cb === 'function')
-
-  // try to rmdir first, and only readdir on ENOTEMPTY or EEXIST (SunOS)
-  // if we guessed wrong, and it's not a directory, then
-  // raise the original error.
-  options.rmdir(p, function (er) {
-    if (er && (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM"))
-      rmkids(p, options, cb)
-    else if (er && er.code === "ENOTDIR")
-      cb(originalEr)
-    else
-      cb(er)
-  })
-}
-
-function rmkids(p, options, cb) {
-  assert(p)
-  assert(options)
-  assert(typeof cb === 'function')
-
-  options.readdir(p, function (er, files) {
-    if (er)
-      return cb(er)
-    var n = files.length
-    if (n === 0)
-      return options.rmdir(p, cb)
-    var errState
-    files.forEach(function (f) {
-      rimraf(path.join(p, f), options, function (er) {
-        if (errState)
-          return
-        if (er)
-          return cb(errState = er)
-        if (--n === 0)
-          options.rmdir(p, cb)
-      })
-    })
-  })
-}
-
-// this looks simpler, and is strictly *faster*, but will
-// tie up the JavaScript thread and fail on excessively
-// deep directory trees.
-function rimrafSync (p, options) {
-  options = options || {}
-  defaults(options)
-
-  assert(p, 'rimraf: missing path')
-  assert.equal(typeof p, 'string', 'rimraf: path should be a string')
-  assert(options, 'rimraf: missing options')
-  assert.equal(typeof options, 'object', 'rimraf: options should be object')
-
-  var results
-
-  if (options.disableGlob || !glob.hasMagic(p)) {
-    results = [p]
-  } else {
-    try {
-      options.lstatSync(p)
-      results = [p]
-    } catch (er) {
-      results = glob.sync(p, options.glob)
-    }
-  }
-
-  if (!results.length)
-    return
-
-  for (var i = 0; i < results.length; i++) {
-    var p = results[i]
-
-    try {
-      var st = options.lstatSync(p)
-    } catch (er) {
-      if (er.code === "ENOENT")
-        return
-
-      // Windows can EPERM on stat.  Life is suffering.
-      if (er.code === "EPERM" && isWindows)
-        fixWinEPERMSync(p, options, er)
-    }
-
-    try {
-      // sunos lets the root user unlink directories, which is... weird.
-      if (st && st.isDirectory())
-        rmdirSync(p, options, null)
-      else
-        options.unlinkSync(p)
-    } catch (er) {
-      if (er.code === "ENOENT")
-        return
-      if (er.code === "EPERM")
-        return isWindows ? fixWinEPERMSync(p, options, er) : rmdirSync(p, options, er)
-      if (er.code !== "EISDIR")
-        throw er
-
-      rmdirSync(p, options, er)
-    }
-  }
-}
-
-function rmdirSync (p, options, originalEr) {
-  assert(p)
-  assert(options)
-  if (originalEr)
-    assert(originalEr instanceof Error)
-
-  try {
-    options.rmdirSync(p)
-  } catch (er) {
-    if (er.code === "ENOENT")
-      return
-    if (er.code === "ENOTDIR")
-      throw originalEr
-    if (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM")
-      rmkidsSync(p, options)
-  }
-}
-
-function rmkidsSync (p, options) {
-  assert(p)
-  assert(options)
-  options.readdirSync(p).forEach(function (f) {
-    rimrafSync(path.join(p, f), options)
-  })
-
-  // We only end up here once we got ENOTEMPTY at least once, and
-  // at this point, we are guaranteed to have removed all the kids.
-  // So, we know that it won't be ENOENT or ENOTDIR or anything else.
-  // try really hard to delete stuff on windows, because it has a
-  // PROFOUNDLY annoying habit of not closing handles promptly when
-  // files are deleted, resulting in spurious ENOTEMPTY errors.
-  var retries = isWindows ? 100 : 1
-  var i = 0
-  do {
-    var threw = true
-    try {
-      var ret = options.rmdirSync(p, options)
-      threw = false
-      return ret
-    } finally {
-      if (++i < retries && threw)
-        continue
-    }
-  } while (true)
-}
-
-
-/***/ }),
-/* 19 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -4660,312 +3267,7 @@ exports.realpath = function realpath(p, cache, cb) {
 
 
 /***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var concatMap = __webpack_require__(21);
-var balanced = __webpack_require__(22);
-
-module.exports = expandTop;
-
-var escSlash = '\0SLASH'+Math.random()+'\0';
-var escOpen = '\0OPEN'+Math.random()+'\0';
-var escClose = '\0CLOSE'+Math.random()+'\0';
-var escComma = '\0COMMA'+Math.random()+'\0';
-var escPeriod = '\0PERIOD'+Math.random()+'\0';
-
-function numeric(str) {
-  return parseInt(str, 10) == str
-    ? parseInt(str, 10)
-    : str.charCodeAt(0);
-}
-
-function escapeBraces(str) {
-  return str.split('\\\\').join(escSlash)
-            .split('\\{').join(escOpen)
-            .split('\\}').join(escClose)
-            .split('\\,').join(escComma)
-            .split('\\.').join(escPeriod);
-}
-
-function unescapeBraces(str) {
-  return str.split(escSlash).join('\\')
-            .split(escOpen).join('{')
-            .split(escClose).join('}')
-            .split(escComma).join(',')
-            .split(escPeriod).join('.');
-}
-
-
-// Basically just str.split(","), but handling cases
-// where we have nested braced sections, which should be
-// treated as individual members, like {a,{b,c},d}
-function parseCommaParts(str) {
-  if (!str)
-    return [''];
-
-  var parts = [];
-  var m = balanced('{', '}', str);
-
-  if (!m)
-    return str.split(',');
-
-  var pre = m.pre;
-  var body = m.body;
-  var post = m.post;
-  var p = pre.split(',');
-
-  p[p.length-1] += '{' + body + '}';
-  var postParts = parseCommaParts(post);
-  if (post.length) {
-    p[p.length-1] += postParts.shift();
-    p.push.apply(p, postParts);
-  }
-
-  parts.push.apply(parts, p);
-
-  return parts;
-}
-
-function expandTop(str) {
-  if (!str)
-    return [];
-
-  // I don't know why Bash 4.3 does this, but it does.
-  // Anything starting with {} will have the first two bytes preserved
-  // but *only* at the top level, so {},a}b will not expand to anything,
-  // but a{},b}c will be expanded to [a}c,abc].
-  // One could argue that this is a bug in Bash, but since the goal of
-  // this module is to match Bash's rules, we escape a leading {}
-  if (str.substr(0, 2) === '{}') {
-    str = '\\{\\}' + str.substr(2);
-  }
-
-  return expand(escapeBraces(str), true).map(unescapeBraces);
-}
-
-function identity(e) {
-  return e;
-}
-
-function embrace(str) {
-  return '{' + str + '}';
-}
-function isPadded(el) {
-  return /^-?0\d/.test(el);
-}
-
-function lte(i, y) {
-  return i <= y;
-}
-function gte(i, y) {
-  return i >= y;
-}
-
-function expand(str, isTop) {
-  var expansions = [];
-
-  var m = balanced('{', '}', str);
-  if (!m || /\$$/.test(m.pre)) return [str];
-
-  var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
-  var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
-  var isSequence = isNumericSequence || isAlphaSequence;
-  var isOptions = m.body.indexOf(',') >= 0;
-  if (!isSequence && !isOptions) {
-    // {a},b}
-    if (m.post.match(/,.*\}/)) {
-      str = m.pre + '{' + m.body + escClose + m.post;
-      return expand(str);
-    }
-    return [str];
-  }
-
-  var n;
-  if (isSequence) {
-    n = m.body.split(/\.\./);
-  } else {
-    n = parseCommaParts(m.body);
-    if (n.length === 1) {
-      // x{{a,b}}y ==> x{a}y x{b}y
-      n = expand(n[0], false).map(embrace);
-      if (n.length === 1) {
-        var post = m.post.length
-          ? expand(m.post, false)
-          : [''];
-        return post.map(function(p) {
-          return m.pre + n[0] + p;
-        });
-      }
-    }
-  }
-
-  // at this point, n is the parts, and we know it's not a comma set
-  // with a single entry.
-
-  // no need to expand pre, since it is guaranteed to be free of brace-sets
-  var pre = m.pre;
-  var post = m.post.length
-    ? expand(m.post, false)
-    : [''];
-
-  var N;
-
-  if (isSequence) {
-    var x = numeric(n[0]);
-    var y = numeric(n[1]);
-    var width = Math.max(n[0].length, n[1].length)
-    var incr = n.length == 3
-      ? Math.abs(numeric(n[2]))
-      : 1;
-    var test = lte;
-    var reverse = y < x;
-    if (reverse) {
-      incr *= -1;
-      test = gte;
-    }
-    var pad = n.some(isPadded);
-
-    N = [];
-
-    for (var i = x; test(i, y); i += incr) {
-      var c;
-      if (isAlphaSequence) {
-        c = String.fromCharCode(i);
-        if (c === '\\')
-          c = '';
-      } else {
-        c = String(i);
-        if (pad) {
-          var need = width - c.length;
-          if (need > 0) {
-            var z = new Array(need + 1).join('0');
-            if (i < 0)
-              c = '-' + z + c.slice(1);
-            else
-              c = z + c;
-          }
-        }
-      }
-      N.push(c);
-    }
-  } else {
-    N = concatMap(n, function(el) { return expand(el, false) });
-  }
-
-  for (var j = 0; j < N.length; j++) {
-    for (var k = 0; k < post.length; k++) {
-      var expansion = pre + N[j] + post[k];
-      if (!isTop || isSequence || expansion)
-        expansions.push(expansion);
-    }
-  }
-
-  return expansions;
-}
-
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-module.exports = function (xs, fn) {
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        var x = fn(xs[i], i);
-        if (isArray(x)) res.push.apply(res, x);
-        else res.push(x);
-    }
-    return res;
-};
-
-var isArray = Array.isArray || function (xs) {
-    return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = balanced;
-function balanced(a, b, str) {
-  if (a instanceof RegExp) a = maybeMatch(a, str);
-  if (b instanceof RegExp) b = maybeMatch(b, str);
-
-  var r = range(a, b, str);
-
-  return r && {
-    start: r[0],
-    end: r[1],
-    pre: str.slice(0, r[0]),
-    body: str.slice(r[0] + a.length, r[1]),
-    post: str.slice(r[1] + b.length)
-  };
-}
-
-function maybeMatch(reg, str) {
-  var m = str.match(reg);
-  return m ? m[0] : null;
-}
-
-balanced.range = range;
-function range(a, b, str) {
-  var begs, beg, left, right, result;
-  var ai = str.indexOf(a);
-  var bi = str.indexOf(b, ai + 1);
-  var i = ai;
-
-  if (ai >= 0 && bi > 0) {
-    begs = [];
-    left = str.length;
-
-    while (i >= 0 && !result) {
-      if (i == ai) {
-        begs.push(i);
-        ai = str.indexOf(a, i + 1);
-      } else if (begs.length == 1) {
-        result = [ begs.pop(), bi ];
-      } else {
-        beg = begs.pop();
-        if (beg < left) {
-          left = beg;
-          right = bi;
-        }
-
-        bi = str.indexOf(b, i + 1);
-      }
-
-      i = ai < bi && ai >= 0 ? ai : bi;
-    }
-
-    if (begs.length) {
-      result = [ left, right ];
-    }
-  }
-
-  return result;
-}
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(5).inherits
-
-
-/***/ }),
 /* 24 */
-/***/ (function(module, exports) {
-
-module.exports = require("events");
-
-/***/ }),
-/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = globSync
@@ -4973,13 +3275,13 @@ globSync.GlobSync = GlobSync
 
 var fs = __webpack_require__(1)
 var rp = __webpack_require__(8)
-var minimatch = __webpack_require__(4)
+var minimatch = __webpack_require__(3)
 var Minimatch = minimatch.Minimatch
-var Glob = __webpack_require__(7).Glob
-var util = __webpack_require__(5)
+var Glob = __webpack_require__(10).Glob
+var util = __webpack_require__(6)
 var path = __webpack_require__(0)
-var assert = __webpack_require__(3)
-var isAbsolute = __webpack_require__(6)
+var assert = __webpack_require__(5)
+var isAbsolute = __webpack_require__(4)
 var common = __webpack_require__(9)
 var alphasort = common.alphasort
 var alphasorti = common.alphasorti
@@ -5457,10 +3759,10 @@ GlobSync.prototype._makeAbs = function (f) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var wrappy = __webpack_require__(10)
+var wrappy = __webpack_require__(12)
 var reqs = Object.create(null)
 var once = __webpack_require__(11)
 
@@ -5517,137 +3819,2033 @@ function slice (args) {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-var spawn = __webpack_require__(28).spawn
-var slice = Array.prototype.slice
-
-var unzip = process.platform === 'win32' ? forWin32 : forUnix
-unzip.unzip = unzip
-module.exports = unzip
-
-// todo: progress feedback
-
-// https://github.com/fritx/win-7zip
-function forWin32 (inPath, outPath, callback) {
-  var _7z = __webpack_require__(29)['7z']
-
-  // very 奇葩
-  // eg. 7z x archive.zip -oc:\Doc
-  run(_7z, ['x', inPath, '-y', '-o' + outPath], callback)
+try {
+  var util = __webpack_require__(6);
+  if (typeof util.inherits !== 'function') throw '';
+  module.exports = util.inherits;
+} catch (e) {
+  module.exports = __webpack_require__(27);
 }
 
-function forUnix (inPath, outPath, callback) {
-  run('unzip', ['-o', inPath, '-d', outPath], callback)
-}
 
-// https://nodejs.org/api/child_process.html#child_process_event_error
-// Note that the 'exit' event may or may not fire after an error has occurred.
-// If you are listening to both the 'exit' and 'error' events,
-// it is important to guard against accidentally invoking handler functions multiple times.
-function run (bin, args, callback) {
-  callback = onceify(callback)
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
 
-  var prc = spawn(bin, args, {
-    stdio: 'ignore'
-  })
-  prc.on('error', function (err) {
-    callback(err)
-  })
-  prc.on('exit', function (code) {
-    callback(code ? new Error('Exited with code ' + code) : null)
-  })
-}
-
-// http://stackoverflow.com/questions/30234908/javascript-v8-optimisation-and-leaking-arguments
-// javascript V8 optimisation and “leaking arguments”
-// making callback to be invoked only once
-function onceify (fn) {
-  var called = false
-  return function () {
-    if (called) return
-    called = true
-    fn.apply(this, slice.call(arguments)) // slice arguments
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
   }
 }
 
 
 /***/ }),
 /* 28 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = require("child_process");
+module.exports = rimraf
+rimraf.sync = rimrafSync
+
+var assert = __webpack_require__(5)
+var path = __webpack_require__(0)
+var fs = __webpack_require__(1)
+var glob = __webpack_require__(10)
+var _0666 = parseInt('666', 8)
+
+var defaultGlobOpts = {
+  nosort: true,
+  silent: true
+}
+
+// for EMFILE handling
+var timeout = 0
+
+var isWindows = (process.platform === "win32")
+
+function defaults (options) {
+  var methods = [
+    'unlink',
+    'chmod',
+    'stat',
+    'lstat',
+    'rmdir',
+    'readdir'
+  ]
+  methods.forEach(function(m) {
+    options[m] = options[m] || fs[m]
+    m = m + 'Sync'
+    options[m] = options[m] || fs[m]
+  })
+
+  options.maxBusyTries = options.maxBusyTries || 3
+  options.emfileWait = options.emfileWait || 1000
+  if (options.glob === false) {
+    options.disableGlob = true
+  }
+  options.disableGlob = options.disableGlob || false
+  options.glob = options.glob || defaultGlobOpts
+}
+
+function rimraf (p, options, cb) {
+  if (typeof options === 'function') {
+    cb = options
+    options = {}
+  }
+
+  assert(p, 'rimraf: missing path')
+  assert.equal(typeof p, 'string', 'rimraf: path should be a string')
+  assert.equal(typeof cb, 'function', 'rimraf: callback function required')
+  assert(options, 'rimraf: invalid options argument provided')
+  assert.equal(typeof options, 'object', 'rimraf: options should be object')
+
+  defaults(options)
+
+  var busyTries = 0
+  var errState = null
+  var n = 0
+
+  if (options.disableGlob || !glob.hasMagic(p))
+    return afterGlob(null, [p])
+
+  options.lstat(p, function (er, stat) {
+    if (!er)
+      return afterGlob(null, [p])
+
+    glob(p, options.glob, afterGlob)
+  })
+
+  function next (er) {
+    errState = errState || er
+    if (--n === 0)
+      cb(errState)
+  }
+
+  function afterGlob (er, results) {
+    if (er)
+      return cb(er)
+
+    n = results.length
+    if (n === 0)
+      return cb()
+
+    results.forEach(function (p) {
+      rimraf_(p, options, function CB (er) {
+        if (er) {
+          if ((er.code === "EBUSY" || er.code === "ENOTEMPTY" || er.code === "EPERM") &&
+              busyTries < options.maxBusyTries) {
+            busyTries ++
+            var time = busyTries * 100
+            // try again, with the same exact callback as this one.
+            return setTimeout(function () {
+              rimraf_(p, options, CB)
+            }, time)
+          }
+
+          // this one won't happen if graceful-fs is used.
+          if (er.code === "EMFILE" && timeout < options.emfileWait) {
+            return setTimeout(function () {
+              rimraf_(p, options, CB)
+            }, timeout ++)
+          }
+
+          // already gone
+          if (er.code === "ENOENT") er = null
+        }
+
+        timeout = 0
+        next(er)
+      })
+    })
+  }
+}
+
+// Two possible strategies.
+// 1. Assume it's a file.  unlink it, then do the dir stuff on EPERM or EISDIR
+// 2. Assume it's a directory.  readdir, then do the file stuff on ENOTDIR
+//
+// Both result in an extra syscall when you guess wrong.  However, there
+// are likely far more normal files in the world than directories.  This
+// is based on the assumption that a the average number of files per
+// directory is >= 1.
+//
+// If anyone ever complains about this, then I guess the strategy could
+// be made configurable somehow.  But until then, YAGNI.
+function rimraf_ (p, options, cb) {
+  assert(p)
+  assert(options)
+  assert(typeof cb === 'function')
+
+  // sunos lets the root user unlink directories, which is... weird.
+  // so we have to lstat here and make sure it's not a dir.
+  options.lstat(p, function (er, st) {
+    if (er && er.code === "ENOENT")
+      return cb(null)
+
+    // Windows can EPERM on stat.  Life is suffering.
+    if (er && er.code === "EPERM" && isWindows)
+      fixWinEPERM(p, options, er, cb)
+
+    if (st && st.isDirectory())
+      return rmdir(p, options, er, cb)
+
+    options.unlink(p, function (er) {
+      if (er) {
+        if (er.code === "ENOENT")
+          return cb(null)
+        if (er.code === "EPERM")
+          return (isWindows)
+            ? fixWinEPERM(p, options, er, cb)
+            : rmdir(p, options, er, cb)
+        if (er.code === "EISDIR")
+          return rmdir(p, options, er, cb)
+      }
+      return cb(er)
+    })
+  })
+}
+
+function fixWinEPERM (p, options, er, cb) {
+  assert(p)
+  assert(options)
+  assert(typeof cb === 'function')
+  if (er)
+    assert(er instanceof Error)
+
+  options.chmod(p, _0666, function (er2) {
+    if (er2)
+      cb(er2.code === "ENOENT" ? null : er)
+    else
+      options.stat(p, function(er3, stats) {
+        if (er3)
+          cb(er3.code === "ENOENT" ? null : er)
+        else if (stats.isDirectory())
+          rmdir(p, options, er, cb)
+        else
+          options.unlink(p, cb)
+      })
+  })
+}
+
+function fixWinEPERMSync (p, options, er) {
+  assert(p)
+  assert(options)
+  if (er)
+    assert(er instanceof Error)
+
+  try {
+    options.chmodSync(p, _0666)
+  } catch (er2) {
+    if (er2.code === "ENOENT")
+      return
+    else
+      throw er
+  }
+
+  try {
+    var stats = options.statSync(p)
+  } catch (er3) {
+    if (er3.code === "ENOENT")
+      return
+    else
+      throw er
+  }
+
+  if (stats.isDirectory())
+    rmdirSync(p, options, er)
+  else
+    options.unlinkSync(p)
+}
+
+function rmdir (p, options, originalEr, cb) {
+  assert(p)
+  assert(options)
+  if (originalEr)
+    assert(originalEr instanceof Error)
+  assert(typeof cb === 'function')
+
+  // try to rmdir first, and only readdir on ENOTEMPTY or EEXIST (SunOS)
+  // if we guessed wrong, and it's not a directory, then
+  // raise the original error.
+  options.rmdir(p, function (er) {
+    if (er && (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM"))
+      rmkids(p, options, cb)
+    else if (er && er.code === "ENOTDIR")
+      cb(originalEr)
+    else
+      cb(er)
+  })
+}
+
+function rmkids(p, options, cb) {
+  assert(p)
+  assert(options)
+  assert(typeof cb === 'function')
+
+  options.readdir(p, function (er, files) {
+    if (er)
+      return cb(er)
+    var n = files.length
+    if (n === 0)
+      return options.rmdir(p, cb)
+    var errState
+    files.forEach(function (f) {
+      rimraf(path.join(p, f), options, function (er) {
+        if (errState)
+          return
+        if (er)
+          return cb(errState = er)
+        if (--n === 0)
+          options.rmdir(p, cb)
+      })
+    })
+  })
+}
+
+// this looks simpler, and is strictly *faster*, but will
+// tie up the JavaScript thread and fail on excessively
+// deep directory trees.
+function rimrafSync (p, options) {
+  options = options || {}
+  defaults(options)
+
+  assert(p, 'rimraf: missing path')
+  assert.equal(typeof p, 'string', 'rimraf: path should be a string')
+  assert(options, 'rimraf: missing options')
+  assert.equal(typeof options, 'object', 'rimraf: options should be object')
+
+  var results
+
+  if (options.disableGlob || !glob.hasMagic(p)) {
+    results = [p]
+  } else {
+    try {
+      options.lstatSync(p)
+      results = [p]
+    } catch (er) {
+      results = glob.sync(p, options.glob)
+    }
+  }
+
+  if (!results.length)
+    return
+
+  for (var i = 0; i < results.length; i++) {
+    var p = results[i]
+
+    try {
+      var st = options.lstatSync(p)
+    } catch (er) {
+      if (er.code === "ENOENT")
+        return
+
+      // Windows can EPERM on stat.  Life is suffering.
+      if (er.code === "EPERM" && isWindows)
+        fixWinEPERMSync(p, options, er)
+    }
+
+    try {
+      // sunos lets the root user unlink directories, which is... weird.
+      if (st && st.isDirectory())
+        rmdirSync(p, options, null)
+      else
+        options.unlinkSync(p)
+    } catch (er) {
+      if (er.code === "ENOENT")
+        return
+      if (er.code === "EPERM")
+        return isWindows ? fixWinEPERMSync(p, options, er) : rmdirSync(p, options, er)
+      if (er.code !== "EISDIR")
+        throw er
+
+      rmdirSync(p, options, er)
+    }
+  }
+}
+
+function rmdirSync (p, options, originalEr) {
+  assert(p)
+  assert(options)
+  if (originalEr)
+    assert(originalEr instanceof Error)
+
+  try {
+    options.rmdirSync(p)
+  } catch (er) {
+    if (er.code === "ENOENT")
+      return
+    if (er.code === "ENOTDIR")
+      throw originalEr
+    if (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM")
+      rmkidsSync(p, options)
+  }
+}
+
+function rmkidsSync (p, options) {
+  assert(p)
+  assert(options)
+  options.readdirSync(p).forEach(function (f) {
+    rimrafSync(path.join(p, f), options)
+  })
+
+  // We only end up here once we got ENOTEMPTY at least once, and
+  // at this point, we are guaranteed to have removed all the kids.
+  // So, we know that it won't be ENOENT or ENOTDIR or anything else.
+  // try really hard to delete stuff on windows, because it has a
+  // PROFOUNDLY annoying habit of not closing handles promptly when
+  // files are deleted, resulting in spurious ENOTEMPTY errors.
+  var retries = isWindows ? 100 : 1
+  var i = 0
+  do {
+    var threw = true
+    try {
+      var ret = options.rmdirSync(p, options)
+      threw = false
+      return ret
+    } finally {
+      if (++i < retries && threw)
+        continue
+    }
+  } while (true)
+}
+
 
 /***/ }),
 /* 29 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-var resolve = __webpack_require__(0).resolve
-var bin = __webpack_require__(30).bin
+exports = module.exports = SemVer
 
-module.exports = map_obj(bin, function(v){
-  return resolve(__dirname, v)
-})
+var debug
+/* istanbul ignore next */
+if (typeof process === 'object' &&
+    process.env &&
+    process.env.NODE_DEBUG &&
+    /\bsemver\b/i.test(process.env.NODE_DEBUG)) {
+  debug = function () {
+    var args = Array.prototype.slice.call(arguments, 0)
+    args.unshift('SEMVER')
+    console.log.apply(console, args)
+  }
+} else {
+  debug = function () {}
+}
 
-function map_obj(obj, fn){
-  return Object.keys(obj).reduce(function(m, k){
-    m[k] = fn(obj[k])
-    return m
-  }, {})
+// Note: this is the semver.org version of the spec that it implements
+// Not necessarily the package version of this code.
+exports.SEMVER_SPEC_VERSION = '2.0.0'
+
+var MAX_LENGTH = 256
+var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
+  /* istanbul ignore next */ 9007199254740991
+
+// Max safe segment length for coercion.
+var MAX_SAFE_COMPONENT_LENGTH = 16
+
+// The actual regexps go on exports.re
+var re = exports.re = []
+var src = exports.src = []
+var R = 0
+
+// The following Regular Expressions can be used for tokenizing,
+// validating, and parsing SemVer version strings.
+
+// ## Numeric Identifier
+// A single `0`, or a non-zero digit followed by zero or more digits.
+
+var NUMERICIDENTIFIER = R++
+src[NUMERICIDENTIFIER] = '0|[1-9]\\d*'
+var NUMERICIDENTIFIERLOOSE = R++
+src[NUMERICIDENTIFIERLOOSE] = '[0-9]+'
+
+// ## Non-numeric Identifier
+// Zero or more digits, followed by a letter or hyphen, and then zero or
+// more letters, digits, or hyphens.
+
+var NONNUMERICIDENTIFIER = R++
+src[NONNUMERICIDENTIFIER] = '\\d*[a-zA-Z-][a-zA-Z0-9-]*'
+
+// ## Main Version
+// Three dot-separated numeric identifiers.
+
+var MAINVERSION = R++
+src[MAINVERSION] = '(' + src[NUMERICIDENTIFIER] + ')\\.' +
+                   '(' + src[NUMERICIDENTIFIER] + ')\\.' +
+                   '(' + src[NUMERICIDENTIFIER] + ')'
+
+var MAINVERSIONLOOSE = R++
+src[MAINVERSIONLOOSE] = '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
+                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
+                        '(' + src[NUMERICIDENTIFIERLOOSE] + ')'
+
+// ## Pre-release Version Identifier
+// A numeric identifier, or a non-numeric identifier.
+
+var PRERELEASEIDENTIFIER = R++
+src[PRERELEASEIDENTIFIER] = '(?:' + src[NUMERICIDENTIFIER] +
+                            '|' + src[NONNUMERICIDENTIFIER] + ')'
+
+var PRERELEASEIDENTIFIERLOOSE = R++
+src[PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[NUMERICIDENTIFIERLOOSE] +
+                                 '|' + src[NONNUMERICIDENTIFIER] + ')'
+
+// ## Pre-release Version
+// Hyphen, followed by one or more dot-separated pre-release version
+// identifiers.
+
+var PRERELEASE = R++
+src[PRERELEASE] = '(?:-(' + src[PRERELEASEIDENTIFIER] +
+                  '(?:\\.' + src[PRERELEASEIDENTIFIER] + ')*))'
+
+var PRERELEASELOOSE = R++
+src[PRERELEASELOOSE] = '(?:-?(' + src[PRERELEASEIDENTIFIERLOOSE] +
+                       '(?:\\.' + src[PRERELEASEIDENTIFIERLOOSE] + ')*))'
+
+// ## Build Metadata Identifier
+// Any combination of digits, letters, or hyphens.
+
+var BUILDIDENTIFIER = R++
+src[BUILDIDENTIFIER] = '[0-9A-Za-z-]+'
+
+// ## Build Metadata
+// Plus sign, followed by one or more period-separated build metadata
+// identifiers.
+
+var BUILD = R++
+src[BUILD] = '(?:\\+(' + src[BUILDIDENTIFIER] +
+             '(?:\\.' + src[BUILDIDENTIFIER] + ')*))'
+
+// ## Full Version String
+// A main version, followed optionally by a pre-release version and
+// build metadata.
+
+// Note that the only major, minor, patch, and pre-release sections of
+// the version string are capturing groups.  The build metadata is not a
+// capturing group, because it should not ever be used in version
+// comparison.
+
+var FULL = R++
+var FULLPLAIN = 'v?' + src[MAINVERSION] +
+                src[PRERELEASE] + '?' +
+                src[BUILD] + '?'
+
+src[FULL] = '^' + FULLPLAIN + '$'
+
+// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
+// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
+// common in the npm registry.
+var LOOSEPLAIN = '[v=\\s]*' + src[MAINVERSIONLOOSE] +
+                 src[PRERELEASELOOSE] + '?' +
+                 src[BUILD] + '?'
+
+var LOOSE = R++
+src[LOOSE] = '^' + LOOSEPLAIN + '$'
+
+var GTLT = R++
+src[GTLT] = '((?:<|>)?=?)'
+
+// Something like "2.*" or "1.2.x".
+// Note that "x.x" is a valid xRange identifer, meaning "any version"
+// Only the first item is strictly required.
+var XRANGEIDENTIFIERLOOSE = R++
+src[XRANGEIDENTIFIERLOOSE] = src[NUMERICIDENTIFIERLOOSE] + '|x|X|\\*'
+var XRANGEIDENTIFIER = R++
+src[XRANGEIDENTIFIER] = src[NUMERICIDENTIFIER] + '|x|X|\\*'
+
+var XRANGEPLAIN = R++
+src[XRANGEPLAIN] = '[v=\\s]*(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                   '(?:' + src[PRERELEASE] + ')?' +
+                   src[BUILD] + '?' +
+                   ')?)?'
+
+var XRANGEPLAINLOOSE = R++
+src[XRANGEPLAINLOOSE] = '[v=\\s]*(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:\\.(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
+                        '(?:' + src[PRERELEASELOOSE] + ')?' +
+                        src[BUILD] + '?' +
+                        ')?)?'
+
+var XRANGE = R++
+src[XRANGE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAIN] + '$'
+var XRANGELOOSE = R++
+src[XRANGELOOSE] = '^' + src[GTLT] + '\\s*' + src[XRANGEPLAINLOOSE] + '$'
+
+// Coercion.
+// Extract anything that could conceivably be a part of a valid semver
+var COERCE = R++
+src[COERCE] = '(?:^|[^\\d])' +
+              '(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '})' +
+              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
+              '(?:\\.(\\d{1,' + MAX_SAFE_COMPONENT_LENGTH + '}))?' +
+              '(?:$|[^\\d])'
+
+// Tilde ranges.
+// Meaning is "reasonably at or greater than"
+var LONETILDE = R++
+src[LONETILDE] = '(?:~>?)'
+
+var TILDETRIM = R++
+src[TILDETRIM] = '(\\s*)' + src[LONETILDE] + '\\s+'
+re[TILDETRIM] = new RegExp(src[TILDETRIM], 'g')
+var tildeTrimReplace = '$1~'
+
+var TILDE = R++
+src[TILDE] = '^' + src[LONETILDE] + src[XRANGEPLAIN] + '$'
+var TILDELOOSE = R++
+src[TILDELOOSE] = '^' + src[LONETILDE] + src[XRANGEPLAINLOOSE] + '$'
+
+// Caret ranges.
+// Meaning is "at least and backwards compatible with"
+var LONECARET = R++
+src[LONECARET] = '(?:\\^)'
+
+var CARETTRIM = R++
+src[CARETTRIM] = '(\\s*)' + src[LONECARET] + '\\s+'
+re[CARETTRIM] = new RegExp(src[CARETTRIM], 'g')
+var caretTrimReplace = '$1^'
+
+var CARET = R++
+src[CARET] = '^' + src[LONECARET] + src[XRANGEPLAIN] + '$'
+var CARETLOOSE = R++
+src[CARETLOOSE] = '^' + src[LONECARET] + src[XRANGEPLAINLOOSE] + '$'
+
+// A simple gt/lt/eq thing, or just "" to indicate "any version"
+var COMPARATORLOOSE = R++
+src[COMPARATORLOOSE] = '^' + src[GTLT] + '\\s*(' + LOOSEPLAIN + ')$|^$'
+var COMPARATOR = R++
+src[COMPARATOR] = '^' + src[GTLT] + '\\s*(' + FULLPLAIN + ')$|^$'
+
+// An expression to strip any whitespace between the gtlt and the thing
+// it modifies, so that `> 1.2.3` ==> `>1.2.3`
+var COMPARATORTRIM = R++
+src[COMPARATORTRIM] = '(\\s*)' + src[GTLT] +
+                      '\\s*(' + LOOSEPLAIN + '|' + src[XRANGEPLAIN] + ')'
+
+// this one has to use the /g flag
+re[COMPARATORTRIM] = new RegExp(src[COMPARATORTRIM], 'g')
+var comparatorTrimReplace = '$1$2$3'
+
+// Something like `1.2.3 - 1.2.4`
+// Note that these all use the loose form, because they'll be
+// checked against either the strict or loose comparator form
+// later.
+var HYPHENRANGE = R++
+src[HYPHENRANGE] = '^\\s*(' + src[XRANGEPLAIN] + ')' +
+                   '\\s+-\\s+' +
+                   '(' + src[XRANGEPLAIN] + ')' +
+                   '\\s*$'
+
+var HYPHENRANGELOOSE = R++
+src[HYPHENRANGELOOSE] = '^\\s*(' + src[XRANGEPLAINLOOSE] + ')' +
+                        '\\s+-\\s+' +
+                        '(' + src[XRANGEPLAINLOOSE] + ')' +
+                        '\\s*$'
+
+// Star ranges basically just allow anything at all.
+var STAR = R++
+src[STAR] = '(<|>)?=?\\s*\\*'
+
+// Compile to actual regexp objects.
+// All are flag-free, unless they were created above with a flag.
+for (var i = 0; i < R; i++) {
+  debug(i, src[i])
+  if (!re[i]) {
+    re[i] = new RegExp(src[i])
+  }
+}
+
+exports.parse = parse
+function parse (version, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (version instanceof SemVer) {
+    return version
+  }
+
+  if (typeof version !== 'string') {
+    return null
+  }
+
+  if (version.length > MAX_LENGTH) {
+    return null
+  }
+
+  var r = options.loose ? re[LOOSE] : re[FULL]
+  if (!r.test(version)) {
+    return null
+  }
+
+  try {
+    return new SemVer(version, options)
+  } catch (er) {
+    return null
+  }
+}
+
+exports.valid = valid
+function valid (version, options) {
+  var v = parse(version, options)
+  return v ? v.version : null
+}
+
+exports.clean = clean
+function clean (version, options) {
+  var s = parse(version.trim().replace(/^[=v]+/, ''), options)
+  return s ? s.version : null
+}
+
+exports.SemVer = SemVer
+
+function SemVer (version, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+  if (version instanceof SemVer) {
+    if (version.loose === options.loose) {
+      return version
+    } else {
+      version = version.version
+    }
+  } else if (typeof version !== 'string') {
+    throw new TypeError('Invalid Version: ' + version)
+  }
+
+  if (version.length > MAX_LENGTH) {
+    throw new TypeError('version is longer than ' + MAX_LENGTH + ' characters')
+  }
+
+  if (!(this instanceof SemVer)) {
+    return new SemVer(version, options)
+  }
+
+  debug('SemVer', version, options)
+  this.options = options
+  this.loose = !!options.loose
+
+  var m = version.trim().match(options.loose ? re[LOOSE] : re[FULL])
+
+  if (!m) {
+    throw new TypeError('Invalid Version: ' + version)
+  }
+
+  this.raw = version
+
+  // these are actually numbers
+  this.major = +m[1]
+  this.minor = +m[2]
+  this.patch = +m[3]
+
+  if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
+    throw new TypeError('Invalid major version')
+  }
+
+  if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
+    throw new TypeError('Invalid minor version')
+  }
+
+  if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
+    throw new TypeError('Invalid patch version')
+  }
+
+  // numberify any prerelease numeric ids
+  if (!m[4]) {
+    this.prerelease = []
+  } else {
+    this.prerelease = m[4].split('.').map(function (id) {
+      if (/^[0-9]+$/.test(id)) {
+        var num = +id
+        if (num >= 0 && num < MAX_SAFE_INTEGER) {
+          return num
+        }
+      }
+      return id
+    })
+  }
+
+  this.build = m[5] ? m[5].split('.') : []
+  this.format()
+}
+
+SemVer.prototype.format = function () {
+  this.version = this.major + '.' + this.minor + '.' + this.patch
+  if (this.prerelease.length) {
+    this.version += '-' + this.prerelease.join('.')
+  }
+  return this.version
+}
+
+SemVer.prototype.toString = function () {
+  return this.version
+}
+
+SemVer.prototype.compare = function (other) {
+  debug('SemVer.compare', this.version, this.options, other)
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  return this.compareMain(other) || this.comparePre(other)
+}
+
+SemVer.prototype.compareMain = function (other) {
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  return compareIdentifiers(this.major, other.major) ||
+         compareIdentifiers(this.minor, other.minor) ||
+         compareIdentifiers(this.patch, other.patch)
+}
+
+SemVer.prototype.comparePre = function (other) {
+  if (!(other instanceof SemVer)) {
+    other = new SemVer(other, this.options)
+  }
+
+  // NOT having a prerelease is > having one
+  if (this.prerelease.length && !other.prerelease.length) {
+    return -1
+  } else if (!this.prerelease.length && other.prerelease.length) {
+    return 1
+  } else if (!this.prerelease.length && !other.prerelease.length) {
+    return 0
+  }
+
+  var i = 0
+  do {
+    var a = this.prerelease[i]
+    var b = other.prerelease[i]
+    debug('prerelease compare', i, a, b)
+    if (a === undefined && b === undefined) {
+      return 0
+    } else if (b === undefined) {
+      return 1
+    } else if (a === undefined) {
+      return -1
+    } else if (a === b) {
+      continue
+    } else {
+      return compareIdentifiers(a, b)
+    }
+  } while (++i)
+}
+
+// preminor will bump the version up to the next minor release, and immediately
+// down to pre-release. premajor and prepatch work the same way.
+SemVer.prototype.inc = function (release, identifier) {
+  switch (release) {
+    case 'premajor':
+      this.prerelease.length = 0
+      this.patch = 0
+      this.minor = 0
+      this.major++
+      this.inc('pre', identifier)
+      break
+    case 'preminor':
+      this.prerelease.length = 0
+      this.patch = 0
+      this.minor++
+      this.inc('pre', identifier)
+      break
+    case 'prepatch':
+      // If this is already a prerelease, it will bump to the next version
+      // drop any prereleases that might already exist, since they are not
+      // relevant at this point.
+      this.prerelease.length = 0
+      this.inc('patch', identifier)
+      this.inc('pre', identifier)
+      break
+    // If the input is a non-prerelease version, this acts the same as
+    // prepatch.
+    case 'prerelease':
+      if (this.prerelease.length === 0) {
+        this.inc('patch', identifier)
+      }
+      this.inc('pre', identifier)
+      break
+
+    case 'major':
+      // If this is a pre-major version, bump up to the same major version.
+      // Otherwise increment major.
+      // 1.0.0-5 bumps to 1.0.0
+      // 1.1.0 bumps to 2.0.0
+      if (this.minor !== 0 ||
+          this.patch !== 0 ||
+          this.prerelease.length === 0) {
+        this.major++
+      }
+      this.minor = 0
+      this.patch = 0
+      this.prerelease = []
+      break
+    case 'minor':
+      // If this is a pre-minor version, bump up to the same minor version.
+      // Otherwise increment minor.
+      // 1.2.0-5 bumps to 1.2.0
+      // 1.2.1 bumps to 1.3.0
+      if (this.patch !== 0 || this.prerelease.length === 0) {
+        this.minor++
+      }
+      this.patch = 0
+      this.prerelease = []
+      break
+    case 'patch':
+      // If this is not a pre-release version, it will increment the patch.
+      // If it is a pre-release it will bump up to the same patch version.
+      // 1.2.0-5 patches to 1.2.0
+      // 1.2.0 patches to 1.2.1
+      if (this.prerelease.length === 0) {
+        this.patch++
+      }
+      this.prerelease = []
+      break
+    // This probably shouldn't be used publicly.
+    // 1.0.0 "pre" would become 1.0.0-0 which is the wrong direction.
+    case 'pre':
+      if (this.prerelease.length === 0) {
+        this.prerelease = [0]
+      } else {
+        var i = this.prerelease.length
+        while (--i >= 0) {
+          if (typeof this.prerelease[i] === 'number') {
+            this.prerelease[i]++
+            i = -2
+          }
+        }
+        if (i === -1) {
+          // didn't increment anything
+          this.prerelease.push(0)
+        }
+      }
+      if (identifier) {
+        // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
+        // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
+        if (this.prerelease[0] === identifier) {
+          if (isNaN(this.prerelease[1])) {
+            this.prerelease = [identifier, 0]
+          }
+        } else {
+          this.prerelease = [identifier, 0]
+        }
+      }
+      break
+
+    default:
+      throw new Error('invalid increment argument: ' + release)
+  }
+  this.format()
+  this.raw = this.version
+  return this
+}
+
+exports.inc = inc
+function inc (version, release, loose, identifier) {
+  if (typeof (loose) === 'string') {
+    identifier = loose
+    loose = undefined
+  }
+
+  try {
+    return new SemVer(version, loose).inc(release, identifier).version
+  } catch (er) {
+    return null
+  }
+}
+
+exports.diff = diff
+function diff (version1, version2) {
+  if (eq(version1, version2)) {
+    return null
+  } else {
+    var v1 = parse(version1)
+    var v2 = parse(version2)
+    var prefix = ''
+    if (v1.prerelease.length || v2.prerelease.length) {
+      prefix = 'pre'
+      var defaultResult = 'prerelease'
+    }
+    for (var key in v1) {
+      if (key === 'major' || key === 'minor' || key === 'patch') {
+        if (v1[key] !== v2[key]) {
+          return prefix + key
+        }
+      }
+    }
+    return defaultResult // may be undefined
+  }
+}
+
+exports.compareIdentifiers = compareIdentifiers
+
+var numeric = /^[0-9]+$/
+function compareIdentifiers (a, b) {
+  var anum = numeric.test(a)
+  var bnum = numeric.test(b)
+
+  if (anum && bnum) {
+    a = +a
+    b = +b
+  }
+
+  return a === b ? 0
+    : (anum && !bnum) ? -1
+    : (bnum && !anum) ? 1
+    : a < b ? -1
+    : 1
+}
+
+exports.rcompareIdentifiers = rcompareIdentifiers
+function rcompareIdentifiers (a, b) {
+  return compareIdentifiers(b, a)
+}
+
+exports.major = major
+function major (a, loose) {
+  return new SemVer(a, loose).major
+}
+
+exports.minor = minor
+function minor (a, loose) {
+  return new SemVer(a, loose).minor
+}
+
+exports.patch = patch
+function patch (a, loose) {
+  return new SemVer(a, loose).patch
+}
+
+exports.compare = compare
+function compare (a, b, loose) {
+  return new SemVer(a, loose).compare(new SemVer(b, loose))
+}
+
+exports.compareLoose = compareLoose
+function compareLoose (a, b) {
+  return compare(a, b, true)
+}
+
+exports.rcompare = rcompare
+function rcompare (a, b, loose) {
+  return compare(b, a, loose)
+}
+
+exports.sort = sort
+function sort (list, loose) {
+  return list.sort(function (a, b) {
+    return exports.compare(a, b, loose)
+  })
+}
+
+exports.rsort = rsort
+function rsort (list, loose) {
+  return list.sort(function (a, b) {
+    return exports.rcompare(a, b, loose)
+  })
+}
+
+exports.gt = gt
+function gt (a, b, loose) {
+  return compare(a, b, loose) > 0
+}
+
+exports.lt = lt
+function lt (a, b, loose) {
+  return compare(a, b, loose) < 0
+}
+
+exports.eq = eq
+function eq (a, b, loose) {
+  return compare(a, b, loose) === 0
+}
+
+exports.neq = neq
+function neq (a, b, loose) {
+  return compare(a, b, loose) !== 0
+}
+
+exports.gte = gte
+function gte (a, b, loose) {
+  return compare(a, b, loose) >= 0
+}
+
+exports.lte = lte
+function lte (a, b, loose) {
+  return compare(a, b, loose) <= 0
+}
+
+exports.cmp = cmp
+function cmp (a, op, b, loose) {
+  switch (op) {
+    case '===':
+      if (typeof a === 'object')
+        a = a.version
+      if (typeof b === 'object')
+        b = b.version
+      return a === b
+
+    case '!==':
+      if (typeof a === 'object')
+        a = a.version
+      if (typeof b === 'object')
+        b = b.version
+      return a !== b
+
+    case '':
+    case '=':
+    case '==':
+      return eq(a, b, loose)
+
+    case '!=':
+      return neq(a, b, loose)
+
+    case '>':
+      return gt(a, b, loose)
+
+    case '>=':
+      return gte(a, b, loose)
+
+    case '<':
+      return lt(a, b, loose)
+
+    case '<=':
+      return lte(a, b, loose)
+
+    default:
+      throw new TypeError('Invalid operator: ' + op)
+  }
+}
+
+exports.Comparator = Comparator
+function Comparator (comp, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (comp instanceof Comparator) {
+    if (comp.loose === !!options.loose) {
+      return comp
+    } else {
+      comp = comp.value
+    }
+  }
+
+  if (!(this instanceof Comparator)) {
+    return new Comparator(comp, options)
+  }
+
+  debug('comparator', comp, options)
+  this.options = options
+  this.loose = !!options.loose
+  this.parse(comp)
+
+  if (this.semver === ANY) {
+    this.value = ''
+  } else {
+    this.value = this.operator + this.semver.version
+  }
+
+  debug('comp', this)
+}
+
+var ANY = {}
+Comparator.prototype.parse = function (comp) {
+  var r = this.options.loose ? re[COMPARATORLOOSE] : re[COMPARATOR]
+  var m = comp.match(r)
+
+  if (!m) {
+    throw new TypeError('Invalid comparator: ' + comp)
+  }
+
+  this.operator = m[1]
+  if (this.operator === '=') {
+    this.operator = ''
+  }
+
+  // if it literally is just '>' or '' then allow anything.
+  if (!m[2]) {
+    this.semver = ANY
+  } else {
+    this.semver = new SemVer(m[2], this.options.loose)
+  }
+}
+
+Comparator.prototype.toString = function () {
+  return this.value
+}
+
+Comparator.prototype.test = function (version) {
+  debug('Comparator.test', version, this.options.loose)
+
+  if (this.semver === ANY) {
+    return true
+  }
+
+  if (typeof version === 'string') {
+    version = new SemVer(version, this.options)
+  }
+
+  return cmp(version, this.operator, this.semver, this.options)
+}
+
+Comparator.prototype.intersects = function (comp, options) {
+  if (!(comp instanceof Comparator)) {
+    throw new TypeError('a Comparator is required')
+  }
+
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  var rangeTmp
+
+  if (this.operator === '') {
+    rangeTmp = new Range(comp.value, options)
+    return satisfies(this.value, rangeTmp, options)
+  } else if (comp.operator === '') {
+    rangeTmp = new Range(this.value, options)
+    return satisfies(comp.semver, rangeTmp, options)
+  }
+
+  var sameDirectionIncreasing =
+    (this.operator === '>=' || this.operator === '>') &&
+    (comp.operator === '>=' || comp.operator === '>')
+  var sameDirectionDecreasing =
+    (this.operator === '<=' || this.operator === '<') &&
+    (comp.operator === '<=' || comp.operator === '<')
+  var sameSemVer = this.semver.version === comp.semver.version
+  var differentDirectionsInclusive =
+    (this.operator === '>=' || this.operator === '<=') &&
+    (comp.operator === '>=' || comp.operator === '<=')
+  var oppositeDirectionsLessThan =
+    cmp(this.semver, '<', comp.semver, options) &&
+    ((this.operator === '>=' || this.operator === '>') &&
+    (comp.operator === '<=' || comp.operator === '<'))
+  var oppositeDirectionsGreaterThan =
+    cmp(this.semver, '>', comp.semver, options) &&
+    ((this.operator === '<=' || this.operator === '<') &&
+    (comp.operator === '>=' || comp.operator === '>'))
+
+  return sameDirectionIncreasing || sameDirectionDecreasing ||
+    (sameSemVer && differentDirectionsInclusive) ||
+    oppositeDirectionsLessThan || oppositeDirectionsGreaterThan
+}
+
+exports.Range = Range
+function Range (range, options) {
+  if (!options || typeof options !== 'object') {
+    options = {
+      loose: !!options,
+      includePrerelease: false
+    }
+  }
+
+  if (range instanceof Range) {
+    if (range.loose === !!options.loose &&
+        range.includePrerelease === !!options.includePrerelease) {
+      return range
+    } else {
+      return new Range(range.raw, options)
+    }
+  }
+
+  if (range instanceof Comparator) {
+    return new Range(range.value, options)
+  }
+
+  if (!(this instanceof Range)) {
+    return new Range(range, options)
+  }
+
+  this.options = options
+  this.loose = !!options.loose
+  this.includePrerelease = !!options.includePrerelease
+
+  // First, split based on boolean or ||
+  this.raw = range
+  this.set = range.split(/\s*\|\|\s*/).map(function (range) {
+    return this.parseRange(range.trim())
+  }, this).filter(function (c) {
+    // throw out any that are not relevant for whatever reason
+    return c.length
+  })
+
+  if (!this.set.length) {
+    throw new TypeError('Invalid SemVer Range: ' + range)
+  }
+
+  this.format()
+}
+
+Range.prototype.format = function () {
+  this.range = this.set.map(function (comps) {
+    return comps.join(' ').trim()
+  }).join('||').trim()
+  return this.range
+}
+
+Range.prototype.toString = function () {
+  return this.range
+}
+
+Range.prototype.parseRange = function (range) {
+  var loose = this.options.loose
+  range = range.trim()
+  // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
+  var hr = loose ? re[HYPHENRANGELOOSE] : re[HYPHENRANGE]
+  range = range.replace(hr, hyphenReplace)
+  debug('hyphen replace', range)
+  // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
+  range = range.replace(re[COMPARATORTRIM], comparatorTrimReplace)
+  debug('comparator trim', range, re[COMPARATORTRIM])
+
+  // `~ 1.2.3` => `~1.2.3`
+  range = range.replace(re[TILDETRIM], tildeTrimReplace)
+
+  // `^ 1.2.3` => `^1.2.3`
+  range = range.replace(re[CARETTRIM], caretTrimReplace)
+
+  // normalize spaces
+  range = range.split(/\s+/).join(' ')
+
+  // At this point, the range is completely trimmed and
+  // ready to be split into comparators.
+
+  var compRe = loose ? re[COMPARATORLOOSE] : re[COMPARATOR]
+  var set = range.split(' ').map(function (comp) {
+    return parseComparator(comp, this.options)
+  }, this).join(' ').split(/\s+/)
+  if (this.options.loose) {
+    // in loose mode, throw out any that are not valid comparators
+    set = set.filter(function (comp) {
+      return !!comp.match(compRe)
+    })
+  }
+  set = set.map(function (comp) {
+    return new Comparator(comp, this.options)
+  }, this)
+
+  return set
+}
+
+Range.prototype.intersects = function (range, options) {
+  if (!(range instanceof Range)) {
+    throw new TypeError('a Range is required')
+  }
+
+  return this.set.some(function (thisComparators) {
+    return thisComparators.every(function (thisComparator) {
+      return range.set.some(function (rangeComparators) {
+        return rangeComparators.every(function (rangeComparator) {
+          return thisComparator.intersects(rangeComparator, options)
+        })
+      })
+    })
+  })
+}
+
+// Mostly just for testing and legacy API reasons
+exports.toComparators = toComparators
+function toComparators (range, options) {
+  return new Range(range, options).set.map(function (comp) {
+    return comp.map(function (c) {
+      return c.value
+    }).join(' ').trim().split(' ')
+  })
+}
+
+// comprised of xranges, tildes, stars, and gtlt's at this point.
+// already replaced the hyphen ranges
+// turn into a set of JUST comparators.
+function parseComparator (comp, options) {
+  debug('comp', comp, options)
+  comp = replaceCarets(comp, options)
+  debug('caret', comp)
+  comp = replaceTildes(comp, options)
+  debug('tildes', comp)
+  comp = replaceXRanges(comp, options)
+  debug('xrange', comp)
+  comp = replaceStars(comp, options)
+  debug('stars', comp)
+  return comp
+}
+
+function isX (id) {
+  return !id || id.toLowerCase() === 'x' || id === '*'
+}
+
+// ~, ~> --> * (any, kinda silly)
+// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0
+// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0
+// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0
+// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0
+// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0
+function replaceTildes (comp, options) {
+  return comp.trim().split(/\s+/).map(function (comp) {
+    return replaceTilde(comp, options)
+  }).join(' ')
+}
+
+function replaceTilde (comp, options) {
+  var r = options.loose ? re[TILDELOOSE] : re[TILDE]
+  return comp.replace(r, function (_, M, m, p, pr) {
+    debug('tilde', comp, _, M, m, p, pr)
+    var ret
+
+    if (isX(M)) {
+      ret = ''
+    } else if (isX(m)) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (isX(p)) {
+      // ~1.2 == >=1.2.0 <1.3.0
+      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+    } else if (pr) {
+      debug('replaceTilde pr', pr)
+      ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+            ' <' + M + '.' + (+m + 1) + '.0'
+    } else {
+      // ~1.2.3 == >=1.2.3 <1.3.0
+      ret = '>=' + M + '.' + m + '.' + p +
+            ' <' + M + '.' + (+m + 1) + '.0'
+    }
+
+    debug('tilde return', ret)
+    return ret
+  })
+}
+
+// ^ --> * (any, kinda silly)
+// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0
+// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0
+// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0
+// ^1.2.3 --> >=1.2.3 <2.0.0
+// ^1.2.0 --> >=1.2.0 <2.0.0
+function replaceCarets (comp, options) {
+  return comp.trim().split(/\s+/).map(function (comp) {
+    return replaceCaret(comp, options)
+  }).join(' ')
+}
+
+function replaceCaret (comp, options) {
+  debug('caret', comp, options)
+  var r = options.loose ? re[CARETLOOSE] : re[CARET]
+  return comp.replace(r, function (_, M, m, p, pr) {
+    debug('caret', comp, _, M, m, p, pr)
+    var ret
+
+    if (isX(M)) {
+      ret = ''
+    } else if (isX(m)) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (isX(p)) {
+      if (M === '0') {
+        ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+      } else {
+        ret = '>=' + M + '.' + m + '.0 <' + (+M + 1) + '.0.0'
+      }
+    } else if (pr) {
+      debug('replaceCaret pr', pr)
+      if (M === '0') {
+        if (m === '0') {
+          ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+                ' <' + M + '.' + m + '.' + (+p + 1)
+        } else {
+          ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+                ' <' + M + '.' + (+m + 1) + '.0'
+        }
+      } else {
+        ret = '>=' + M + '.' + m + '.' + p + '-' + pr +
+              ' <' + (+M + 1) + '.0.0'
+      }
+    } else {
+      debug('no pr')
+      if (M === '0') {
+        if (m === '0') {
+          ret = '>=' + M + '.' + m + '.' + p +
+                ' <' + M + '.' + m + '.' + (+p + 1)
+        } else {
+          ret = '>=' + M + '.' + m + '.' + p +
+                ' <' + M + '.' + (+m + 1) + '.0'
+        }
+      } else {
+        ret = '>=' + M + '.' + m + '.' + p +
+              ' <' + (+M + 1) + '.0.0'
+      }
+    }
+
+    debug('caret return', ret)
+    return ret
+  })
+}
+
+function replaceXRanges (comp, options) {
+  debug('replaceXRanges', comp, options)
+  return comp.split(/\s+/).map(function (comp) {
+    return replaceXRange(comp, options)
+  }).join(' ')
+}
+
+function replaceXRange (comp, options) {
+  comp = comp.trim()
+  var r = options.loose ? re[XRANGELOOSE] : re[XRANGE]
+  return comp.replace(r, function (ret, gtlt, M, m, p, pr) {
+    debug('xRange', comp, ret, gtlt, M, m, p, pr)
+    var xM = isX(M)
+    var xm = xM || isX(m)
+    var xp = xm || isX(p)
+    var anyX = xp
+
+    if (gtlt === '=' && anyX) {
+      gtlt = ''
+    }
+
+    if (xM) {
+      if (gtlt === '>' || gtlt === '<') {
+        // nothing is allowed
+        ret = '<0.0.0'
+      } else {
+        // nothing is forbidden
+        ret = '*'
+      }
+    } else if (gtlt && anyX) {
+      // we know patch is an x, because we have any x at all.
+      // replace X with 0
+      if (xm) {
+        m = 0
+      }
+      p = 0
+
+      if (gtlt === '>') {
+        // >1 => >=2.0.0
+        // >1.2 => >=1.3.0
+        // >1.2.3 => >= 1.2.4
+        gtlt = '>='
+        if (xm) {
+          M = +M + 1
+          m = 0
+          p = 0
+        } else {
+          m = +m + 1
+          p = 0
+        }
+      } else if (gtlt === '<=') {
+        // <=0.7.x is actually <0.8.0, since any 0.7.x should
+        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
+        gtlt = '<'
+        if (xm) {
+          M = +M + 1
+        } else {
+          m = +m + 1
+        }
+      }
+
+      ret = gtlt + M + '.' + m + '.' + p
+    } else if (xm) {
+      ret = '>=' + M + '.0.0 <' + (+M + 1) + '.0.0'
+    } else if (xp) {
+      ret = '>=' + M + '.' + m + '.0 <' + M + '.' + (+m + 1) + '.0'
+    }
+
+    debug('xRange return', ret)
+
+    return ret
+  })
+}
+
+// Because * is AND-ed with everything else in the comparator,
+// and '' means "any version", just remove the *s entirely.
+function replaceStars (comp, options) {
+  debug('replaceStars', comp, options)
+  // Looseness is ignored here.  star is always as loose as it gets!
+  return comp.trim().replace(re[STAR], '')
+}
+
+// This function is passed to string.replace(re[HYPHENRANGE])
+// M, m, patch, prerelease, build
+// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
+// 1.2.3 - 3.4 => >=1.2.0 <3.5.0 Any 3.4.x will do
+// 1.2 - 3.4 => >=1.2.0 <3.5.0
+function hyphenReplace ($0,
+  from, fM, fm, fp, fpr, fb,
+  to, tM, tm, tp, tpr, tb) {
+  if (isX(fM)) {
+    from = ''
+  } else if (isX(fm)) {
+    from = '>=' + fM + '.0.0'
+  } else if (isX(fp)) {
+    from = '>=' + fM + '.' + fm + '.0'
+  } else {
+    from = '>=' + from
+  }
+
+  if (isX(tM)) {
+    to = ''
+  } else if (isX(tm)) {
+    to = '<' + (+tM + 1) + '.0.0'
+  } else if (isX(tp)) {
+    to = '<' + tM + '.' + (+tm + 1) + '.0'
+  } else if (tpr) {
+    to = '<=' + tM + '.' + tm + '.' + tp + '-' + tpr
+  } else {
+    to = '<=' + to
+  }
+
+  return (from + ' ' + to).trim()
+}
+
+// if ANY of the sets match ALL of its comparators, then pass
+Range.prototype.test = function (version) {
+  if (!version) {
+    return false
+  }
+
+  if (typeof version === 'string') {
+    version = new SemVer(version, this.options)
+  }
+
+  for (var i = 0; i < this.set.length; i++) {
+    if (testSet(this.set[i], version, this.options)) {
+      return true
+    }
+  }
+  return false
+}
+
+function testSet (set, version, options) {
+  for (var i = 0; i < set.length; i++) {
+    if (!set[i].test(version)) {
+      return false
+    }
+  }
+
+  if (version.prerelease.length && !options.includePrerelease) {
+    // Find the set of versions that are allowed to have prereleases
+    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
+    // That should allow `1.2.3-pr.2` to pass.
+    // However, `1.2.4-alpha.notready` should NOT be allowed,
+    // even though it's within the range set by the comparators.
+    for (i = 0; i < set.length; i++) {
+      debug(set[i].semver)
+      if (set[i].semver === ANY) {
+        continue
+      }
+
+      if (set[i].semver.prerelease.length > 0) {
+        var allowed = set[i].semver
+        if (allowed.major === version.major &&
+            allowed.minor === version.minor &&
+            allowed.patch === version.patch) {
+          return true
+        }
+      }
+    }
+
+    // Version has a -pre, but it's not one of the ones we like.
+    return false
+  }
+
+  return true
+}
+
+exports.satisfies = satisfies
+function satisfies (version, range, options) {
+  try {
+    range = new Range(range, options)
+  } catch (er) {
+    return false
+  }
+  return range.test(version)
+}
+
+exports.maxSatisfying = maxSatisfying
+function maxSatisfying (versions, range, options) {
+  var max = null
+  var maxSV = null
+  try {
+    var rangeObj = new Range(range, options)
+  } catch (er) {
+    return null
+  }
+  versions.forEach(function (v) {
+    if (rangeObj.test(v)) {
+      // satisfies(v, range, options)
+      if (!max || maxSV.compare(v) === -1) {
+        // compare(max, v, true)
+        max = v
+        maxSV = new SemVer(max, options)
+      }
+    }
+  })
+  return max
+}
+
+exports.minSatisfying = minSatisfying
+function minSatisfying (versions, range, options) {
+  var min = null
+  var minSV = null
+  try {
+    var rangeObj = new Range(range, options)
+  } catch (er) {
+    return null
+  }
+  versions.forEach(function (v) {
+    if (rangeObj.test(v)) {
+      // satisfies(v, range, options)
+      if (!min || minSV.compare(v) === 1) {
+        // compare(min, v, true)
+        min = v
+        minSV = new SemVer(min, options)
+      }
+    }
+  })
+  return min
+}
+
+exports.minVersion = minVersion
+function minVersion (range, loose) {
+  range = new Range(range, loose)
+
+  var minver = new SemVer('0.0.0')
+  if (range.test(minver)) {
+    return minver
+  }
+
+  minver = new SemVer('0.0.0-0')
+  if (range.test(minver)) {
+    return minver
+  }
+
+  minver = null
+  for (var i = 0; i < range.set.length; ++i) {
+    var comparators = range.set[i]
+
+    comparators.forEach(function (comparator) {
+      // Clone to avoid manipulating the comparator's semver object.
+      var compver = new SemVer(comparator.semver.version)
+      switch (comparator.operator) {
+        case '>':
+          if (compver.prerelease.length === 0) {
+            compver.patch++
+          } else {
+            compver.prerelease.push(0)
+          }
+          compver.raw = compver.format()
+          /* fallthrough */
+        case '':
+        case '>=':
+          if (!minver || gt(minver, compver)) {
+            minver = compver
+          }
+          break
+        case '<':
+        case '<=':
+          /* Ignore maximum versions */
+          break
+        /* istanbul ignore next */
+        default:
+          throw new Error('Unexpected operation: ' + comparator.operator)
+      }
+    })
+  }
+
+  if (minver && range.test(minver)) {
+    return minver
+  }
+
+  return null
+}
+
+exports.validRange = validRange
+function validRange (range, options) {
+  try {
+    // Return '*' instead of '' so that truthiness works.
+    // This will throw if it's invalid anyway
+    return new Range(range, options).range || '*'
+  } catch (er) {
+    return null
+  }
+}
+
+// Determine if version is less than all the versions possible in the range
+exports.ltr = ltr
+function ltr (version, range, options) {
+  return outside(version, range, '<', options)
+}
+
+// Determine if version is greater than all the versions possible in the range.
+exports.gtr = gtr
+function gtr (version, range, options) {
+  return outside(version, range, '>', options)
+}
+
+exports.outside = outside
+function outside (version, range, hilo, options) {
+  version = new SemVer(version, options)
+  range = new Range(range, options)
+
+  var gtfn, ltefn, ltfn, comp, ecomp
+  switch (hilo) {
+    case '>':
+      gtfn = gt
+      ltefn = lte
+      ltfn = lt
+      comp = '>'
+      ecomp = '>='
+      break
+    case '<':
+      gtfn = lt
+      ltefn = gte
+      ltfn = gt
+      comp = '<'
+      ecomp = '<='
+      break
+    default:
+      throw new TypeError('Must provide a hilo val of "<" or ">"')
+  }
+
+  // If it satisifes the range it is not outside
+  if (satisfies(version, range, options)) {
+    return false
+  }
+
+  // From now on, variable terms are as if we're in "gtr" mode.
+  // but note that everything is flipped for the "ltr" function.
+
+  for (var i = 0; i < range.set.length; ++i) {
+    var comparators = range.set[i]
+
+    var high = null
+    var low = null
+
+    comparators.forEach(function (comparator) {
+      if (comparator.semver === ANY) {
+        comparator = new Comparator('>=0.0.0')
+      }
+      high = high || comparator
+      low = low || comparator
+      if (gtfn(comparator.semver, high.semver, options)) {
+        high = comparator
+      } else if (ltfn(comparator.semver, low.semver, options)) {
+        low = comparator
+      }
+    })
+
+    // If the edge version comparator has a operator then our version
+    // isn't outside it
+    if (high.operator === comp || high.operator === ecomp) {
+      return false
+    }
+
+    // If the lowest version comparator has an operator and our version
+    // is less than it then it isn't higher than the range
+    if ((!low.operator || low.operator === comp) &&
+        ltefn(version, low.semver)) {
+      return false
+    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
+      return false
+    }
+  }
+  return true
+}
+
+exports.prerelease = prerelease
+function prerelease (version, options) {
+  var parsed = parse(version, options)
+  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
+}
+
+exports.intersects = intersects
+function intersects (r1, r2, options) {
+  r1 = new Range(r1, options)
+  r2 = new Range(r2, options)
+  return r1.intersects(r2)
+}
+
+exports.coerce = coerce
+function coerce (version) {
+  if (version instanceof SemVer) {
+    return version
+  }
+
+  if (typeof version !== 'string') {
+    return null
+  }
+
+  var match = version.match(re[COERCE])
+
+  if (match == null) {
+    return null
+  }
+
+  return parse(match[1] +
+    '.' + (match[2] || '0') +
+    '.' + (match[3] || '0'))
 }
 
 
 /***/ }),
 /* 30 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = {"_args":[[{"raw":"7zip@0.0.6","scope":null,"escapedName":"7zip","name":"7zip","rawSpec":"0.0.6","spec":"0.0.6","type":"version"},"/Users/geoffreyostosh/Dev/bs-ui-template/node_modules/electron-devtools-installer"]],"_from":"7zip@0.0.6","_id":"7zip@0.0.6","_inCache":true,"_location":"/7zip","_nodeVersion":"5.11.0","_npmOperationalInternal":{"host":"packages-12-west.internal.npmjs.com","tmp":"tmp/7zip-0.0.6.tgz_1463274735811_0.1922009070403874"},"_npmUser":{"name":"fritx","email":"uxfritz@163.com"},"_npmVersion":"3.8.6","_phantomChildren":{},"_requested":{"raw":"7zip@0.0.6","scope":null,"escapedName":"7zip","name":"7zip","rawSpec":"0.0.6","spec":"0.0.6","type":"version"},"_requiredBy":["/electron-devtools-installer"],"_resolved":"https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz","_shasum":"9cafb171af82329490353b4816f03347aa150a30","_shrinkwrap":null,"_spec":"7zip@0.0.6","_where":"/Users/geoffreyostosh/Dev/bs-ui-template/node_modules/electron-devtools-installer","bin":{"7z":"7zip-lite/7z.exe"},"bugs":{"url":"https://github.com/fritx/win-7zip/issues"},"dependencies":{},"description":"7zip Windows Package via Node.js","devDependencies":{},"directories":{},"dist":{"shasum":"9cafb171af82329490353b4816f03347aa150a30","tarball":"https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz"},"gitHead":"ece5481873f357545c99a9e2f9e1cdb3fe76de2d","homepage":"https://github.com/fritx/win-7zip#readme","keywords":["7z","7zip","7-zip","windows","install"],"license":"GNU LGPL","main":"index.js","maintainers":[{"name":"fritx","email":"uxfritz@163.com"}],"name":"7zip","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/fritx/win-7zip.git"},"scripts":{"test":"mocha"},"version":"0.0.6"}
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_electron___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_electron__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_url__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_url___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_url__);
+/* tslint:disable:no-console */
+
+
+var mainWindow;
+function createWindow() {
+    // Create the browser window.
+    mainWindow = new __WEBPACK_IMPORTED_MODULE_0_electron__["BrowserWindow"]({
+        height: 600,
+        width: 800,
+        webPreferences: {
+            nodeIntegration: true,
+            webSecurity: false,
+        }
+    });
+    // Attempt to load application from path provided by parent process
+    var applicationPath = process.argv.pop();
+    if (typeof applicationPath !== 'string' || applicationPath.indexOf('applicationPath') <= -1) {
+        applicationPath = __WEBPACK_IMPORTED_MODULE_1_url__["format"]({
+            pathname: 'localhost:3000',
+            protocol: 'http:',
+            slashes: true,
+        });
+    }
+    else {
+        applicationPath = applicationPath.split('=')[1];
+    }
+    // and load the app.
+    mainWindow.loadURL(applicationPath);
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+    // Emitted when the window is closed.
+    mainWindow.on('closed', function () {
+        // Dereference the window object, usually you would store windows
+        // in an array if your app supports multi windows, this is the time
+        // when you should delete the corresponding element.
+        mainWindow = null;
+    });
+    mainWindow.webContents.on('context-menu', function (_, props) {
+        var x = props.x, y = props.y;
+        var contextMenu = [{
+                label: 'Inspect',
+                click: function () {
+                    if (mainWindow) {
+                        mainWindow.webContents.inspectElement(x, y);
+                    }
+                }
+            }, {
+                label: 'Reload',
+                click: function () {
+                    if (mainWindow) {
+                        mainWindow.webContents.reload();
+                    }
+                }
+            }];
+        if (mainWindow) {
+            __WEBPACK_IMPORTED_MODULE_0_electron__["Menu"].buildFromTemplate(contextMenu).popup(mainWindow);
+        }
+    });
+}
+function startDevToolsInstall() {
+    if (process.env.NODE_ENV === 'development') {
+        var devToolsInstaller = __webpack_require__(14);
+        var installer = devToolsInstaller.default;
+        installer(devToolsInstaller.REACT_DEVELOPER_TOOLS)
+            .then(function (name) { return console.info("extension installed: " + name); })
+            .catch(function (err) { return console.error("error installing extension: " + err); });
+        installer(devToolsInstaller.REACT_PERF)
+            .then(function (name) { return console.info("extension installed: " + name); })
+            .catch(function (err) { return console.error("error installing extension: " + err); });
+        installer(devToolsInstaller.REDUX_DEVTOOLS)
+            .then(function (name) { return console.info("extension installed: " + name); })
+            .catch(function (err) { return console.error("error installing extension: " + err); });
+        var devtronInstaller = __webpack_require__(13);
+        devtronInstaller.install();
+    }
+}
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('ready', function () {
+    startDevToolsInstall();
+    createWindow();
+});
+// Quit when all windows are closed.
+__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('window-all-closed', function () {
+    // On OS X it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+        __WEBPACK_IMPORTED_MODULE_0_electron__["app"].quit();
+    }
+});
+__WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('activate', function () {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) {
+        createWindow();
+    }
+});
+
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports) {
 
-module.exports = require("https");
+module.exports = require("child_process");
 
 /***/ }),
 /* 32 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-const electron = __webpack_require__(2)
+module.exports = require("events");
 
-exports.install = () => {
-  if (process.type === 'renderer') {
-    console.log(`Installing Devtron from ${__dirname}`)
-    if (electron.remote.BrowserWindow.getDevToolsExtensions &&
-        electron.remote.BrowserWindow.getDevToolsExtensions().devtron) return true
-    return electron.remote.BrowserWindow.addDevToolsExtension(__dirname)
-  } else if (process.type === 'browser') {
-    console.log(`Installing Devtron from ${__dirname}`)
-    if (electron.BrowserWindow.getDevToolsExtensions &&
-        electron.BrowserWindow.getDevToolsExtensions().devtron) return true
-    return electron.BrowserWindow.addDevToolsExtension(__dirname)
-  } else {
-    throw new Error('Devtron can only be installed from an Electron process.')
-  }
-}
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
 
-exports.uninstall = () => {
-  if (process.type === 'renderer') {
-    console.log(`Uninstalling Devtron from ${__dirname}`)
-    return electron.remote.BrowserWindow.removeDevToolsExtension('devtron')
-  } else if (process.type === 'browser') {
-    console.log(`Uninstalling Devtron from ${__dirname}`)
-    return electron.BrowserWindow.removeDevToolsExtension('devtron')
-  } else {
-    throw new Error('Devtron can only be uninstalled from an Electron process.')
-  }
-}
-
-exports.path = __dirname
-
+module.exports = require("https");
 
 /***/ })
 /******/ ]);

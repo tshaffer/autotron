@@ -1,5 +1,10 @@
+dev/dev/
+dev/src/
 node_modules
 .idea
 .vscode
 dist
+dev/bootstrap.main.js
+dev/bootstrap.main.js.map
+index.d.ts
 

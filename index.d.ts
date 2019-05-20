@@ -353,12 +353,12 @@ export type ActiveMediaStatesShape = {
 };
 
 export class HSM {
-    dispatchEvent: any;
+    dispatchEvent: ((event: ArEventType) => void);
     topState: HState | null;
     activeState: HState | null;
     constructorHandler: (() => void) | null;
-    initialPseudoStateHandler: any;
-    constructor(dispatchEvent: any);
+    initialPseudoStateHandler: ((args: any) => HState) | null;
+    constructor(dispatchEvent: ((event: ArEventType) => void));
     constructorFunction(): void;
     initialize(): void;
     Dispatch(event: ArEventType): void;
