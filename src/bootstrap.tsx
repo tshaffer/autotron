@@ -10,9 +10,7 @@ import './bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
-import { Template } from './component';
-
-debugger;
+import { App } from './component';
 
 console.log('bootstrap.tsx from src');
 
@@ -28,7 +26,7 @@ const store = createStore(
 ReactDOM.render(
   <Provider store={store}>
     <div>
-      <Template />
+      < App />
     </div>
   </Provider>,
   document.getElementById('root') as HTMLElement

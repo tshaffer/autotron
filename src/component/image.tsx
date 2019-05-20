@@ -41,11 +41,11 @@ export class ImageComponent extends React.Component<ImageProps> {
 
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
-const mapStateToProps = (state: any, ownProps: undefined): any => {
+const mapStateToProps = (state: any, ownProps: any): any => {
   return {
-    src: state.src,
-    width: state.width,
-    height: state.height,
+    src: ownProps.src,
+    width: ownProps.width,
+    height: ownProps.height,
   };
 };
 

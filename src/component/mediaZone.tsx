@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import path = require('path');
+import isomorphicPath from 'isomorphic-path';
 
 // import {
 //   ArEventType,
@@ -19,7 +19,7 @@ import { Image } from './index';
 import {
   dmGetAssetItemById,
 } from '@brightsign/bsdatamodel';
-import {BsAssetItem} from "@brightsign/bscore";
+import { BsAssetItem } from "@brightsign/bscore";
 
 import {
   ContentItemType,
@@ -47,6 +47,7 @@ import { getPoolFilePath, postRuntimeMessage } from '../index';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { bindActionCreators } from 'redux';
+import { getActiveMediaStateId } from '../selector/activeMediaState';
 
 // -----------------------------------------------------------------------
 // Types
@@ -54,13 +55,13 @@ import { bindActionCreators } from 'redux';
 
 /** @internal */
 export interface MediaZoneProps {
-  key : string;
-  playbackState : string;
-  bsdm : DmState;
-  zone : DmZone;
-  width : number;
-  height : number;
-  activeMediaStateId : string;
+  key: string;
+  playbackState: string;
+  bsdm: DmState;
+  zone: DmZone;
+  width: number;
+  height: number;
+  activeMediaStateId: string;
   postBSPMessage: any;
 }
 
@@ -90,24 +91,24 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
   //   this.props.postBSPMessage(event);
   // }
 
-  renderMediaItem(mediaState : DmMediaState, contentItem: DmDerivedContentItem) {
+  renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
     const self = this;
 
-    const mediaContentItem : DmMediaContentItem = contentItem as DmMediaContentItem;
+    const mediaContentItem: DmMediaContentItem = contentItem as DmMediaContentItem;
 
-    const assetId : string = mediaContentItem.assetId;
+    const assetId: string = mediaContentItem.assetId;
     // const assetItem : BsAssetItem = dmGetAssetItemById(this.props.bsdm, { id : assetId }) as BsAssetItem;
 
     // TODO - near term (likely) fix
     // const fileId : string = assetItem.name;
-    const fileId : string = mediaState.name;
+    const fileId: string = mediaState.name;
 
-    const poolFilePath : string = getPoolFilePath(fileId);
-    const src : string = path.join('file://', poolFilePath);
+    const poolFilePath: string = getPoolFilePath(fileId);
+    const src: string = isomorphicPath.join('file://', poolFilePath);
 
-    const mediaType : ContentItemType = mediaContentItem.type;
-    
+    const mediaType: ContentItemType = mediaContentItem.type;
+
     switch (mediaType) {
       case 'Image': {
         return (
@@ -126,14 +127,14 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
     return null;
   }
 
-  getEvents(bsdm : DmState, mediaStateId: string ) : DmEvent[] {
+  getEvents(bsdm: DmState, mediaStateId: string): DmEvent[] {
 
-    let events : DmEvent[] = [];
+    let events: DmEvent[] = [];
 
-    const eventIds : BsDmId[] = dmGetEventIdsForMediaState(bsdm, { id : mediaStateId });
+    const eventIds: BsDmId[] = dmGetEventIdsForMediaState(bsdm, { id: mediaStateId });
 
     events = eventIds.map((eventId) => {
-      return dmGetEventById(bsdm, { id : eventId }) as DmcEvent;
+      return dmGetEventById(bsdm, { id: eventId }) as DmcEvent;
     });
 
     return events;
@@ -147,9 +148,9 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
       );
     }
 
-    const mediaStateId : string = this.props.activeMediaStateId;
-    const mediaState : DmMediaState = dmGetMediaStateById(this.props.bsdm, { id : mediaStateId }) as DmMediaState;
-    const contentItem : DmDerivedContentItem = mediaState.contentItem;
+    const mediaStateId: string = this.props.activeMediaStateId;
+    const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: mediaStateId }) as DmMediaState;
+    const contentItem: DmDerivedContentItem = mediaState.contentItem;
 
     switch (contentItem.type) {
       case 'Image': {
@@ -176,18 +177,16 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
-  const mapStateToProps = (state: any, ownProps: undefined): any => {
-    return {
-      key : state.key,
-      playbackState : state.playbackState,
-      bsdm : state.bsdm,
-      zone : state.zone,
-      width : state.width,
-      height : state.height,
-      activeMediaStateId : state.activeMediaStateId,
-    };
+const mapStateToProps = (state: any, ownProps: any): any => {
+  return {
+    key: state.key,
+    playbackState: ownProps.playbackState,
+    bsdm: state.bsdm,
+    zone: ownProps.zone,
+    width: ownProps.width,
+    height: ownProps.height,
+    activeMediaStateId: getActiveMediaStateId(state, ownProps.zone.id),
   };
-  
-  // export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
-  export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
-  
+};
+
+export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);

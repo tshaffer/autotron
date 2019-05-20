@@ -50,7 +50,7 @@ export function getRuntimeFiles(): Promise<void> {
   return getSyncSpec()
     .then((syncSpec: ArSyncSpec) => {
       _syncSpec = syncSpec;
-      _poolAssetFiles = getPoolAssetFiles(syncSpec, getPoolDirectory());
+      _poolAssetFiles = getPoolAssetFiles(syncSpec, getRootDirectory());
       return getAutoschedule(syncSpec, getRootDirectory());
     }).then((autoSchedule: any) => {
       _autoSchedule = autoSchedule;
@@ -129,12 +129,12 @@ function readSyncSpec(syncSpecFilePath: string): Promise<ArSyncSpec> {
     });
 }
 
-function getPoolAssetFiles(syncSpec: ArSyncSpec, pathToPool: string): ArFileLUT {
+function getPoolAssetFiles(syncSpec: ArSyncSpec, pathToRoot: string): ArFileLUT {
 
   const poolAssetFiles: ArFileLUT = {};
 
   syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
-    poolAssetFiles[syncSpecFile.name] = isomorphicPath.join(pathToPool, syncSpecFile.link);
+    poolAssetFiles[syncSpecFile.name] = isomorphicPath.join(pathToRoot, syncSpecFile.link);
   });
 
   return poolAssetFiles;
@@ -188,14 +188,14 @@ function getNetworkedSyncSpecFilePath(): string {
   return isomorphicPath.join(getRootDirectory(), 'current-sync.json');
 }
 
-export function getPoolFilePath(fileName : string): string {
-  const filePath : string =  _poolAssetFiles[fileName];
-  console.log('fileName: ' + fileName + ', filePath: ' +  filePath);
+export function getPoolFilePath(fileName: string): string {
+  const filePath: string = _poolAssetFiles[fileName];
+  console.log('fileName: ' + fileName + ', filePath: ' + filePath);
   return filePath;
 }
 
 function getPoolDirectory(): string {
-  return isomorphicPath.join(getRootDirectory(), 'pool'); 
+  return isomorphicPath.join(getRootDirectory(), 'pool');
 }
 
 function getRootDirectory(): string {
@@ -217,13 +217,15 @@ function restartPlayback(presentationName: string): Promise<void> {
 
   const autoplayFileName = presentationName + '.bml';
 
-  return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath).then((bpfxState: any) => {
-    console.log(bpfxState);
-    const autoPlay: any = bpfxState.bsdm;
-    const signState = autoPlay as DmSignState;
-    _autotronStore.dispatch(dmOpenSign(signState));
-    return Promise.resolve();
-  });
+  return getSyncSpecReferencedFile(autoplayFileName, _syncSpec, rootPath)
+    .then((bpfxState: any) => {
+      console.log(bpfxState);
+      const autoPlay: any = bpfxState.bsdm;
+      const signState = autoPlay as DmSignState;
+      _autotronStore.dispatch(dmOpenSign(signState));
+      console.log(_autotronStore.getState());
+      return Promise.resolve();
+    });
 }
 
 // function dispatchPostMessage(event : ArEventType): void {
@@ -250,14 +252,14 @@ function dispatchEvent(event: ArEventType) {
 }
 
 function startPlayback() {
-  
+
   const bsdm: DmState = _autotronStore.getState().bsdm;
 
   const zoneHSMs: ZoneHSM[] = [];
   const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
   zoneIds.forEach((zoneId: BsDmId) => {
-    const bsdmZone: DmZone = dmGetZoneById(bsdm, {id: zoneId}) as DmZone;
-  
+    const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
+
     let zoneHSM: ZoneHSM;
 
     switch (bsdmZone.type) {

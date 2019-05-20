@@ -3,8 +3,8 @@ import { ArState } from "../type/runtime";
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getActiveMediaStateId(state : ArState, zoneId : string) {
+export function getActiveMediaStateId(state: ArState, zoneId: string) {
 
-  const activeMediaStateIdByZone = state.activeMediaStates.activeMediaStateIdByZone;
+  const activeMediaStateIdByZone = state.bsUiModel.template.activeMediaState.activeMediaStateIdByZone;
   return activeMediaStateIdByZone[zoneId];
 }

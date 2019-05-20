@@ -3,16 +3,18 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
+// import { DmState } from '@brightsign/bsdatamodel';
+
 // import { postMessage } from '../store/stateMachine';
 
-import Sign from '../components/sign';
+import { Sign } from './sign';
 import { ArState } from '../type/runtime';
 import { setPlaybackState } from '../index';
 
 // HACK
 export let myApp = {};
 
-class App extends React.Component<any, object> {
+class AppComponent extends React.Component<any, object> {
 
   state: object;
 
@@ -24,12 +26,14 @@ class App extends React.Component<any, object> {
 
   render() {
 
+    console.log('app render invoked');
+
     if (this.props.bsdm.zones.allZones.length === 0 ||
       Object.keys(this.props.activeMediaStates.activeMediaStateIdByZone).length === 0) {
       return (
         <div>
           Waiting for the presentation to be loaded...
-                </div>
+        </div>
       );
     }
 
@@ -43,12 +47,12 @@ class App extends React.Component<any, object> {
   }
 }
 
-function mapStateToProps(state: ArState) {
+function mapStateToProps(state: any) {
 
   return {
     bsdm: state.bsdm,
-    playbackState: state.stateMachine.playbackState,
-    activeMediaStates: state.activeMediaStates,
+    playbackState: state.bsUiModel.template.stateMachine.playbackState,
+    activeMediaStates: state.bsUiModel.template.activeMediaState,
   };
 }
 
@@ -58,4 +62,4 @@ const mapDispatchToProps = (dispatch: Dispatch<ArState>) => {
   }, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);

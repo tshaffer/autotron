@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { bsUiModelReducer } from '../src/model';
 // import { BsUiModelState } from '../src/type';
-import { Template, initRuntime, AutotronState } from '../src/index';
+import { initRuntime, AutotronState, App } from '../src/index';
 import '../dev/bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
@@ -30,7 +30,7 @@ store.dispatch(initRuntime(store));
 
 ReactDOM.render(
   <Provider store={store}>
-    <Template />
+    < App />
   </Provider>,
   document.getElementById('root') as HTMLElement
 );
