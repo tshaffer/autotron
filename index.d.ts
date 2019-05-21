@@ -71,24 +71,12 @@ export const Sign: React.ComponentClass<Pick<SignProps, "playbackState" | "bsdm"
 export let myApp: {};
 export const App: React.ComponentClass<Pick<{
     bsdm: any;
-    playbackState: any;
     activeMediaStates: any;
-} & {
-    setPlaybackState: (playbackState: string) => {
-        type: string;
-        payload: string;
-    };
-}, never>> & {
+} & null, never>> & {
     WrappedComponent: React.ComponentType<{
         bsdm: any;
-        playbackState: any;
         activeMediaStates: any;
-    } & {
-        setPlaybackState: (playbackState: string) => {
-            type: string;
-            payload: string;
-        };
-    }>;
+    } & null>;
 };
 
 export const initModel: () => BsAutotronModelThunkAction<Promise<any>>;

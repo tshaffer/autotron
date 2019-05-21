@@ -142,11 +142,11 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   render() {
 
-    if (this.props.playbackState !== 'active') {
-      return (
-        <div>Playback state inactive</div>
-      );
-    }
+    // if (this.props.playbackState !== 'active') {
+    //   return (
+    //     <div>Playback state inactive</div>
+    //   );
+    // }
 
     const mediaStateId: string = this.props.activeMediaStateId;
     const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: mediaStateId }) as DmMediaState;
@@ -178,6 +178,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
 const mapStateToProps = (state: any, ownProps: any): any => {
+  debugger;
   return {
     key: state.key,
     playbackState: ownProps.playbackState,

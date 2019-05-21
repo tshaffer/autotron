@@ -1,15 +1,15 @@
 import * as React from 'react';
 
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
+// import { bindActionCreators, Dispatch } from 'redux';
 
 // import { DmState } from '@brightsign/bsdatamodel';
 
 // import { postMessage } from '../store/stateMachine';
 
 import { Sign } from './sign';
-import { ArState } from '../type/runtime';
-import { setPlaybackState } from '../index';
+// import { ArState } from '../type/runtime';
+// import { setPlaybackState } from '../index';
 
 // HACK
 export let myApp = {};
@@ -48,18 +48,10 @@ class AppComponent extends React.Component<any, object> {
 }
 
 function mapStateToProps(state: any) {
-
   return {
     bsdm: state.bsdm,
-    playbackState: state.bsUiModel.template.stateMachine.playbackState,
-    activeMediaStates: state.bsUiModel.template.activeMediaState,
+    activeMediaStates: state.bsAutotron.activeMediaStates,
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<ArState>) => {
-  return bindActionCreators({
-    setPlaybackState,
-  }, dispatch);
-};
-
-export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
+export const App = connect(mapStateToProps, null)(AppComponent);
