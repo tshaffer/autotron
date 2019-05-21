@@ -54,7 +54,7 @@ export class SignComponent extends React.Component<SignProps> {
 
   getZoneJSX(zoneId: string): object | null {
 
-    const zone: DmcZone = dmGetZoneById(this.props.bsdm, {id: zoneId}) as DmcZone;
+    const zone: DmcZone = dmGetZoneById(this.props.bsdm, { id: zoneId }) as DmcZone;
 
     switch (zone.type) {
       case 'VideoOrImages': {
@@ -95,14 +95,13 @@ export class SignComponent extends React.Component<SignProps> {
 
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
-  const mapStateToProps = (state: any, ownProps: undefined): any => {
-    return {
-      src: state.src,
-      width: state.width,
-      height: state.height,
-    };
+const mapStateToProps = (state: any, ownProps: undefined): any => {
+  return {
+    src: state.src,
+    width: state.width,
+    height: state.height,
   };
-  
-  // export const Image = connect(mapStateToProps, mapDispatchToProps)(ImageComponent);
-  export const Sign = connect(mapStateToProps)(SignComponent);
-  
+};
+
+// export const Image = connect(mapStateToProps, mapDispatchToProps)(ImageComponent);
+export const Sign = connect(mapStateToProps)(SignComponent);

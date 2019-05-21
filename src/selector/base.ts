@@ -1,28 +1,29 @@
 /** @module Selector:base */
 
-import { BsUiModelState } from '../type';
-import { isValidBsUiModelStateShallow } from '../model';
+
+import { BsAutotronModelState } from '../type';
+import { isValidBsAutotronModelStateShallow } from '../model';
 import {
-  BsUiError,
-  BsUiErrorType,
-} from '../utility/BsUiError';
+  BsAutotronError,
+  BsAutotronErrorType,
+} from '../utility/BsAutotronError';
 
 /** @internal */
 /** @private */
-export const bsUiModelFilterBaseState = (state: any): BsUiModelState => {
-  if (state.hasOwnProperty('bsuimodel') && isValidBsUiModelStateShallow(state.bsuimodel)) {
-    return state.bsuimodel as BsUiModelState;
-  } else if (isValidBsUiModelStateShallow(state)) {
-    return state as BsUiModelState;
+export const bsAutotronModelFilterBaseState = (state: any): BsAutotronModelState => {
+  if (state.hasOwnProperty('bsautotronmodel') && isValidBsAutotronModelStateShallow(state.bsautotronmodel)) {
+    return state.bsautotronmodel as BsAutotronModelState;
+  } else if (isValidBsAutotronModelStateShallow(state)) {
+    return state as BsAutotronModelState;
   } else {
-    const exceptionMessage = `state must be of type BsUiModelState or have a field bsuimodel
-      of type BsUiModelState. invalid state ${JSON.stringify(state)}`;
-    throw new BsUiError(BsUiErrorType.invalidParameters, exceptionMessage);
+    const exceptionMessage = `state must be of type BsAutotronModelState or have a field bsautotronmodel
+      of type BsAutotronModelState. invalid state ${JSON.stringify(state)}`;
+    throw new BsAutotronError(BsAutotronErrorType.invalidParameters, exceptionMessage);
   }
 };
 
 /** @internal */
 /** @private */
-export const bsUiModelGetBaseState = (state: BsUiModelState): BsUiModelState  => {
-  return bsUiModelFilterBaseState(state);
+export const bsAutotronModelGetBaseState = (state: BsAutotronModelState): BsAutotronModelState  => {
+  return bsAutotronModelFilterBaseState(state);
 };

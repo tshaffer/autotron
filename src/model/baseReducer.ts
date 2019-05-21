@@ -4,17 +4,13 @@ import {
   Reducer,
   combineReducers
 } from 'redux';
-import { isObject } from 'lodash';
-import { BsUiModelState } from '../type';
-import {
-  BSUIMODEL_BATCH,
-  BsUiModelBaseAction,
-  BsUiModelBatchAction,
-} from './baseAction';
-import {
-  templateReducer,
-  isValidTemplateState,
-} from './template';
+// import { isObject } from 'lodash';
+import { BsAutotronModelState } from '../type';
+// import {
+//   isValidTemplateState,
+// } from './template';
+import { activeMediaStateReducer } from './activeMediaState';
+import { BsAutotronModelBaseAction, BsAutotronModelBatchAction, BSAUTOTRONMODEL_BATCH } from './baseAction';
 
 // -----------------------------------------------------------------------
 // Defaults
@@ -25,38 +21,41 @@ import {
 // -----------------------------------------------------------------------
 // Reducers
 // -----------------------------------------------------------------------
-
-export type BsUiReducer = Reducer<BsUiModelState>;
+export type BsAutotronReducer = Reducer<BsAutotronModelState>;
 const enableBatching = (
-    reduce: (state: BsUiModelState, action: BsUiModelBaseAction | BsUiModelBatchAction) => BsUiModelState,
-): BsUiReducer => {
+  reduce: (state: BsAutotronModelState, action: BsAutotronModelBaseAction | BsAutotronModelBatchAction) => BsAutotronModelState,
+): BsAutotronReducer => {
   return function batchingReducer(
-    state: BsUiModelState,
-    action: BsUiModelBaseAction | BsUiModelBatchAction,
-  ): BsUiModelState {
+    state: BsAutotronModelState,
+    action: BsAutotronModelBaseAction | BsAutotronModelBatchAction,
+  ): BsAutotronModelState {
     switch (action.type) {
-      case BSUIMODEL_BATCH:
-        return (action as BsUiModelBatchAction).payload.reduce(batchingReducer, state);
+      case BSAUTOTRONMODEL_BATCH:
+        return (action as BsAutotronModelBatchAction).payload.reduce(batchingReducer, state);
       default:
         return reduce(state, action);
     }
   };
 };
 
-export const bsUiModelReducer: BsUiReducer = enableBatching(combineReducers<BsUiModelState>({
-  template: templateReducer,
+export const bsAutotronModelReducer: BsAutotronReducer = enableBatching(combineReducers<BsAutotronModelState>({
+  activeMediaStates: activeMediaStateReducer
 }));
+
 
 // -----------------------------------------------------------------------
 // Validators
 // -----------------------------------------------------------------------
 
-export const isValidBsUiModelState = (state: any): boolean => {
-  return isObject(state)
-    && state.hasOwnProperty('template') && isValidTemplateState(state.template);
+// TEDTODO
+export const isValidBsAutotronModelState = (state: any): boolean => {
+  return true;
+  // return isObject(state)
+  //   && state.hasOwnProperty('template') && isValidTemplateState(state.template);
 };
 
-export const isValidBsUiModelStateShallow = (state: any): boolean => {
-  return isObject(state)
-    && state.hasOwnProperty('template');
+export const isValidBsAutotronModelStateShallow = (state: any): boolean => {
+  return true;
+  // return isObject(state)
+  //   && state.hasOwnProperty('template');
 };

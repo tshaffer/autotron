@@ -13,7 +13,7 @@ import isomorphicPath from 'isomorphic-path';
 import { ArSyncSpec, ArFileLUT, ArSyncSpecDownload, ArEventType } from '../type/runtime';
 import { HSM } from '../runtime/hsm/HSM';
 import { PlayerHSM } from '../runtime/hsm/playerHSM';
-import { AutotronState } from '../index';
+import { BsAutotronState } from '../index';
 import { Store } from 'redux';
 import { DmSignState, dmOpenSign, DmState, dmGetZonesForSign, BsDmId, DmZone, dmGetZoneById } from '@brightsign/bsdatamodel';
 import { ZoneHSM } from '../runtime/hsm/zoneHSM';
@@ -24,7 +24,7 @@ import { MediaZoneHSM } from '../runtime/hsm/mediaZoneHSM';
 const srcDirectory = '/Users/tedshaffer/Desktop/ag';
 
 // TEDTODO
-let _autotronStore: Store<AutotronState>;
+let _autotronStore: Store<BsAutotronState>;
 let _syncSpec: ArSyncSpec;
 let _poolAssetFiles: ArFileLUT;
 let _autoSchedule: any;
@@ -35,11 +35,11 @@ let _playerHSM: PlayerHSM;
 // -----------------------------------------------------------------------
 // Controller Methods
 // -----------------------------------------------------------------------
-export function initRuntime(store: Store<AutotronState>) {
+export function initRuntime(store: Store<BsAutotronState>) {
   return ((dispatch: any, getState: Function) => {
     debugger;
     _autotronStore = store;
-    const autotronState: AutotronState = _autotronStore.getState();
+    const autotronState: BsAutotronState = _autotronStore.getState();
     console.log(autotronState);
 
     return getRuntimeFiles();

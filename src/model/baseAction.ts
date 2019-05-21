@@ -13,7 +13,7 @@ export interface ActionWithPayload extends Action {
   payload : any;
 }
 
-import { BsUiModelState } from '../type';
+import { BsAutotronModelState } from '../type';
 
 // -----------------------------------------------------------------------
 // Actions
@@ -21,23 +21,23 @@ import { BsUiModelState } from '../type';
 
 /** @internal */
 /** @private */
-export const BSUIMODEL_BATCH = 'BSUIMODEL_BATCH';
+export const BSAUTOTRONMODEL_BATCH = 'BSAUTOTRONMODEL_BATCH';
 
 /** @internal */
 /** @private */
-export const BSUIMODEL_REHYDRATE = 'BSUIMODEL_REHYDRATE';
+export const BSAUTOTRONMODEL_REHYDRATE = 'BSAUTOTRONMODEL_REHYDRATE';
 
 /** @internal */
 /** @private */
-export const BSUIMODEL_RESET = 'BSUIMODEL_RESET';
+export const BSAUTOTRONMODEL_RESET = 'BSAUTOTRONMODEL_RESET';
 
 /** @internal */
 /** @private */
-export type BsUiModelDispatch = Dispatch<BsUiModelState>;
+export type BsAutotronModelDispatch = Dispatch<BsAutotronModelState>;
 
 /** @internal */
 /** @private */
-export interface BsUiModelBaseAction extends Action {
+export interface BsAutotronModelBaseAction extends Action {
   type: string;   // override Any - must be a string
   payload: {};
   error?: boolean;
@@ -46,59 +46,59 @@ export interface BsUiModelBaseAction extends Action {
 
 /** @internal */
 /** @private */
-export interface BsUiModelAction<T> extends BsUiModelBaseAction {
+export interface BsAutotronModelAction<T> extends BsAutotronModelBaseAction {
   payload: T;     // override payload with specific parameter type
 }
 
 /** @internal */
 /** @private */
-export type BsUiModelActionCreator<T> = ActionCreator<BsUiModelAction<T>>;
+export type BsAutotronModelActionCreator<T> = ActionCreator<BsAutotronModelAction<T>>;
 
 /** @internal */
 /** @private */
-export type BsUiModelThunkAction<T> = (
-  dispatch: BsUiModelDispatch,
-  getState: () => BsUiModelState,
+export type BsAutotronModelThunkAction<T> = (
+  dispatch: BsAutotronModelDispatch,
+  getState: () => BsAutotronModelState,
   extraArgument: undefined,
 ) => T;
 
 /** @internal */
 /** @private */
-export const bsUiModelBatchAction = (action: BsUiModelBaseAction[]): BsUiModelBatchAction => {
-  return {type: BSUIMODEL_BATCH, payload: action};
+export const bsAutotronModelBatchAction = (action: BsAutotronModelBaseAction[]): BsAutotronModelBatchAction => {
+  return {type: BSAUTOTRONMODEL_BATCH, payload: action};
 };
 
 /** @internal */
 /** @private */
-export interface BsUiModelBatchAction extends Action {
+export interface BsAutotronModelBatchAction extends Action {
   type: string;
-  payload: BsUiModelBaseAction[];
+  payload: BsAutotronModelBaseAction[];
 }
 
 /** @internal */
 /** @private */
-export interface RehydrateBsUiModelParams {
-  newBsUiModelState: BsUiModelState;
+export interface RehydrateBsAutotronModelParams {
+  newBsAutotronModelState: BsAutotronModelState;
 }
 
 /** @internal */
 /** @private */
-export type RehydrateBsUiModelAction = BsUiModelAction<RehydrateBsUiModelParams>;
-export const bsUiModelRehydrateModel = (bsUiModelState: BsUiModelState): RehydrateBsUiModelAction => {
+export type RehydrateBsAutotronModelAction = BsAutotronModelAction<RehydrateBsAutotronModelParams>;
+export const bsAutotronModelRehydrateModel = (bsAutotronModelState: BsAutotronModelState): RehydrateBsAutotronModelAction => {
   return {
-    type: BSUIMODEL_REHYDRATE,
+    type: BSAUTOTRONMODEL_REHYDRATE,
     payload: {
-      newBsUiModelState: bsUiModelState,
+      newBsAutotronModelState: bsAutotronModelState,
     },
   };
 };
 
 /** @internal */
 /** @private */
-export type ResetBsUiModelAction = BsUiModelAction<null>;
-export const bsUiModelResetModel = (): ResetBsUiModelAction => {
+export type ResetBsAutotronModelAction = BsAutotronModelAction<null>;
+export const bsAutotronModelResetModel = (): ResetBsAutotronModelAction => {
   return {
-    type: BSUIMODEL_RESET,
+    type: BSAUTOTRONMODEL_RESET,
     payload: null,
   };
 };

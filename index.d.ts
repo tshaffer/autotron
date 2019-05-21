@@ -55,31 +55,6 @@ export const MediaZone: React.ComponentClass<any> & {
 };
 
 /** @internal */
-export interface TemplateProps {
-    color: BsUiModelTemplatePropertyColorState;
-    onInitModel: () => any;
-    onInitRuntime: () => any;
-    onResetModel: () => any;
-    onUpdateTemplateColorAsync: () => any;
-    onUpdateTemplateColorBatch: () => any;
-}
-export class TemplateComponent extends React.Component<TemplateProps> {
-    componentDidMount(): void;
-    componentWillUnmount(): void;
-    renderComponent(): JSX.Element;
-    renderModel(): JSX.Element;
-    renderController(): JSX.Element;
-    renderType(): JSX.Element;
-    renderError(): JSX.Element;
-    renderHeader(): JSX.Element;
-    renderBody(): JSX.Element;
-    render(): JSX.Element;
-}
-export const Template: React.ComponentClass<Pick<TemplateProps, never> & undefined> & {
-    WrappedComponent: React.ComponentType<TemplateProps>;
-};
-
-/** @internal */
 export interface SignProps {
     bsdm: DmState;
     playbackState: string;
@@ -116,15 +91,10 @@ export const App: React.ComponentClass<Pick<{
     }>;
 };
 
-export const initModel: () => BsUiModelThunkAction<Promise<any>>;
-export const resetModel: () => BsUiModelThunkAction<BsUiModelAction<null>>;
+export const initModel: () => any;
+export const resetModel: () => any;
 
-/** @private */
-export const updateTemplateColorAsync: () => BsUiModelThunkAction<Promise<any>>;
-/** @private */
-export const updateTemplateColorBatch: () => BsUiModelThunkAction<BsUiModelBatchAction>;
-
-export function initRuntime(store: Store<AutotronState>): (dispatch: any, getState: Function) => Promise<void>;
+export function initRuntime(store: Store<BsAutotronState>): (dispatch: any, getState: Function) => Promise<void>;
 export function getRuntimeFiles(): Promise<void>;
 export function getPoolFilePath(fileName: string): string;
 export function postRuntimeMessage(event: ArEventType): void;
@@ -146,51 +116,51 @@ export interface ActionWithPayload extends Action {
     payload: any;
 }
 /** @private */
-export const BSUIMODEL_BATCH = "BSUIMODEL_BATCH";
+export const BSAUTOTRONMODEL_BATCH = "BSAUTOTRONMODEL_BATCH";
 /** @private */
-export const BSUIMODEL_REHYDRATE = "BSUIMODEL_REHYDRATE";
+export const BSAUTOTRONMODEL_REHYDRATE = "BSAUTOTRONMODEL_REHYDRATE";
 /** @private */
-export const BSUIMODEL_RESET = "BSUIMODEL_RESET";
+export const BSAUTOTRONMODEL_RESET = "BSAUTOTRONMODEL_RESET";
 /** @private */
-export type BsUiModelDispatch = Dispatch<BsUiModelState>;
+export type BsAutotronModelDispatch = Dispatch<BsAutotronModelState>;
 /** @private */
-export interface BsUiModelBaseAction extends Action {
+export interface BsAutotronModelBaseAction extends Action {
     type: string;
     payload: {};
     error?: boolean;
     meta?: {};
 }
 /** @private */
-export interface BsUiModelAction<T> extends BsUiModelBaseAction {
+export interface BsAutotronModelAction<T> extends BsAutotronModelBaseAction {
     payload: T;
 }
 /** @private */
-export type BsUiModelActionCreator<T> = ActionCreator<BsUiModelAction<T>>;
+export type BsAutotronModelActionCreator<T> = ActionCreator<BsAutotronModelAction<T>>;
 /** @private */
-export type BsUiModelThunkAction<T> = (dispatch: BsUiModelDispatch, getState: () => BsUiModelState, extraArgument: undefined) => T;
+export type BsAutotronModelThunkAction<T> = (dispatch: BsAutotronModelDispatch, getState: () => BsAutotronModelState, extraArgument: undefined) => T;
 /** @private */
-export const bsUiModelBatchAction: (action: BsUiModelBaseAction[]) => BsUiModelBatchAction;
+export const bsAutotronModelBatchAction: (action: BsAutotronModelBaseAction[]) => BsAutotronModelBatchAction;
 /** @private */
-export interface BsUiModelBatchAction extends Action {
+export interface BsAutotronModelBatchAction extends Action {
     type: string;
-    payload: BsUiModelBaseAction[];
+    payload: BsAutotronModelBaseAction[];
 }
 /** @private */
-export interface RehydrateBsUiModelParams {
-    newBsUiModelState: BsUiModelState;
+export interface RehydrateBsAutotronModelParams {
+    newBsAutotronModelState: BsAutotronModelState;
 }
 /** @private */
-export type RehydrateBsUiModelAction = BsUiModelAction<RehydrateBsUiModelParams>;
-export const bsUiModelRehydrateModel: (bsUiModelState: BsUiModelState) => BsUiModelAction<RehydrateBsUiModelParams>;
+export type RehydrateBsAutotronModelAction = BsAutotronModelAction<RehydrateBsAutotronModelParams>;
+export const bsAutotronModelRehydrateModel: (bsAutotronModelState: BsAutotronModelState) => BsAutotronModelAction<RehydrateBsAutotronModelParams>;
 /** @private */
-export type ResetBsUiModelAction = BsUiModelAction<null>;
-export const bsUiModelResetModel: () => BsUiModelAction<null>;
+export type ResetBsAutotronModelAction = BsAutotronModelAction<null>;
+export const bsAutotronModelResetModel: () => BsAutotronModelAction<null>;
 
 /** @module Model:base */
-export type BsUiReducer = Reducer<BsUiModelState>;
-export const bsUiModelReducer: BsUiReducer;
-export const isValidBsUiModelState: (state: any) => boolean;
-export const isValidBsUiModelStateShallow: (state: any) => boolean;
+export type BsAutotronReducer = Reducer<BsAutotronModelState>;
+export const bsAutotronModelReducer: BsAutotronReducer;
+export const isValidBsAutotronModelState: (state: any) => boolean;
+export const isValidBsAutotronModelStateShallow: (state: any) => boolean;
 
 export const SET_PLAYBACK_STATE = "SET_PLAYBACK_STATE";
 export function setPlaybackState(playbackState: string): {
@@ -201,89 +171,31 @@ export const stateMachineReducer: (state: StateMachineShape | undefined, action:
     playbackState: any;
 };
 
-/** @private */
-export const templateReducer: (state: BsUiModelTemplateState, action: BsUiModelBatchAction) => BsUiModelTemplateState;
-/** @private */
-export const isValidTemplateState: (state: any) => boolean;
-/** @private */
-export const isValidTemplateStateShallow: (state: any) => boolean;
-
-/** @private */
-export const BSUIMODEL_UPDATE_TEMPLATE_PROPERTY: string;
-/** @private */
-export const BSUIMODEL_RESET_TEMPLATE_PROPERTY: string;
-/** @private */
-export type UpdateTemplatePropertyAction = BsUiModelAction<Partial<BsUiModelTemplatePropertyState>>;
-/** @private */
-export type ResetTemplatePropertyAction = BsUiModelAction<null>;
-/** @private */
-export const bsUiModelResetTemplateProperty: () => BsUiModelAction<null>;
-/** @private */
-export const bsUiModelUpdateTemplateColor: (color: BsUiModelTemplatePropertyColorState) => BsUiModelAction<Partial<BsUiModelTemplatePropertyState>>;
-/** @private */
-export const templatePropertyDefault: BsUiModelTemplatePropertyState;
-/** @private */
-export const templatePropertyReducer: (state: BsUiModelTemplatePropertyState | undefined, {type, payload}: BsUiModelAction<null> | BsUiModelAction<RehydrateBsUiModelParams> | BsUiModelAction<Partial<BsUiModelTemplatePropertyState>>) => BsUiModelTemplatePropertyState;
-/** @private */
-export const isValidColor: (state: any) => boolean;
-/** @private */
-export const isValidTemplatePropertyState: (state: any) => boolean;
-/** @private */
-export const isValidTemplatePropertyStateShallow: (state: any) => boolean;
-
 /** @module Selector:base */
 /** @private */
-export const bsUiModelFilterBaseState: (state: any) => BsUiModelState;
+export const bsAutotronModelFilterBaseState: (state: any) => BsAutotronModelState;
 /** @private */
-export const bsUiModelGetBaseState: (state: BsUiModelState) => BsUiModelState;
-
-/** @private */
-export const bsUiModelGetTemplateState: (state: BsUiModelState) => BsUiModelTemplateState;
-
-/** @private */
-export const bsUiModelGetTemplatePropertyState: (state: BsUiModelState) => BsUiModelTemplatePropertyState;
-/** @private */
-export const bsUiModelGetTemplatePropertyColorState: (state: BsUiModelState) => BsUiModelTemplatePropertyColorState;
+export const bsAutotronModelGetBaseState: (state: BsAutotronModelState) => BsAutotronModelState;
 
 /** @module Types:base */
 /** @private */
 export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
-export interface AutotronState {
+export interface BsAutotronModelState {
+    activeMediaStates: ActiveMediaStatesShape;
+}
+export interface BsAutotronState {
     bsdm: DmState;
-    template: BsUiModelTemplateState;
+    bsAutotron: BsAutotronModelState;
 }
-/** @private */
-export interface BsUiModelState {
-    template: BsUiModelTemplateState;
-}
-/** @private */
-export const createModel: (template: BsUiModelTemplateState) => BsUiModelState;
 
-/** @module Types:template */
-/** @private */
-export interface BsUiModelTemplateState {
-    readonly property: BsUiModelTemplatePropertyState;
-}
-/** @private */
-export const createTemplate: (property: BsUiModelTemplatePropertyState) => BsUiModelTemplateState;
-
-/** @private */
-export interface BsUiModelTemplatePropertyColorState {
-    a: number;
-    r: number;
-    g: number;
-    b: number;
-}
-/** @private */
-export interface BsUiModelTemplatePropertyState {
-    color: BsUiModelTemplatePropertyColorState;
-}
-/** @private */
-export const createTemplateProperty: (color: BsUiModelTemplatePropertyColorState) => BsUiModelTemplatePropertyState;
-/** @private */
-export const createBsColor: (r: number, g: number, b: number, a: number) => BsUiModelTemplatePropertyColorState;
+export type ARMediaStateLUT = {
+    [zoneId: string]: string;
+};
+export type ActiveMediaStatesShape = {
+    activeMediaStateIdByZone: ARMediaStateLUT;
+};
 
 export enum BsUiErrorType {
     unknownError = 0,
@@ -344,13 +256,6 @@ export interface ArState {
     stateMachine: StateMachineShape;
     activeMediaStates: ActiveMediaStatesShape;
 }
-
-export type ARMediaStateLUT = {
-    [zoneId: string]: string;
-};
-export type ActiveMediaStatesShape = {
-    activeMediaStateIdByZone: ARMediaStateLUT;
-};
 
 export class HSM {
     dispatchEvent: ((event: ArEventType) => void);

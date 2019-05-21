@@ -1,10 +1,10 @@
-import { ArState } from "../type/runtime";
+import { BsAutotronModelState } from "../index";
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getActiveMediaStateId(state: ArState, zoneId: string) {
+export function getActiveMediaStateId(state: BsAutotronModelState, zoneId: string) {
 
-  const activeMediaStateIdByZone = state.bsUiModel.template.activeMediaState.activeMediaStateIdByZone;
+  const activeMediaStateIdByZone = state.activeMediaStates.activeMediaStateIdByZone;
   return activeMediaStateIdByZone[zoneId];
 }

@@ -1,6 +1,6 @@
 import { ZoneHSM } from "./zoneHSM";
 import { Store } from "redux";
-import { AutotronState } from "../../index";
+import { BsAutotronState } from "../../index";
 import { dmGetZoneById, DmZone, DmState, BsDmId, DmMediaState, dmGetMediaStateIdsForZone, dmGetMediaStateById } from "@brightsign/bsdatamodel";
 import { MediaHState } from './mediaHState';
 import { LUT } from "../../type/runtime";
@@ -11,7 +11,7 @@ export class MediaZoneHSM extends ZoneHSM {
 
   mediaStateIdToHState: LUT = {};
 
-  constructor(autotronStore: Store<AutotronState>, zoneId: string, dispatchEvent: any) {
+  constructor(autotronStore: Store<BsAutotronState>, zoneId: string, dispatchEvent: any) {
 
     super(autotronStore, zoneId, dispatchEvent);
 
