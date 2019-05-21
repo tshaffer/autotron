@@ -1,5 +1,11 @@
 import { HSM, HState, STTopEventHandler } from "./HSM";
-import { dmGetZoneById, DmZone, DmState, BsDmId, dmGetZoneSimplePlaylist } from "@brightsign/bsdatamodel";
+import { 
+  dmGetZoneById, 
+  DmZone, 
+  DmState, 
+  BsDmId, 
+  dmGetZoneSimplePlaylist
+ } from "@brightsign/bsdatamodel";
 import { Store } from "redux";
 import { BsAutotronState } from "../../index";
 import { MediaHState } from "./mediaHState";

@@ -91,8 +91,8 @@ export const App: React.ComponentClass<Pick<{
     }>;
 };
 
-export const initModel: () => any;
-export const resetModel: () => any;
+export const initModel: () => BsAutotronModelThunkAction<Promise<any>>;
+export const resetModel: () => BsAutotronModelThunkAction<BsAutotronModelAction<null>>;
 
 export function initRuntime(store: Store<BsAutotronState>): (dispatch: any, getState: Function) => Promise<void>;
 export function getRuntimeFiles(): Promise<void>;
@@ -262,7 +262,7 @@ export class HSM {
     topState: HState | null;
     activeState: HState | null;
     constructorHandler: (() => void) | null;
-    initialPseudoStateHandler: ((args: any) => HState) | null;
+    initialPseudoStateHandler: ((args: any) => (HState | null)) | null;
     constructor(dispatchEvent: ((event: ArEventType) => void));
     constructorFunction(): void;
     initialize(): void;

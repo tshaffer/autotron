@@ -1,5 +1,7 @@
 import { HState } from '../runtime/hsm/HSM';
-import { DmState } from '@brightsign/bsdatamodel';
+import { 
+  DmState
+} from '@brightsign/bsdatamodel';
 import { ActiveMediaStatesShape } from './activeMediaState';
 
 export interface ArEventType {

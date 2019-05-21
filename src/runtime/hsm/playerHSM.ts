@@ -41,7 +41,7 @@ export class PlayerHSM extends HSM {
   }
 
   // TEDTODO - args
-  initializePlayerStateMachine(args: any): (HState | null) {
+  initializePlayerStateMachine(args: any): HState {
 
     console.log('initializePlayerStateMachine invoked');
 

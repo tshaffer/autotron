@@ -1,7 +1,9 @@
 /** @module Types:base */
 
 // import { BsUiModelTemplateState } from './template';
-import { DmState } from '@brightsign/bsdatamodel';
+import { 
+  DmState
+} from '@brightsign/bsdatamodel';
 import { ActiveMediaStatesShape } from './activeMediaState';
 
 /** @internal */

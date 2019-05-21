@@ -11,7 +11,7 @@ export class HSM {
   topState: HState | null;
   activeState: HState | null;
   constructorHandler: (() => void) | null;
-  initialPseudoStateHandler: ((args: any) => HState) | null;
+  initialPseudoStateHandler: ((args: any) => (HState | null)) | null;
 
   constructor(dispatchEvent: ((event: ArEventType) => void)) {
     this.dispatchEvent = dispatchEvent;

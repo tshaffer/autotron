@@ -17,32 +17,32 @@ import isomorphicPath from 'isomorphic-path';
 import { Image } from './index';
 
 import {
-  dmGetAssetItemById,
+  // dmGetAssetItemById,
 } from '@brightsign/bsdatamodel';
-import { BsAssetItem } from "@brightsign/bscore";
+// import { BsAssetItem } from "@brightsign/bscore";
 
 import {
   ContentItemType,
-  EventType,
+  // EventType,
 } from '@brightsign/bscore';
 
 import {
   BsDmId,
-  DmDataFeedContentItem,
+  // DmDataFeedContentItem,
   DmDerivedContentItem,
   DmMediaContentItem,
   DmEvent,
-  DmEventData,
+  // DmEventData,
   DmMediaState,
   DmState,
-  DmTimer,
+  // DmTimer,
   dmGetMediaStateById,
   dmGetEventIdsForMediaState,
   dmGetEventById,
   DmcEvent,
   DmZone,
 } from '@brightsign/bsdatamodel';
-import { ArEventType } from '../type/runtime';
+// import { ArEventType } from '../type/runtime';
 import { getPoolFilePath, postRuntimeMessage } from '../index';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
@@ -93,11 +93,11 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
-    const self = this;
+    // const self = this;
 
     const mediaContentItem: DmMediaContentItem = contentItem as DmMediaContentItem;
 
-    const assetId: string = mediaContentItem.assetId;
+    // const assetId: string = mediaContentItem.assetId;
     // const assetItem : BsAssetItem = dmGetAssetItemById(this.props.bsdm, { id : assetId }) as BsAssetItem;
 
     // TODO - near term (likely) fix

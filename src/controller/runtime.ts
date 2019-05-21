@@ -15,7 +15,15 @@ import { HSM } from '../runtime/hsm/HSM';
 import { PlayerHSM } from '../runtime/hsm/playerHSM';
 import { BsAutotronState } from '../index';
 import { Store } from 'redux';
-import { DmSignState, dmOpenSign, DmState, dmGetZonesForSign, BsDmId, DmZone, dmGetZoneById } from '@brightsign/bsdatamodel';
+import {
+  DmSignState,
+  dmOpenSign,
+  DmState,
+  dmGetZonesForSign,
+  BsDmId,
+  DmZone,
+  dmGetZoneById
+} from '@brightsign/bsdatamodel';
 import { ZoneHSM } from '../runtime/hsm/zoneHSM';
 import { MediaZoneHSM } from '../runtime/hsm/mediaZoneHSM';
 
@@ -194,9 +202,9 @@ export function getPoolFilePath(fileName: string): string {
   return filePath;
 }
 
-function getPoolDirectory(): string {
-  return isomorphicPath.join(getRootDirectory(), 'pool');
-}
+// function getPoolDirectory(): string {
+//   return isomorphicPath.join(getRootDirectory(), 'pool');
+// }
 
 function getRootDirectory(): string {
   return srcDirectory;
