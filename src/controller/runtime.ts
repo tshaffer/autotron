@@ -236,6 +236,8 @@ function restartPlayback(presentationName: string): Promise<void> {
     });
 }
 
+// failed try??
+/*
 export function dispatchPostMessage(event : ArEventType): void {
   _autotronStore.dispatch(postMessage(event));
   // postMessage(event);
@@ -247,15 +249,6 @@ function postMessage(event: ArEventType): () => void {
   };
 }
 
-function dispatchEvent(event: ArEventType) {
-
-  _playerHSM.Dispatch(event);
-
-  _hsmList.forEach((hsm) => {
-    hsm.Dispatch(event);
-  });
-}
-
 // export function postRuntimeMessage(event: ArEventType) {
 //   console.log('flibbet');
 //   dispatchEvent(event);
@@ -265,6 +258,33 @@ function dispatchEvent(event: ArEventType) {
 //   console.log('pizza');
 //   dispatchEvent(event);
 // }
+*/
+
+// restored code
+// function dispatchPostMessage(event : ArEventType): void {
+//   postMessage(event);
+// }
+
+export function postRuntimeMessage(event: ArEventType) {
+  console.log('flibbet');
+  dispatchEvent(event);
+}
+
+export function postMessage(event: ArEventType) {
+  console.log('pizza');
+  dispatchEvent(event);
+}
+// end of restored code
+
+function dispatchEvent(event: ArEventType) {
+
+  _playerHSM.Dispatch(event);
+
+  _hsmList.forEach((hsm) => {
+    hsm.Dispatch(event);
+  });
+}
+
 
 
 function startPlayback() {
