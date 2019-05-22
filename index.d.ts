@@ -83,7 +83,8 @@ export const resetModel: () => BsAutotronModelThunkAction<BsAutotronModelAction<
 export function initRuntime(store: Store<BsAutotronState>): (dispatch: any, getState: Function) => Promise<void>;
 export function getRuntimeFiles(): Promise<void>;
 export function getPoolFilePath(fileName: string): string;
-export function dispatchPostMessage(event: ArEventType): void;
+export function postRuntimeMessage(event: ArEventType): void;
+export function postMessage(event: ArEventType): void;
 
 export const SET_ACTIVE_MEDIA_STATE = "SET_ACTIVE_MEDIA_STATE";
 export function setActiveMediaState(zoneId: string, mediaStateId: string): {
