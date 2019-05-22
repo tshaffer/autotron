@@ -37,7 +37,6 @@ export const Image: React.ComponentClass<any> & {
 /** @internal */
 export interface MediaZoneProps {
     key: string;
-    playbackState: string;
     bsdm: DmState;
     zone: DmZone;
     width: number;
@@ -57,14 +56,13 @@ export const MediaZone: React.ComponentClass<any> & {
 /** @internal */
 export interface SignProps {
     bsdm: DmState;
-    playbackState: string;
 }
 export class SignComponent extends React.Component<SignProps> {
     getMediaZoneJSX(zone: DmcZone): object;
     getZoneJSX(zoneId: string): object | null;
     render(): JSX.Element;
 }
-export const Sign: React.ComponentClass<Pick<SignProps, "playbackState" | "bsdm"> & undefined> & {
+export const Sign: React.ComponentClass<Pick<SignProps, "bsdm"> & undefined> & {
     WrappedComponent: React.ComponentType<SignProps>;
 };
 
@@ -151,13 +149,7 @@ export const isValidBsAutotronModelState: (state: any) => boolean;
 export const isValidBsAutotronModelStateShallow: (state: any) => boolean;
 
 export const SET_PLAYBACK_STATE = "SET_PLAYBACK_STATE";
-export function setPlaybackState(playbackState: string): {
-    type: string;
-    payload: string;
-};
-export const stateMachineReducer: (state: StateMachineShape | undefined, action: ActionWithPayload) => {
-    playbackState: any;
-};
+export const stateMachineReducer: (state: StateMachineShape | undefined, action: ActionWithPayload) => StateMachineShape;
 
 /** @module Selector:base */
 /** @private */
@@ -200,6 +192,21 @@ export class BsUiError extends Error {
 }
 export function isBsUiError(error: Error): error is BsUiError;
 
+export enum BsAutotronErrorType {
+    unknownError = 0,
+    unexpectedError = 1,
+    invalidParameters = 2,
+    invalidOperation = 3,
+    apiError = 4,
+    invalidModel = 5,
+}
+export class BsAutotronError extends Error {
+    name: string;
+    type: BsAutotronErrorType;
+    constructor(type: BsAutotronErrorType, reason?: string);
+}
+export function isBsAutotronError(error: Error): error is BsAutotronError;
+
 export interface ArEventType {
     EventType: string;
     data?: any;
@@ -236,9 +243,7 @@ export type LUT = {
 export type SubscribedEvents = {
     [eventKey: string]: HState;
 };
-export type StateMachineShape = {
-    playbackState: string;
-};
+export type StateMachineShape = {};
 export interface ArState {
     bsdm: DmState;
     stateMachine: StateMachineShape;

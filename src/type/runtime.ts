@@ -43,7 +43,7 @@ export type LUT = { [key: string] : any };
 
 export type SubscribedEvents = { [ eventKey : string] : HState}
 
-export type StateMachineShape = { playbackState : string };
+export type StateMachineShape = { };
 
 export interface ArState {
   bsdm : DmState;

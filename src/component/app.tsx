@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 
 import { Sign } from './sign';
 // import { ArState } from '../type/runtime';
-// import { setPlaybackState } from '../index';
 
 // HACK
 export let myApp = {};
@@ -41,7 +40,6 @@ class AppComponent extends React.Component<any, object> {
     return (
       <Sign
         bsdm={this.props.bsdm}
-        playbackState={this.props.playbackState}
       />
     );
   }

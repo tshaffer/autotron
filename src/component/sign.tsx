@@ -17,7 +17,6 @@ import { connect } from 'react-redux';
 /** @internal */
 export interface SignProps {
   bsdm: DmState;
-  playbackState: string;
 }
 
 // -----------------------------------------------------------------------
@@ -41,7 +40,6 @@ export class SignComponent extends React.Component<SignProps> {
       >
         <MediaZone
           key={zone.id}
-          playbackState={this.props.playbackState}
           bsdm={this.props.bsdm}
           zone={zone}
           width={Number(zone.absolutePosition.width)}

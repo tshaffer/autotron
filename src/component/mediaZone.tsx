@@ -56,7 +56,6 @@ import { getActiveMediaStateId } from '../selector/activeMediaState';
 /** @internal */
 export interface MediaZoneProps {
   key: string;
-  playbackState: string;
   bsdm: DmState;
   zone: DmZone;
   width: number;
@@ -142,12 +141,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   render() {
 
-    // if (this.props.playbackState !== 'active') {
-    //   return (
-    //     <div>Playback state inactive</div>
-    //   );
-    // }
-
     const mediaStateId: string = this.props.activeMediaStateId;
     const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: mediaStateId }) as DmMediaState;
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
@@ -178,10 +171,8 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
 const mapStateToProps = (state: any, ownProps: any): any => {
-  debugger;
   return {
     key: state.key,
-    playbackState: ownProps.playbackState,
     bsdm: state.bsdm,
     zone: ownProps.zone,
     width: ownProps.width,
