@@ -236,18 +236,15 @@ function restartPlayback(presentationName: string): Promise<void> {
     });
 }
 
-// function dispatchPostMessage(event : ArEventType): void {
-//   postMessage(event);
-// }
-
-export function postRuntimeMessage(event: ArEventType) {
-  console.log('flibbet');
-  dispatchEvent(event);
+export function dispatchPostMessage(event : ArEventType): void {
+  _autotronStore.dispatch(postMessage(event));
+  // postMessage(event);
 }
 
-export function postMessage(event: ArEventType) {
-  console.log('pizza');
-  dispatchEvent(event);
+function postMessage(event: ArEventType): () => void {
+  return () => {
+    dispatchEvent(event);
+  };
 }
 
 function dispatchEvent(event: ArEventType) {
@@ -258,6 +255,17 @@ function dispatchEvent(event: ArEventType) {
     hsm.Dispatch(event);
   });
 }
+
+// export function postRuntimeMessage(event: ArEventType) {
+//   console.log('flibbet');
+//   dispatchEvent(event);
+// }
+
+// export function postMessage(event: ArEventType) {
+//   console.log('pizza');
+//   dispatchEvent(event);
+// }
+
 
 function startPlayback() {
 

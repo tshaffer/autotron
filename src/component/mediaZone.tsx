@@ -43,10 +43,11 @@ import {
   DmZone,
 } from '@brightsign/bsdatamodel';
 // import { ArEventType } from '../type/runtime';
-import { getPoolFilePath, postRuntimeMessage } from '../index';
+// import { getPoolFilePath, postRuntimeMessage } from '../index';
+import { getPoolFilePath } from '../index';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { bindActionCreators } from 'redux';
+// import { Dispatch } from 'redux';
+// import { bindActionCreators } from 'redux';
 import { getActiveMediaStateId } from '../selector/activeMediaState';
 
 // -----------------------------------------------------------------------
@@ -162,11 +163,11 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 // Container
 // -----------------------------------------------------------------------
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-  return bindActionCreators({
-    postBSPMessage: postRuntimeMessage,
-  }, dispatch);
-};
+// const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+//   return bindActionCreators({
+//     postBSPMessage: postRuntimeMessage,
+//   }, dispatch);
+// };
 
 // const mapStateToProps = (state: any, ownProps: undefined): Partial<ImageProps> => {
 // const mapStateToProps = (state: any, ownProps: undefined): ImageProps => {
@@ -181,4 +182,5 @@ const mapStateToProps = (state: any, ownProps: any): any => {
   };
 };
 
-export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
+// export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
+export const MediaZone = connect(mapStateToProps, null)(MediaZoneComponent);

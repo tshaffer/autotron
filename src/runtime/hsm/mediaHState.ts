@@ -4,6 +4,7 @@ import { ArEventType, HSMStateData, SubscribedEvents } from "../../type/runtime"
 import { DmEvent, DmTimer, DmcTransition, dmGetTransitionById, dmGetTransitionIdsForEvent, BsDmId, dmGetEventStateById, DmMediaState } from "@brightsign/bsdatamodel";
 import { MediaZoneHSM } from "./mediaZoneHSM";
 import { ZoneHSM } from "./zoneHSM";
+import { dispatchPostMessage } from "../../index";
 
 export class MediaHState extends HState {
 
@@ -142,6 +143,7 @@ export class MediaHState extends HState {
       };
 
       this.stateMachine.dispatchEvent(event);
+      dispatchPostMessage(event);
     }
   }
 
