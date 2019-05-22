@@ -4,7 +4,7 @@ import { ArEventType, HSMStateData, SubscribedEvents } from "../../type/runtime"
 import { DmEvent, DmTimer, DmcTransition, dmGetTransitionById, dmGetTransitionIdsForEvent, BsDmId, dmGetEventStateById, DmMediaState } from "@brightsign/bsdatamodel";
 import { MediaZoneHSM } from "./mediaZoneHSM";
 import { ZoneHSM } from "./zoneHSM";
-import { dispatchPostMessage } from "../../index";
+// import { dispatchPostMessage } from "../../index";
 
 export class MediaHState extends HState {
 
@@ -133,7 +133,7 @@ export class MediaHState extends HState {
   }
 
   timeoutHandler(mediaHState : MediaHState) {
-    this.timeout = null;
+    mediaHState.timeout = null;
     const eventKey : string = 'timer-' + mediaHState.id;
     if (mediaHState.eventLUT.hasOwnProperty(eventKey)) {
       // const targetHState : HState = mediaHState.eventLUT[eventKey];
@@ -142,8 +142,8 @@ export class MediaHState extends HState {
         EventType: EventType.Timer,
       };
 
-      this.stateMachine.dispatchEvent(event);
-      dispatchPostMessage(event);
+      mediaHState.stateMachine.dispatchEvent(event);
+      // dispatchPostMessage(event);
     }
   }
 

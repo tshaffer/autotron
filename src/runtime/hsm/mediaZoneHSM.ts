@@ -8,7 +8,8 @@ import {
   BsDmId, 
   DmMediaState, 
   dmGetMediaStateIdsForZone, 
-  dmGetMediaStateById } from "@brightsign/bsdatamodel";
+  dmGetMediaStateById, 
+  dmGetEventIdsForMediaState} from "@brightsign/bsdatamodel";
 import { MediaHState } from './mediaHState';
 import { LUT } from "../../type/runtime";
 import { HState } from "./HSM";
@@ -56,14 +57,13 @@ export class MediaZoneHSM extends ZoneHSM {
     });
 
     // events / transitions
-    // this.mediaStateIds.forEach( (mediaStateId : BsDmId, index : number) => {
+    this.mediaStateIds.forEach( (mediaStateId : BsDmId, index : number) => {
 
-    //   const targetHState : MediaHState = this.mediaStateIdToHState[mediaStateId];
+      const targetHState : MediaHState = this.mediaStateIdToHState[mediaStateId];
 
-    //   const eventIds : BsDmId[] = dmGetEventIdsForMediaState(bsdm, { id : mediaStateId });
-    //   // targetHState.addEvents(this, eventIds);
-    // });
-
+      const eventIds : BsDmId[] = dmGetEventIdsForMediaState(bsdm, { id : mediaStateId });
+      targetHState.addEvents(this, eventIds);
+    });
   }
 
   videoOrImagesZoneConstructor() {
