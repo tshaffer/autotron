@@ -1,6 +1,5 @@
 /** @module Types:base */
 
-// import { BsUiModelTemplateState } from './template';
 import { 
   DmState
 } from '@brightsign/bsdatamodel';
@@ -20,18 +19,3 @@ export interface BsAutotronState {
   bsdm: DmState;
   bsAutotron: BsAutotronModelState;
 }
-
-
-// /** @internal */
-// /** @private */
-// export interface BsUiModelState {
-//   template: BsUiModelTemplateState;
-// }
-
-// /** @internal */
-// /** @private */
-// export const createModel = (template: BsUiModelTemplateState): BsUiModelState => {
-//   return {
-//     template
-//   };
-// };

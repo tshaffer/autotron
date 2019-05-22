@@ -4,11 +4,7 @@ import {
   Reducer,
   combineReducers
 } from 'redux';
-// import { isObject } from 'lodash';
 import { BsAutotronModelState } from '../type';
-// import {
-//   isValidTemplateState,
-// } from './template';
 import { activeMediaStateReducer } from './activeMediaState';
 import { BsAutotronModelBaseAction, BsAutotronModelBatchAction, BSAUTOTRONMODEL_BATCH } from './baseAction';
 
@@ -50,12 +46,8 @@ export const bsAutotronModelReducer: BsAutotronReducer = enableBatching(combineR
 // TEDTODO
 export const isValidBsAutotronModelState = (state: any): boolean => {
   return true;
-  // return isObject(state)
-  //   && state.hasOwnProperty('template') && isValidTemplateState(state.template);
 };
 
 export const isValidBsAutotronModelStateShallow = (state: any): boolean => {
   return true;
-  // return isObject(state)
-  //   && state.hasOwnProperty('template');
 };

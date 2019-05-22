@@ -1,9 +1,5 @@
 import {
   BsAutotronModelState, ActiveMediaStatesShape, ARMediaStateLUT,
-  // createModel,
-  // createTemplate,
-  // createTemplateProperty,
-  // createBsColor,
 } from '../type';
 import {
   BsAutotronModelAction,
@@ -19,11 +15,6 @@ import {
 
 const fetchModelAsync = (): Promise<BsAutotronModelState> => {
   return new Promise((resolve) => {
-    // const color = createBsColor(255, 0, 0, 0);
-    // const templateProperty = createTemplateProperty(color);
-    // const template = createTemplate(templateProperty);
-    // const model = createModel(template);
-
     const activeMediaStateIdByZone: ARMediaStateLUT = {};
     const activeMediaStates: ActiveMediaStatesShape = {
       activeMediaStateIdByZone,
