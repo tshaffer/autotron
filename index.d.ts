@@ -34,6 +34,18 @@ export const Image: React.ComponentClass<any> & {
     WrappedComponent: React.ComponentType<ImageProps>;
 };
 
+export interface VideoProps {
+    width: number;
+    height: number;
+    src: string;
+}
+export class VideoComponent extends React.Component<VideoProps> {
+    render(): JSX.Element;
+}
+export const Video: React.ComponentClass<any> & {
+    WrappedComponent: React.ComponentType<VideoProps>;
+};
+
 /** @internal */
 export interface MediaZoneProps {
     key: string;

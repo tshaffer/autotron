@@ -14,6 +14,7 @@ import { MediaHState } from './mediaHState';
 import { LUT } from "../../type/runtime";
 import { HState } from "./HSM";
 import ImageState from "./imageState";
+import VideoState from "./videoState";
 
 export class MediaZoneHSM extends ZoneHSM {
 
@@ -50,6 +51,9 @@ export class MediaZoneHSM extends ZoneHSM {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       if (bsdmMediaState.contentItem.type === 'Image') {
         newState = new ImageState(this, bsdmMediaState);
+      }
+      else if (bsdmMediaState.contentItem.type === 'Video') {
+        newState = new VideoState(this, bsdmMediaState);
       }
       this.mediaStates.push(newState);
 

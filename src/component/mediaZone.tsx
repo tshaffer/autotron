@@ -8,13 +8,12 @@ import isomorphicPath from 'isomorphic-path';
 
 // import DesktopPlatformService from '../platform/desktop/DesktopPlatformService';
 
-// import ImageContainer from '../containers/imageContainer';
-// import VideoContainer from '../containers/videoContainer';
 // import MrssDisplayItemContainer from '../containers/mrssDisplayItemContainer';
 
 // import { getPoolFilePath } from '../utilities/utilities';
 
 import { Image } from './index';
+import { Video } from './index';
 
 import {
   // dmGetAssetItemById,
@@ -119,6 +118,15 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
           />
         );
       }
+      case 'Video': {
+        return (
+          <Video
+            width={this.props.width}
+            height={this.props.height}
+            src={src}
+          />
+        )
+      }
       default: {
         debugger;
       }
@@ -148,6 +156,9 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
     switch (contentItem.type) {
       case 'Image': {
+        return this.renderMediaItem(mediaState, contentItem as DmMediaContentItem);
+      }
+      case 'Video': {
         return this.renderMediaItem(mediaState, contentItem as DmMediaContentItem);
       }
       default: {
