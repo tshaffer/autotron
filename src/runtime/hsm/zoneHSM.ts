@@ -31,7 +31,7 @@ export class ZoneHSM extends HSM {
 
   constructor(autotronStore: Store<BsAutotronState>, zoneId: string, dispatchEvent: any) {
 
-    super(dispatchEvent);
+    super(autotronStore, dispatchEvent);
 
     this.autotronStore = autotronStore;
     this.zoneId = zoneId;

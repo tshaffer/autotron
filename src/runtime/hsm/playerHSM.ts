@@ -14,12 +14,13 @@ export class PlayerHSM extends HSM {
   postMessage: (event: any) => void;
 
   constructor(
+    reduxStore: any,
     startPlayback: () => void,
     restartPlayback: (presentationName: string) => Promise<void>,
     postMessage: (event: any) => void,
     dispatchEvent: any) {
 
-    super(dispatchEvent);
+    super(reduxStore, dispatchEvent);
 
     this.type = 'player';
 
@@ -41,7 +42,7 @@ export class PlayerHSM extends HSM {
   }
 
   // TEDTODO - args
-  initializePlayerStateMachine(args: any): HState {
+  initializePlayerStateMachine(args: any, reduxStore: any): HState {
 
     console.log('initializePlayerStateMachine invoked');
 
@@ -50,7 +51,7 @@ export class PlayerHSM extends HSM {
       const event = {
         EventType: 'TRANSITION_TO_PLAYING'
       };
-      this.postMessage(event);
+      this.reduxStore.dispatch(this.postMessage(event));
     });
 
     return this.stWaiting;

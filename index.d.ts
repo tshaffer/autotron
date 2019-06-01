@@ -6,12 +6,11 @@
 
 import * as React from 'react';
 import { DmDerivedContentItem, DmEvent, DmMediaState, DmState, DmZone } from '@brightsign/bsdatamodel';
-import { DmState, DmcZone } from '@brightsign/bsdatamodel';
+import { DmcZone } from '@brightsign/bsdatamodel';
 import { Store } from 'redux';
 import { Action } from 'redux';
 import { Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
-import { DmState } from '@brightsign/bsdatamodel';
 
 /** @module Controller:index */
 
@@ -37,9 +36,11 @@ export const Image: React.ComponentClass<any> & {
 export interface VideoProps {
     width: number;
     height: number;
+    onVideoEnd: () => void;
     src: string;
 }
 export class VideoComponent extends React.Component<VideoProps> {
+    onVideoEnd(): void;
     render(): JSX.Element;
 }
 export const Video: React.ComponentClass<any> & {
@@ -57,6 +58,7 @@ export interface MediaZoneProps {
     postBSPMessage: any;
 }
 export default class MediaZoneComponent extends React.Component<MediaZoneProps> {
+    postMediaEndEvent(): void;
     renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem): JSX.Element | null;
     getEvents(bsdm: DmState, mediaStateId: string): DmEvent[];
     render(): JSX.Element | null;
