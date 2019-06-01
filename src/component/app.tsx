@@ -50,7 +50,6 @@ function mapStateToProps(state: any) {
   return {
     bsdm: state.bsdm,
     activeHStates: state.bsAutotron.activeHStates,
-    // activeMediaStates: state.bsAutotron.activeMediaStates,
   };
 }
 

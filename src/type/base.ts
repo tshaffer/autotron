@@ -3,7 +3,6 @@
 import { 
   DmState
 } from '@brightsign/bsdatamodel';
-import { ActiveMediaStatesShape } from './activeMediaState';
 
 /** @internal */
 /** @private */
@@ -12,7 +11,7 @@ export type DeepPartial<T> = {
 };
 
 export interface BsAutotronModelState {
-  activeMediaStates: ActiveMediaStatesShape;
+  // activeMediaStates: ActiveMediaStatesShape;
 }
 
 export interface BsAutotronState {

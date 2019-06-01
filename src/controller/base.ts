@@ -1,5 +1,5 @@
 import {
-  BsAutotronModelState, ActiveMediaStatesShape, ARMediaStateLUT,
+  BsAutotronModelState,
 } from '../type';
 import {
   BsAutotronModelAction,
@@ -16,12 +16,12 @@ import {
 const fetchModelAsync = (): Promise<BsAutotronModelState> => {
   debugger;
   return new Promise((resolve) => {
-    const activeMediaStateIdByZone: ARMediaStateLUT = {};
-    const activeMediaStates: ActiveMediaStatesShape = {
-      activeMediaStateIdByZone,
-    };
+    // const activeMediaStateIdByZone: ARMediaStateLUT = {};
+    // const activeMediaStates: ActiveMediaStatesShape = {
+    //   activeMediaStateIdByZone,
+    // };
     const model: BsAutotronModelState = {
-      activeMediaStates,
+      // activeMediaStates,
     };
     resolve(model);
   });
