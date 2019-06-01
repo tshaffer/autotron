@@ -22,7 +22,7 @@ import {
 
 import {
   ContentItemType,
-  // EventType,
+  EventType,
 } from '@brightsign/bscore';
 
 import {
@@ -48,6 +48,7 @@ import { connect } from 'react-redux';
 // import { Dispatch } from 'redux';
 // import { bindActionCreators } from 'redux';
 import { getActiveMediaStateId } from '../selector/activeMediaState';
+import { ArEventType } from '../type/runtime';
 
 // -----------------------------------------------------------------------
 // Types
@@ -83,16 +84,17 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
   //   this.props.postBSPMessage(event);
   // }
 
-  // postMediaEndEvent()  {
-  //   const event : ArEventType = {
-  //     EventType : EventType.MediaEnd,
-  //   };
-  //   this.props.postBSPMessage(event);
-  // }
+  postMediaEndEvent()  {
+    console.log('postMediaEndEvent');
+    const event : ArEventType = {
+      EventType : EventType.MediaEnd,
+    };
+    this.props.postBSPMessage(event);
+  }
 
   renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
-    // const self = this;
+    const self = this;
 
     const mediaContentItem: DmMediaContentItem = contentItem as DmMediaContentItem;
 
@@ -124,6 +126,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
             width={this.props.width}
             height={this.props.height}
             src={src}
+            onVideoEnd={self.postMediaEndEvent.bind(this)}
           />
         )
       }

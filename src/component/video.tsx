@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
 // import { Dispatch } from 'redux';
+// import { bindActionCreators } from 'redux';
 
 // -----------------------------------------------------------------------
 // Types
@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 export interface VideoProps {
   width: number;
   height: number;
-  // onVideoEnd : () => void;
+  onVideoEnd : () => void;
   src: string;
 }
 
@@ -22,6 +22,7 @@ export class VideoComponent extends React.Component<VideoProps> {
 
   onVideoEnd() {
     console.log('onVideoEnd invoked');
+    this.props.onVideoEnd();
   }
 
   render() {
@@ -38,9 +39,8 @@ export class VideoComponent extends React.Component<VideoProps> {
         onEnded={() => {
           console.log('**** - videoEnd');
           self.onVideoEnd();
-          // self.props.onVideoEnd();
-        }
-        } />
+        }} 
+      />
     );
   }
 }
@@ -51,7 +51,7 @@ export class VideoComponent extends React.Component<VideoProps> {
 
 // const mapDispatchToProps = (dispatch: Dispatch<any>) => {
 //   return bindActionCreators({
-//     onVideoEnd: null,
+//     onVideoEnd: videoEnded,
 //   }, dispatch);
 // };
 

@@ -23,6 +23,9 @@ Sub RunApp()
       inspector_server: is,
       brightsign_js_objects_enabled: true,
       javascript_enabled: true,
+      scrollbar_enabled: true,
+      focus_enabled: true,
+      mouse_enabled: true,
       url:  "file:///SD:/index.html",
       security_params: {websecurity: false}
   }
