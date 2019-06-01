@@ -12,7 +12,6 @@ import { MediaHState } from "./mediaHState";
 
 export class ZoneHSM extends HSM {
 
-  hsmId: string;
   autotronStore: Store<BsAutotronState>;
   bsdmZone: DmZone;
 
@@ -44,7 +43,7 @@ export class ZoneHSM extends HSM {
     const bsdm: DmState = autotronStore.getState().bsdm;
     this.bsdmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
 
-    this.hsmId = this.bsdmZone.id;
+    this.id = this.bsdmZone.id;
     this.name = this.bsdmZone.name;
 
     this.x = this.bsdmZone.position.x;

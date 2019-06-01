@@ -47,8 +47,9 @@ import { getPoolFilePath } from '../index';
 import { connect } from 'react-redux';
 // import { Dispatch } from 'redux';
 // import { bindActionCreators } from 'redux';
-import { getActiveMediaStateId } from '../selector/activeMediaState';
+import { getActiveMediaStateId } from '../selector/hsm';
 import { ArEventType } from '../type/runtime';
+import { isString } from 'lodash';
 
 // -----------------------------------------------------------------------
 // Types
@@ -154,6 +155,10 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
   render() {
 
     const mediaStateId: string = this.props.activeMediaStateId;
+    if (!isString(mediaStateId) || mediaStateId.length === 0) {
+      return null;
+    }
+    
     const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: mediaStateId }) as DmMediaState;
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
 

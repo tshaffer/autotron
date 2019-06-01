@@ -4,7 +4,7 @@ import {
 } from '../../type/runtime';
 
 import { isNil } from 'lodash';
-import { setActiveHState } from '../../index';
+import { setActiveHState, addHSM } from '../../index';
 
 export class HSM {
 
@@ -16,8 +16,8 @@ export class HSM {
   constructorHandler: (() => void) | null;
   initialPseudoStateHandler: ((args: any, reduxStore: any) => (HState | null)) | null;
 
-  constructor(id: string, reduxStore: any, dispatchEvent: ((event: ArEventType) => void)) {
-    this.hsmId = id;
+  constructor(hsmId: string, reduxStore: any, dispatchEvent: ((event: ArEventType) => void)) {
+    this.hsmId = hsmId;
     this.reduxStore = reduxStore;
     this.dispatchEvent = dispatchEvent;
     this.topState = null;
@@ -34,6 +34,8 @@ export class HSM {
 
   // TEDTODO - remove casts
   initialize() {
+
+    this.reduxStore.dispatch(addHSM(this));
 
     this.reduxStore.dispatch(setActiveHState(this.hsmId, null));
 

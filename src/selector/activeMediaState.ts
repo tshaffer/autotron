@@ -4,7 +4,7 @@ import { BsAutotronState } from "../../index";
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getActiveMediaStateId(state: BsAutotronState, zoneId: string) {
+export function oldgetActiveMediaStateId(state: BsAutotronState, zoneId: string) {
   const activeMediaStateIdByZone = state.bsAutotron.activeMediaStates.activeMediaStateIdByZone;
   return activeMediaStateIdByZone[zoneId];
 }

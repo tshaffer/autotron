@@ -1,5 +1,6 @@
 /** @module Model:index */
 
+export * from './hsm';
 export * from './activeHState';
 export * from './activeMediaState';
 export * from './baseAction';

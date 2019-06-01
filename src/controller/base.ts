@@ -14,6 +14,7 @@ import {
 // -----------------------------------------------------------------------
 
 const fetchModelAsync = (): Promise<BsAutotronModelState> => {
+  debugger;
   return new Promise((resolve) => {
     const activeMediaStateIdByZone: ARMediaStateLUT = {};
     const activeMediaStates: ActiveMediaStatesShape = {

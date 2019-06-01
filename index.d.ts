@@ -11,6 +11,7 @@ import { Store } from 'redux';
 import { Action } from 'redux';
 import { Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
+import { ActiveHStatesShape } from './src/type/activeHState';
 
 /** @module Controller:index */
 
@@ -178,6 +179,8 @@ export type DeepPartial<T> = {
 };
 export interface BsAutotronModelState {
     activeMediaStates: ActiveMediaStatesShape;
+    activeHStates: ActiveHStatesShape;
+    hsms: any[];
 }
 export interface BsAutotronState {
     bsdm: DmState;
