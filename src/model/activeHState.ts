@@ -9,13 +9,17 @@ export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 // ------------------------------------
 // Actions
 // ------------------------------------
-export function setActiveHState(hsmId: string, stateId: string) {
+export function setActiveHState(hsmId: string, activeState: any) {
+
+  console.log('setActiveHState:');
+  console.log(hsmId);
+  console.log(activeState);
 
   return {
     type: SET_ACTIVE_HSTATE,
     payload: {
       hsmId,
-      stateId,
+      activeState,
     },
   };
 }
@@ -36,9 +40,9 @@ export const activeHStateReducer = (
 
       const newState: ActiveHStatesShape = Object.assign({}, state);
 
-      const { hsmId, stateId } = action.payload;
-      newState.activeHStateIdByHSM[hsmId] = stateId;
-
+      const { hsmId, activeState } = action.payload;
+      newState.activeHStateIdByHSM[hsmId] = activeState;
+      
       console.log(newState);
 
       return newState;

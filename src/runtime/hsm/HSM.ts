@@ -35,7 +35,7 @@ export class HSM {
   // TEDTODO - remove casts
   initialize() {
 
-    this.reduxStore.dispatch(setActiveHState(this.hsmId, 'initializing'));
+    this.reduxStore.dispatch(setActiveHState(this.hsmId, null));
 
     const stateData: HSMStateData = { nextState: null };
 
@@ -58,6 +58,7 @@ export class HSM {
 
     // if there is no activeState, the playlist is empty
     if (isNil(this.activeState)) {
+      this.reduxStore.dispatch(setActiveHState(this.hsmId, this.activeState));
       return;
     }
 
@@ -108,6 +109,7 @@ export class HSM {
       status = sourceState.HStateEventHandler(initEvent, stateData);
       if (status !== 'TRANSITION') {
         this.activeState = sourceState;
+        this.reduxStore.dispatch(setActiveHState(this.hsmId, this.activeState));
         return;
       }
 
@@ -123,6 +125,7 @@ export class HSM {
 
       // if there is no activeState, the playlist is empty
       if (this.activeState == null) {
+        this.reduxStore.dispatch(setActiveHState(this.hsmId, this.activeState));
         return;
       }
 
@@ -298,6 +301,8 @@ export class HSM {
 
       // set the new state or restore the current state
       this.activeState = t;
+
+      this.reduxStore.dispatch(setActiveHState(this.hsmId, this.activeState));
 
     });
   }
