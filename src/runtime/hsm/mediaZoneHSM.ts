@@ -20,9 +20,9 @@ export class MediaZoneHSM extends ZoneHSM {
 
   mediaStateIdToHState: LUT = {};
 
-  constructor(autotronStore: Store<BsAutotronState>, zoneId: string, dispatchEvent: any) {
+  constructor(hsmId: string, autotronStore: Store<BsAutotronState>, zoneId: string, dispatchEvent: any) {
 
-    super(autotronStore, zoneId, dispatchEvent);
+    super(hsmId, autotronStore, zoneId, dispatchEvent);
 
     this.type = 'media';
 
@@ -33,7 +33,7 @@ export class MediaZoneHSM extends ZoneHSM {
     const bsdm: DmState = autotronStore.getState().bsdm;
     this.bsdmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
 
-    this.id = this.bsdmZone.id;
+    this.hsmId = this.bsdmZone.id;
     this.name = this.bsdmZone.name;
 
     this.x = this.bsdmZone.position.x;

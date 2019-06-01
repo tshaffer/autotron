@@ -3,6 +3,7 @@ import { ArEventType, HSMStateData } from '../../type/runtime';
 
 export class PlayerHSM extends HSM {
 
+  hsmId: string;
   type: string;
   stTop: HState;
   stPlayer: HState;
@@ -14,13 +15,14 @@ export class PlayerHSM extends HSM {
   postMessage: (event: any) => void;
 
   constructor(
+    id: string,
     reduxStore: any,
     startPlayback: () => void,
     restartPlayback: (presentationName: string) => Promise<void>,
     postMessage: (event: any) => void,
     dispatchEvent: any) {
 
-    super(reduxStore, dispatchEvent);
+    super(id, reduxStore, dispatchEvent);
 
     this.type = 'player';
 

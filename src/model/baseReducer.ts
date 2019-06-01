@@ -6,6 +6,7 @@ import {
 } from 'redux';
 import { BsAutotronModelState } from '../type';
 import { activeMediaStateReducer } from './activeMediaState';
+import { activeHStateReducer } from './activeHState';
 import { BsAutotronModelBaseAction, BsAutotronModelBatchAction, BSAUTOTRONMODEL_BATCH } from './baseAction';
 
 // -----------------------------------------------------------------------
@@ -35,7 +36,8 @@ const enableBatching = (
 };
 
 export const bsAutotronModelReducer: BsAutotronReducer = enableBatching(combineReducers<BsAutotronModelState>({
-  activeMediaStates: activeMediaStateReducer
+  activeMediaStates: activeMediaStateReducer,
+  activeHStates: activeHStateReducer
 }));
 
 

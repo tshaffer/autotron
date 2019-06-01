@@ -33,7 +33,7 @@ export default class VideoState extends MediaHState {
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
       console.log('entry signal');
-      this.stateMachine.autotronStore.dispatch(setActiveMediaState(this.stateMachine.id, this.id));
+      this.stateMachine.autotronStore.dispatch(setActiveMediaState(this.stateMachine.hsmId, this.id));
       this.launchTimer();
       return 'HANDLED';
     } else if (event.EventType && event.EventType === 'EXIT_SIGNAL') {

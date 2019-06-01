@@ -73,7 +73,7 @@ export function getRuntimeFiles(): Promise<void> {
 }
 
 function launchHSM() {
-  _playerHSM = new PlayerHSM(_autotronStore, startPlayback, restartPlayback, postMessage, dispatchEvent);
+  _playerHSM = new PlayerHSM('playerHSM', _autotronStore, startPlayback, restartPlayback, postMessage, dispatchEvent);
   _playerHSM.initialize();
 }
 
@@ -310,7 +310,7 @@ function startPlayback() {
 
     switch (bsdmZone.type) {
       default: {
-        zoneHSM = new MediaZoneHSM(_autotronStore, zoneId, dispatchEvent);
+        zoneHSM = new MediaZoneHSM(zoneId + '-' + bsdmZone.type, _autotronStore, zoneId, dispatchEvent);
         break;
       }
     }

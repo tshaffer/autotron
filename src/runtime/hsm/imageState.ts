@@ -22,7 +22,7 @@ export default class ImageState extends MediaHState {
 
     if (event.EventType === 'ENTRY_SIGNAL') {
       console.log(this.id + ': entry signal');
-      this.stateMachine.autotronStore.dispatch(setActiveMediaState(this.stateMachine.id, this.id));
+      this.stateMachine.autotronStore.dispatch(setActiveMediaState(this.stateMachine.hsmId, this.id));
       this.launchTimer();
       return 'HANDLED';
     } else if (event.EventType === 'EXIT_SIGNAL') {

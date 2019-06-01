@@ -4,17 +4,20 @@ import {
 } from '../../type/runtime';
 
 import { isNil } from 'lodash';
+import { setActiveHState } from '../../index';
 
 export class HSM {
 
+  hsmId: string;
+  reduxStore: any;
   dispatchEvent: ((event: ArEventType) => void);
   topState: HState | null;
   activeState: HState | null;
   constructorHandler: (() => void) | null;
   initialPseudoStateHandler: ((args: any, reduxStore: any) => (HState | null)) | null;
-  reduxStore: any;
 
-  constructor(reduxStore: any, dispatchEvent: ((event: ArEventType) => void)) {
+  constructor(id: string, reduxStore: any, dispatchEvent: ((event: ArEventType) => void)) {
+    this.hsmId = id;
     this.reduxStore = reduxStore;
     this.dispatchEvent = dispatchEvent;
     this.topState = null;
@@ -31,6 +34,8 @@ export class HSM {
 
   // TEDTODO - remove casts
   initialize() {
+
+    this.reduxStore.dispatch(setActiveHState(this.hsmId, 'initializing'));
 
     const stateData: HSMStateData = { nextState: null };
 
@@ -113,8 +118,6 @@ export class HSM {
 
   // TEDTODO - remove casts
   Dispatch(event: ArEventType) {
-
-    debugger;
 
     return ((dispatch: any, getState: Function) => {
 
