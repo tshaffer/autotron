@@ -54,6 +54,10 @@ export function initRuntime(store: Store<BsAutotronState>) {
   });
 }
 
+export function getReduxStore(): Store<BsAutotronState> {
+  return _autotronStore;
+}
+
 export function getRuntimeFiles(): Promise<void> {
   return getSyncSpec()
     .then((syncSpec: ArSyncSpec) => {
